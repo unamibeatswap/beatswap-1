@@ -4,7 +4,7 @@ import { PropsWithChildren } from 'react'
 import { Web3Provider } from './Web3'
 import { DataProvider } from './Data'
 import { NotificationProvider } from './Notifications'
-import { MockAuthProvider as AuthProvider } from './MockAuthContext'
+import { AuthProvider } from './AuthContext'
 
 interface Props extends PropsWithChildren {
   cookies: string | null

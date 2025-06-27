@@ -1,7 +1,7 @@
 'use client'
 
 import { useSIWE } from '@/hooks/useSIWE'
-import { useMockAuth as useAuth } from '@/context/MockAuthContext'
+import { useAuth } from '@/context/AuthContext'
 
 interface WalletSignInProps {
   onSuccess?: () => void

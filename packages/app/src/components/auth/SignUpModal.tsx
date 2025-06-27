@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useMockAuth as useAuth } from '@/context/MockAuthContext'
+import { useAuth } from '@/context/AuthContext'
 
 interface SignUpModalProps {
   isOpen: boolean

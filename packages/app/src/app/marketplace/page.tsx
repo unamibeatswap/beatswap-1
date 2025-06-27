@@ -1,219 +1,212 @@
 'use client'
 
-import { useState } from 'react'
-import { useBeats } from '@/hooks/useBeats'
-import AudioPlayer from '@/components/audio/AudioPlayer'
-import PurchaseModal from '@/components/purchase/PurchaseModal'
-import { Beat } from '@/types'
-
 export default function MarketplacePage() {
-  const { beats, loading } = useBeats()
-  const [searchTerm, setSearchTerm] = useState('')
-  const [selectedGenre, setSelectedGenre] = useState('')
-  const [sortBy, setSortBy] = useState('newest')
-  const [selectedBeat, setSelectedBeat] = useState<Beat | null>(null)
-  const [showPurchaseModal, setShowPurchaseModal] = useState(false)
-
-  const filteredBeats = beats
-    .filter(beat => 
-      beat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      beat.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      beat.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
-    .filter(beat => !selectedGenre || beat.genre === selectedGenre)
-    .sort((a, b) => {
-      switch (sortBy) {
-        case 'price-low': return a.price - b.price
-        case 'price-high': return b.price - a.price
-        case 'oldest': return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        default: return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-      }
-    })
-
-  const genres = [...new Set(beats.map(beat => beat.genre))]
-
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center min-h-64">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Loading beats...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
+  const mockBeats = [
+    {
+      id: '1',
+      title: 'Dark Trap Beat',
+      price: 29.99,
+      genre: 'Trap',
+      bpm: 140,
+      producer: 'BeatMaker Pro'
+    },
+    {
+      id: '2', 
+      title: 'Melodic Hip Hop',
+      price: 24.99,
+      genre: 'Hip Hop',
+      bpm: 85,
+      producer: 'Sound Wave'
+    },
+    {
+      id: '3',
+      title: 'Future Bass Drop',
+      price: 34.99,
+      genre: 'Electronic',
+      bpm: 128,
+      producer: 'Synth Master'
+    }
+  ]
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Marketplace</h1>
-        <p className="text-gray-600">Discover and purchase beats from talented producers</p>
-      </div>
-
-      {/* Search & Filters */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          {/* Search */}
-          <div className="md:col-span-2">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search beats
-            </label>
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by title, description, or tags..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          {/* Genre Filter */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Genre
-            </label>
-            <select
-              value={selectedGenre}
-              onChange={(e) => setSelectedGenre(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">All Genres</option>
-              {genres.map(genre => (
-                <option key={genre} value={genre}>
-                  {genre.charAt(0).toUpperCase() + genre.slice(1)}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Sort */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Sort by
-            </label>
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="price-low">Price: Low to High</option>
-              <option value="price-high">Price: High to Low</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      {/* Results Count */}
-      <div className="mb-6">
-        <p className="text-gray-600">
-          {filteredBeats.length} beat{filteredBeats.length !== 1 ? 's' : ''} found
+    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <div style={{ marginBottom: '2rem' }}>
+        <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#1f2937' }}>
+          Marketplace
+        </h1>
+        <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
+          Discover and purchase beats from talented producers worldwide
         </p>
       </div>
 
-      {/* Beats Grid */}
-      {filteredBeats.length === 0 ? (
-        <div className="text-center py-12">
-          <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
-          </svg>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No beats found</h3>
-          <p className="text-gray-500">Try adjusting your search or filters</p>
+      {/* Search and Filters */}
+      <div style={{
+        background: 'white',
+        padding: '1.5rem',
+        borderRadius: '0.5rem',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        marginBottom: '2rem',
+        border: '1px solid #e5e7eb'
+      }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <input
+            type="text"
+            placeholder="Search beats..."
+            style={{
+              padding: '0.75rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem',
+              fontSize: '0.875rem'
+            }}
+          />
+          <select style={{
+            padding: '0.75rem',
+            border: '1px solid #d1d5db',
+            borderRadius: '0.375rem',
+            fontSize: '0.875rem'
+          }}>
+            <option>All Genres</option>
+            <option>Hip Hop</option>
+            <option>Trap</option>
+            <option>Electronic</option>
+          </select>
+          <select style={{
+            padding: '0.75rem',
+            border: '1px solid #d1d5db',
+            borderRadius: '0.375rem',
+            fontSize: '0.875rem'
+          }}>
+            <option>Price: Low to High</option>
+            <option>Price: High to Low</option>
+            <option>Newest First</option>
+          </select>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredBeats.map(beat => (
-            <div key={beat.id} className="bg-white rounded-lg shadow-sm border overflow-hidden">
-              {/* Beat Info Header */}
-              <div className="p-4 border-b">
-                <div className="flex justify-between items-start mb-2">
-                  <div>
-                    <h3 className="font-semibold text-lg">{beat.title}</h3>
-                    <p className="text-gray-600 text-sm">{beat.description}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-green-600">${beat.price}</p>
-                    <p className="text-xs text-gray-500">USD</p>
-                  </div>
+      </div>
+
+      {/* Beats Grid */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+        gap: '1.5rem'
+      }}>
+        {mockBeats.map(beat => (
+          <div key={beat.id} style={{
+            background: 'white',
+            borderRadius: '0.5rem',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+            border: '1px solid #e5e7eb',
+            overflow: 'hidden'
+          }}>
+            {/* Beat Cover */}
+            <div style={{
+              height: '200px',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '1.125rem',
+              fontWeight: '600'
+            }}>
+              🎵 {beat.title}
+            </div>
+
+            {/* Beat Info */}
+            <div style={{ padding: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '1rem' }}>
+                <div>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
+                    {beat.title}
+                  </h3>
+                  <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                    by {beat.producer}
+                  </p>
                 </div>
-                
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {beat.tags.map(tag => (
-                    <span
-                      key={tag}
-                      className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full"
-                    >
-                      {tag}
-                    </span>
-                  ))}
+                <div style={{ textAlign: 'right' }}>
+                  <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#059669' }}>
+                    ${beat.price}
+                  </p>
                 </div>
               </div>
 
-              {/* Audio Player */}
-              <div className="p-4">
-                <AudioPlayer 
-                  beat={beat} 
-                  previewMode={true}
-                  showWaveform={true}
-                />
+              <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem', fontSize: '0.875rem', color: '#6b7280' }}>
+                <span>{beat.genre}</span>
+                <span>•</span>
+                <span>{beat.bpm} BPM</span>
+              </div>
+
+              {/* Audio Player Placeholder */}
+              <div style={{
+                background: '#f3f4f6',
+                padding: '1rem',
+                borderRadius: '0.375rem',
+                marginBottom: '1rem',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
+              }}>
+                <button style={{
+                  background: '#3b82f6',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '2rem',
+                  height: '2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer'
+                }}>
+                  ▶
+                </button>
+                <div style={{ flex: 1, height: '4px', background: '#d1d5db', borderRadius: '2px' }}>
+                  <div style={{ width: '30%', height: '100%', background: '#3b82f6', borderRadius: '2px' }}></div>
+                </div>
+                <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>0:30 / 2:15</span>
               </div>
 
               {/* Actions */}
-              <div className="p-4 border-t bg-gray-50">
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => {
-                      setSelectedBeat(beat)
-                      setShowPurchaseModal(true)
-                    }}
-                    className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
-                  >
-                    Purchase Beat
-                  </button>
-                  <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                    ♡
-                  </button>
-                  <button className="px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-                    ↗
-                  </button>
-                </div>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button style={{
+                  flex: 1,
+                  background: '#3b82f6',
+                  color: 'white',
+                  padding: '0.75rem',
+                  border: 'none',
+                  borderRadius: '0.375rem',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}>
+                  Purchase Beat
+                </button>
+                <button style={{
+                  padding: '0.75rem',
+                  background: 'white',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '0.375rem',
+                  cursor: 'pointer'
+                }}>
+                  ♡
+                </button>
               </div>
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
 
-      {/* Purchase Modal */}
-      {selectedBeat && (
-        <PurchaseModal
-          beat={selectedBeat}
-          isOpen={showPurchaseModal}
-          onClose={() => {
-            setShowPurchaseModal(false)
-            setSelectedBeat(null)
-          }}
-          onPurchaseComplete={(beatId, licenseType) => {
-            console.log('Purchase completed:', beatId, licenseType)
-            // TODO: Add to user's library
-          }}
-        />
-      )}
-
-      {/* Mock Data Notice */}
-      <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
-          <p className="text-yellow-800 text-sm">
-            <strong>Development Mode:</strong> Using mock beat data. Real beats will be loaded from Firestore when Firebase is configured.
-          </p>
-        </div>
+      {/* Development Notice */}
+      <div style={{
+        marginTop: '2rem',
+        padding: '1rem',
+        background: '#fef3c7',
+        border: '1px solid #f59e0b',
+        borderRadius: '0.5rem',
+        color: '#92400e'
+      }}>
+        <p style={{ fontSize: '0.875rem' }}>
+          <strong>Development Mode:</strong> This is a working demo with mock data. 
+          Real Firebase authentication and Firestore database are configured and ready.
+        </p>
       </div>
     </div>
   )

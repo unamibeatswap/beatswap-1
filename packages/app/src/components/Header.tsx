@@ -5,7 +5,7 @@ import { LinkComponent } from './LinkComponent'
 import { SITE_EMOJI } from '@/utils/site'
 import { Connect } from './Connect'
 import { NotificationsDrawer } from './NotificationsDrawer'
-import { useMockAuth as useAuth } from '@/context/MockAuthContext'
+import { useAuth } from '@/context/AuthContext'
 import SignInModal from './auth/SignInModal'
 import SignUpModal from './auth/SignUpModal'
 

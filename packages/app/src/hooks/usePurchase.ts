@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useContract } from './useContract'
-import { useMockAuth as useAuth } from '@/context/MockAuthContext'
+import { useAuth } from '@/context/AuthContext'
 import { Beat } from '@/types'
 
 interface PurchaseOptions {

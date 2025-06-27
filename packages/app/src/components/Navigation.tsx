@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { LinkComponent } from './LinkComponent'
-import { useMockAuth as useAuth } from '@/context/MockAuthContext'
+import { useAuth } from '@/context/AuthContext'
 
 export default function Navigation() {
   const { user, userProfile } = useAuth()

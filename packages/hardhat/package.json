@@ -3,6 +3,7 @@
   "version": "0.2.0",
   "license": "MIT",
   "scripts": {
+    "dev": "echo 'Hardhat contracts ready - use yarn build to compile'",
     "build": "hardhat compile",
     "deploy": "npx hardhat ignition deploy ./ignition/modules/Message.ts --verify --deployment-id message",
     "deploy:nft": "npx hardhat ignition deploy ./ignition/modules/NFT.ts",

@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { useAccount, useSignMessage } from 'wagmi'
 import { SiweMessage } from 'siwe'
-import { useMockAuth as useAuth } from '@/context/MockAuthContext'
+import { useAuth } from '@/context/AuthContext'
 
 export function useSIWE() {
   const [loading, setLoading] = useState(false)

@@ -1,6 +1,6 @@
 'use client'
 
-import { useMockAuth as useAuth } from '@/context/MockAuthContext'
+import { useAuth } from '@/context/AuthContext'
 import AudioPlayer from '@/components/audio/AudioPlayer'
 
 // Mock purchased beats data
