@@ -72,7 +72,7 @@ export function usePayments() {
     }
   }
 
-  // Fiat payment for beats (Stripe/PayPal)
+  // Fiat payment for beats (PayFast for South Africa)
   const purchaseWithFiat = async (purchaseData: PurchaseData) => {
     if (!user) throw new Error('Must be logged in')
     
@@ -80,23 +80,34 @@ export function usePayments() {
     setError(null)
 
     try {
-      // In production, integrate with Stripe/PayPal
-      // For now, simulate payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000))
+      // PayFast integration for South Africa
+      const paymentData = {
+        merchant_id: process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_ID,
+        merchant_key: process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_KEY,
+        amount: purchaseData.price.toFixed(2),
+        item_name: `Beat License - ${purchaseData.licenseType}`,
+        return_url: `${window.location.origin}/purchase/success`,
+        cancel_url: `${window.location.origin}/purchase/cancel`,
+        notify_url: `${window.location.origin}/api/payfast/notify`
+      }
 
-      // Record purchase in Firestore
-      await addPurchase({
-        beatId: purchaseData.beatId,
-        buyerId: user.uid,
-        producerId: purchaseData.producerId,
-        price: purchaseData.price,
-        licenseType: purchaseData.licenseType,
-        paymentMethod: 'fiat',
-        status: 'completed',
-        purchasedAt: new Date()
+      // Redirect to PayFast payment page
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = 'https://sandbox.payfast.co.za/eng/process' // Use www.payfast.co.za for production
+      
+      Object.entries(paymentData).forEach(([key, value]) => {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = key
+        input.value = value || ''
+        form.appendChild(input)
       })
+      
+      document.body.appendChild(form)
+      form.submit()
 
-      return { success: true, paymentId: `pay_${Date.now()}` }
+      return { success: true, paymentId: `payfast_${Date.now()}` }
     } catch (err: any) {
       setError(err.message)
       throw err
