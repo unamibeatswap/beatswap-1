@@ -8,9 +8,7 @@ const nextConfig = {
   images: {
     remotePatterns: [{ hostname: '*' }],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['@reown/appkit'],
-  },
+  serverExternalPackages: ['@reown/appkit'],
 }
 
 module.exports = nextConfig

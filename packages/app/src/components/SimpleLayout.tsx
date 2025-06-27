@@ -2,7 +2,7 @@
 
 import React, { PropsWithChildren, useState } from 'react'
 import NotificationCenter from './NotificationCenter'
-import ToastProvider from './ToastProvider'
+
 import AuthModal from './AuthModal'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -97,7 +97,7 @@ export function SimpleLayout(props: PropsWithChildren) {
         {props.children}
       </main>
       
-      <ToastProvider />
+
 
       {/* Simple Footer */}
       <footer style={{

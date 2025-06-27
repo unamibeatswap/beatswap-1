@@ -26,7 +26,8 @@ export default function SimpleHero() {
           marginBottom: '2rem',
           opacity: '0.9'
         }}>
-          The Future of Music Ownership - Buy, sell, and trade beats as NFTs
+          South African Beats → Global Market 🇿🇦 → 🌍<br/>
+          Crypto-powered music marketplace
         </p>
         <div style={{
           display: 'flex',
@@ -53,10 +54,10 @@ export default function SimpleHero() {
               e.currentTarget.style.background = 'rgba(255,255,255,0.2)'
             }}
           >
-            Explore Marketplace
+            Buy Beats (Crypto)
           </a>
           <a 
-            href="/dashboard"
+            href="/upload"
             style={{
               background: 'white',
               color: '#667eea',
@@ -74,7 +75,7 @@ export default function SimpleHero() {
               e.currentTarget.style.background = 'white'
             }}
           >
-            Start Creating
+            Sell Your Beats
           </a>
         </div>
       </div>

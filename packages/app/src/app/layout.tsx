@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from 'next'
 import { PropsWithChildren } from 'react'
 import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL, SOCIAL_TWITTER } from '@/utils/site'
 import { SimpleLayout as Layout } from '@/components/SimpleLayout'
-import { Web3Provider } from '@/context/Web3Provider'
 import '../assets/globals.css'
 
 export const metadata: Metadata = {
@@ -66,9 +65,7 @@ export default function RootLayout(props: PropsWithChildren) {
       </head>
 
       <body>
-        <Web3Provider>
-          <Layout>{props.children}</Layout>
-        </Web3Provider>
+        <Layout>{props.children}</Layout>
       </body>
     </html>
   )
