@@ -1,86 +1,104 @@
 'use client'
 
 import { useState } from 'react'
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage'
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
 import { storage } from '@/lib/firebase'
-
-interface UploadOptions {
-  folder: string
-  maxSize?: number // in MB
-  allowedTypes?: string[]
-}
+import { useAuth } from './useAuth'
 
 export function useFileUpload() {
   const [uploading, setUploading] = useState(false)
   const [progress, setProgress] = useState(0)
   const [error, setError] = useState<string | null>(null)
+  const { user } = useAuth()
 
-  const uploadFile = async (file: File, options: UploadOptions) => {
-    const { folder, maxSize = 10, allowedTypes = [] } = options
+  const uploadBeatAudio = async (file: File, beatId: string): Promise<string> => {
+    if (!user) throw new Error('Must be logged in to upload')
     
     setUploading(true)
-    setError(null)
     setProgress(0)
+    setError(null)
 
     try {
-      // Validate file size
-      if (file.size > maxSize * 1024 * 1024) {
-        throw new Error(`File size must be less than ${maxSize}MB`)
-      }
+      const storageRef = ref(storage, `beats/${user.uid}/${beatId}/${file.name}`)
+      const uploadTask = uploadBytesResumable(storageRef, file)
 
-      // Validate file type
-      if (allowedTypes.length > 0 && !allowedTypes.includes(file.type)) {
-        throw new Error(`File type ${file.type} not allowed`)
-      }
-
-      // Create unique filename
-      const timestamp = Date.now()
-      const filename = `${timestamp}-${file.name}`
-      const storageRef = ref(storage, `${folder}/${filename}`)
-
-      // Upload file
-      const snapshot = await uploadBytes(storageRef, file)
-      setProgress(100)
-
-      // Get download URL
-      const downloadURL = await getDownloadURL(snapshot.ref)
-      
-      return {
-        url: downloadURL,
-        filename,
-        size: file.size,
-        type: file.type
-      }
+      return new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            setProgress(progress)
+          },
+          (error) => {
+            setError(error.message)
+            setUploading(false)
+            reject(error)
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+              setUploading(false)
+              resolve(downloadURL)
+            } catch (err: any) {
+              setError(err.message)
+              setUploading(false)
+              reject(err)
+            }
+          }
+        )
+      })
     } catch (err: any) {
       setError(err.message)
-      throw err
-    } finally {
       setUploading(false)
+      throw err
     }
   }
 
-  const uploadAudio = (file: File) => {
-    return uploadFile(file, {
-      folder: 'beats/audio',
-      maxSize: 50, // 50MB for audio files
-      allowedTypes: ['audio/mpeg', 'audio/wav', 'audio/mp3']
-    })
-  }
+  const uploadCoverImage = async (file: File, beatId: string): Promise<string> => {
+    if (!user) throw new Error('Must be logged in to upload')
+    
+    setUploading(true)
+    setError(null)
 
-  const uploadImage = (file: File) => {
-    return uploadFile(file, {
-      folder: 'beats/covers',
-      maxSize: 5, // 5MB for images
-      allowedTypes: ['image/jpeg', 'image/png', 'image/webp']
-    })
+    try {
+      const storageRef = ref(storage, `covers/${user.uid}/${beatId}/${file.name}`)
+      const uploadTask = uploadBytesResumable(storageRef, file)
+
+      return new Promise((resolve, reject) => {
+        uploadTask.on('state_changed',
+          (snapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            setProgress(progress)
+          },
+          (error) => {
+            setError(error.message)
+            setUploading(false)
+            reject(error)
+          },
+          async () => {
+            try {
+              const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+              setUploading(false)
+              resolve(downloadURL)
+            } catch (err: any) {
+              setError(err.message)
+              setUploading(false)
+              reject(err)
+            }
+          }
+        )
+      })
+    } catch (err: any) {
+      setError(err.message)
+      setUploading(false)
+      throw err
+    }
   }
 
   return {
-    uploadFile,
-    uploadAudio,
-    uploadImage,
     uploading,
     progress,
-    error
+    error,
+    uploadBeatAudio,
+    uploadCoverImage
   }
 }
