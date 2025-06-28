@@ -24,26 +24,6 @@ const config: HardhatUserConfig = {
       chainId: 31337,
       url: 'http://127.0.0.1:8545',
     },
-    sepolia: {
-      chainId: 11155111,
-      url: 'https://rpc.sepolia.org/',
-      accounts: [CONFIG.DEPLOYER_KEY],
-    },
-    mainnet: {
-      chainId: 1,
-      url: `https://mainnet.infura.io/v3/${CONFIG.INFURA_API_KEY}`,
-      accounts: [CONFIG.DEPLOYER_KEY],
-    },
-    optimism: {
-      chainId: 10,
-      url: 'https://mainnet.optimism.io/',
-      accounts: [CONFIG.DEPLOYER_KEY],
-    },
-    base: {
-      chainId: 8453,
-      url: 'https://mainnet.base.org',
-      accounts: [CONFIG.DEPLOYER_KEY],
-    },
   },
 }
 
