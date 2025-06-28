@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Beat, License } from '@/types'
-import { useMockAuth as useAuth } from '@/context/MockAuthContext'
+import { useAuth } from '@/context/AuthContext'
 
 interface PurchaseModalProps {
   beat: Beat
