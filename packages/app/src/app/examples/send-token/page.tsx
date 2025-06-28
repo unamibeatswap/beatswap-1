@@ -1,4 +1,5 @@
 'use client'
+import dynamic from 'next/dynamic'
 import { useAccount, useBalance, useSimulateContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { erc20Abi, isAddress } from 'viem'
 import { useState, useEffect } from 'react'
@@ -12,7 +13,7 @@ import { formatBalance } from '@/utils/format'
 
 type Address = `0x${string}` | undefined
 
-export default function SendToken() {
+function SendToken() {
   const [to, setTo] = useState<Address>(undefined)
   const [amount, setAmount] = useState('0.01')
   const [tokenAddress, setTokenAddress] = useState<Address>(undefined)
@@ -155,3 +156,7 @@ export default function SendToken() {
     </div>
   )
 }
+
+export default dynamic(() => Promise.resolve(SendToken), {
+  ssr: false
+})

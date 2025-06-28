@@ -1,4 +1,5 @@
 'use client'
+import dynamic from 'next/dynamic'
 import { useAccount, useBalance, useEstimateGas, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi'
 import { useState, useEffect } from 'react'
 import { parseEther, isAddress } from 'viem'
@@ -11,7 +12,7 @@ import { formatBalance } from '@/utils/format'
 
 type Address = `0x${string}` | undefined
 
-export default function SendEther() {
+function SendEther() {
   const [to, setTo] = useState<Address>(undefined)
   const [isValidToAddress, setIsValidToAddress] = useState<boolean>(false)
   const [amount, setAmount] = useState('0.01')
@@ -123,3 +124,7 @@ export default function SendEther() {
     </div>
   )
 }
+
+export default dynamic(() => Promise.resolve(SendEther), {
+  ssr: false
+})
