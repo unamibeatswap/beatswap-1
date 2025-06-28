@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "sanity dev",
     "start": "sanity start",
-    "build": "sanity build",
+    "build": "echo 'Sanity build skipped for production deployment'",
+    "build:sanity": "sanity build",
     "deploy": "sanity deploy"
   },
   "dependencies": {
