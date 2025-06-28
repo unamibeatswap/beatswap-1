@@ -4,16 +4,22 @@ service cloud.firestore {
     // Users can read/write their own profile
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
-      allow read: if request.auth != null; // Allow reading other profiles
+      allow read: if true; // Public read for producer pages
     }
     
     // Beats - producers can CRUD their own, everyone can read
     match /beats/{beatId} {
-      allow read: if true; // Public read for marketplace
+      allow read: if true; // Public read for marketplace and producer pages
       allow create: if request.auth != null && 
-        request.auth.uid == resource.data.producerId;
+        request.auth.uid == request.resource.data.producerId;
       allow update, delete: if request.auth != null && 
         request.auth.uid == resource.data.producerId;
+    }
+    
+    // Producer stats and analytics
+    match /producer-stats/{userId} {
+      allow read: if true; // Public read for producer pages
+      allow write: if request.auth != null && request.auth.uid == userId;
     }
     
     // Purchases - users can read their own, creators can read sales

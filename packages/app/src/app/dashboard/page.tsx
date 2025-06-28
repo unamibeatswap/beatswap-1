@@ -22,6 +22,7 @@ export default function DashboardPage() {
         {[
           { title: 'Total Beats', value: '12', icon: '🎵', color: '#3b82f6' },
           { title: 'Total Sales', value: '$1,247', icon: '💰', color: '#059669' },
+          { title: 'Profile Views', value: '1,234', icon: '👁️', color: '#8b5cf6' },
           { title: 'This Month', value: '$340', icon: '📈', color: '#7c3aed' },
           { title: 'Plays', value: '2,847', icon: '▶️', color: '#f59e0b' }
         ].map((stat, index) => (
@@ -95,6 +96,21 @@ export default function DashboardPage() {
           }}>
             📊 View Analytics
           </button>
+          <a href="/producer/current-user" style={{
+            background: 'white',
+            color: '#8b5cf6',
+            padding: '0.75rem 1.5rem',
+            border: '1px solid #8b5cf6',
+            borderRadius: '0.375rem',
+            fontWeight: '500',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            textDecoration: 'none'
+          }}>
+            👁️ View My Profile
+          </a>
           <button style={{
             background: 'white',
             color: '#059669',

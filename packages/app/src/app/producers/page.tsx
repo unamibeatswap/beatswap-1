@@ -245,7 +245,7 @@ export default function ProducersPage() {
 
             {/* Actions */}
             <div style={{ display: 'flex', gap: '0.5rem' }}>
-              <button style={{
+              <a href={`/producer/${producer.id}`} style={{
                 flex: 1,
                 background: '#3b82f6',
                 color: 'white',
@@ -254,10 +254,13 @@ export default function ProducersPage() {
                 borderRadius: '0.375rem',
                 fontWeight: '500',
                 cursor: 'pointer',
-                fontSize: '0.875rem'
+                fontSize: '0.875rem',
+                textDecoration: 'none',
+                textAlign: 'center',
+                display: 'block'
               }}>
                 View Beats
-              </button>
+              </a>
               <button style={{
                 padding: '0.75rem',
                 background: 'white',
