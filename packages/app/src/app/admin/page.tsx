@@ -1,10 +1,11 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useAuth } from '@/context/AuthContext'
 import { useBeats } from '@/hooks/useBeats'
 import { LinkComponent } from '@/components/LinkComponent'
 
-export default function AdminDashboard() {
+function AdminDashboard() {
   const { user, userProfile } = useAuth()
   const { beats } = useBeats()
 
@@ -245,3 +246,7 @@ export default function AdminDashboard() {
     </div>
   )
 }
+
+export default dynamic(() => Promise.resolve(AdminDashboard), {
+  ssr: false
+})

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useAuth } from '@/context/AuthContext'
 import { useBeats } from '@/hooks/useBeats'
 import AudioPlayer from '@/components/audio/AudioPlayer'
@@ -38,7 +39,7 @@ const mockReviews: ContentReview[] = [
   }
 ]
 
-export default function ContentModeration() {
+function ContentModeration() {
   const { userProfile } = useAuth()
   const { beats } = useBeats()
   const [reviews, setReviews] = useState(mockReviews)
@@ -293,3 +294,7 @@ export default function ContentModeration() {
     </div>
   )
 }
+
+export default dynamic(() => Promise.resolve(ContentModeration), {
+  ssr: false
+})

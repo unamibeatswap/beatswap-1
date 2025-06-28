@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import dynamic from 'next/dynamic'
 import { useAuth } from '@/context/AuthContext'
 
 interface User {
@@ -40,7 +41,7 @@ const mockUsers: User[] = [
   }
 ]
 
-export default function UserManagement() {
+function UserManagement() {
   const { userProfile } = useAuth()
   const [users, setUsers] = useState(mockUsers)
   const [searchTerm, setSearchTerm] = useState('')
@@ -277,3 +278,7 @@ export default function UserManagement() {
     </div>
   )
 }
+
+export default dynamic(() => Promise.resolve(UserManagement), {
+  ssr: false
+})
