@@ -1,7 +1,10 @@
 import type { Metadata, Viewport } from 'next'
 import { PropsWithChildren } from 'react'
 import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL, SOCIAL_TWITTER } from '@/utils/site'
-import { SimpleLayout as Layout } from '@/components/SimpleLayout'
+import { Layout } from '@/components/Layout'
+import { AuthProvider } from '@/context/AuthContext'
+import { Web3Provider } from '@/context/Web3Provider'
+import { NotificationProvider } from '@/context/Notifications'
 import '../assets/globals.css'
 
 export const metadata: Metadata = {
@@ -65,7 +68,13 @@ export default function RootLayout(props: PropsWithChildren) {
       </head>
 
       <body>
-        <Layout>{props.children}</Layout>
+        <Web3Provider>
+          <AuthProvider>
+            <NotificationProvider>
+              <Layout>{props.children}</Layout>
+            </NotificationProvider>
+          </AuthProvider>
+        </Web3Provider>
       </body>
     </html>
   )
