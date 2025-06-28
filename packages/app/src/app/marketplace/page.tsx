@@ -66,9 +66,21 @@ export default function MarketplacePage() {
             fontSize: '0.875rem'
           }}>
             <option>All Genres</option>
+            <option>Amapiano</option>
+            <option>Afrobeats</option>
             <option>Hip Hop</option>
             <option>Trap</option>
+            <option>House</option>
+            <option>Deep House</option>
+            <option>Tech House</option>
             <option>Electronic</option>
+            <option>Drill</option>
+            <option>Gqom</option>
+            <option>Kwaito</option>
+            <option>R&B</option>
+            <option>Pop</option>
+            <option>Techno</option>
+            <option>Trance</option>
           </select>
           <select style={{
             padding: '0.75rem',
@@ -118,9 +130,31 @@ export default function MarketplacePage() {
                   <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
                     {beat.title}
                   </h3>
-                  <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
+                  <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
                     by {beat.producer}
                   </p>
+                  <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                    <span style={{
+                      background: '#dbeafe',
+                      color: '#1e40af',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      fontWeight: '500'
+                    }}>
+                      Basic License
+                    </span>
+                    <span style={{
+                      background: '#f0fdf4',
+                      color: '#166534',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '0.25rem',
+                      fontSize: '0.75rem',
+                      fontWeight: '500'
+                    }}>
+                      Commercial Use
+                    </span>
+                  </div>
                 </div>
                 <div style={{ textAlign: 'right' }}>
                   <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#059669' }}>
@@ -167,25 +201,33 @@ export default function MarketplacePage() {
 
               {/* Actions */}
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <button style={{
-                  flex: 1,
-                  background: '#3b82f6',
-                  color: 'white',
-                  padding: '0.75rem',
-                  border: 'none',
-                  borderRadius: '0.375rem',
-                  fontWeight: '500',
-                  cursor: 'pointer'
-                }}>
+                <button 
+                  onClick={() => alert(`Purchasing ${beat.title} for $${beat.price}`)}
+                  style={{
+                    flex: 1,
+                    background: '#3b82f6',
+                    color: 'white',
+                    padding: '0.75rem',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    fontSize: '0.875rem'
+                  }}
+                >
                   Purchase Beat
                 </button>
-                <button style={{
-                  padding: '0.75rem',
-                  background: 'white',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '0.375rem',
-                  cursor: 'pointer'
-                }}>
+                <button 
+                  onClick={() => alert('Added to favorites!')}
+                  style={{
+                    padding: '0.75rem',
+                    background: 'white',
+                    border: '1px solid #d1d5db',
+                    borderRadius: '0.375rem',
+                    cursor: 'pointer',
+                    fontSize: '1rem'
+                  }}
+                >
                   ♡
                 </button>
               </div>

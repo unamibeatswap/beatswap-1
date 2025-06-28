@@ -1,8 +1,21 @@
 import { NextResponse } from 'next/server'
+import { client } from '@/lib/sanity'
 
 export async function GET() {
   try {
-    // Mock beats data for RSS (replace with Firestore query in production)
+    // Get blog posts from Sanity
+    const blogPosts = await client.fetch(`
+      *[_type == "blogPost"] | order(publishedAt desc)[0...10] {
+        _id,
+        title,
+        slug,
+        excerpt,
+        publishedAt,
+        author->{name}
+      }
+    `).catch(() => [])
+
+    // Mock beats data for RSS
     const beats = [
       {
         id: '1',
@@ -39,6 +52,17 @@ export async function GET() {
       <guid>${beat.id}</guid>
       <pubDate>${beat.createdAt.toUTCString()}</pubDate>
       <enclosure url="${beat.audioUrl}" type="audio/mpeg"/>
+    </item>
+    `).join('')}
+    
+    ${blogPosts.map((post: any) => `
+    <item>
+      <title>${post.title}</title>
+      <description>${post.excerpt || 'Latest blog post from BeatsChain'}</description>
+      <link>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/blog/${post.slug.current}</link>
+      <guid>blog-${post._id}</guid>
+      <pubDate>${new Date(post.publishedAt).toUTCString()}</pubDate>
+      <author>${post.author?.name || 'BeatsChain Team'}</author>
     </item>
     `).join('')}
   </channel>
