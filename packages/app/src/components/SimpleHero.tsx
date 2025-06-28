@@ -19,15 +19,15 @@ export default function SimpleHero() {
           marginBottom: '1rem',
           lineHeight: '1.2'
         }}>
-          BeatSwap
+          BeatsChain
         </h1>
         <p style={{
           fontSize: 'clamp(1rem, 2.5vw, 1.5rem)',
           marginBottom: '2rem',
           opacity: '0.9'
         }}>
-          South African Beats → Global Market 🇿🇦 → 🌍<br/>
-          Crypto-powered music marketplace
+          Where SA Beats Meet Global Blockchain 🇿🇦⚡🌍<br/>
+          Blockchain-powered beat marketplace
         </p>
         <div style={{
           display: 'flex',

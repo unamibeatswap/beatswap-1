@@ -22,7 +22,7 @@ export function SimpleLayout(props: PropsWithChildren) {
         alignItems: 'center'
       }}>
         <div style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#1f2937' }}>
-          BeatSwap
+          BeatsChain
         </div>
         <nav style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
           <a href="/" style={{ color: '#6b7280', textDecoration: 'none' }}>Home</a>
@@ -107,7 +107,7 @@ export function SimpleLayout(props: PropsWithChildren) {
         color: '#6b7280',
         borderTop: '1px solid #e5e7eb'
       }}>
-        <p>&copy; 2024 BeatSwap. The future of music ownership.</p>
+        <p>&copy; 2024 BeatsChain. Blockchain-powered beat marketplace.</p>
       </footer>
 
       <AuthModal

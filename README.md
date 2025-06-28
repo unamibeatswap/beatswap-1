@@ -1,8 +1,8 @@
-# BeatSwap - Web3 Music Marketplace 🎵
+# BeatsChain - Blockchain Beat Marketplace ⛓️🎵
 
-A decentralized marketplace for music producers and artists to buy, sell, and trade beats as NFTs with blockchain-powered ownership and royalties.
+Where South African beats meet global blockchain - connecting SA producers with international artists through crypto-powered music ownership.
 
-## 🚀 Features
+## ⛓️ Features
 
 ### ✅ Complete Marketplace
 - **Homepage** - Hero section with features and call-to-actions
@@ -156,4 +156,4 @@ This project is licensed under the MIT License.
 
 ---
 
-Built with ❤️ for the music community
+Built with ❤️ to bridge SA beats to the world 🇿🇦🌍
