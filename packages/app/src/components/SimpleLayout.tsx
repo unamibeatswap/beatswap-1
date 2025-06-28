@@ -197,16 +197,7 @@ export function SimpleLayout(props: PropsWithChildren) {
         )}
       </header>
       
-      <style jsx>{`
-        @media (max-width: 768px) {
-          .desktop-nav {
-            display: none !important;
-          }
-          .mobile-menu-btn {
-            display: block !important;
-          }
-        }
-      `}</style>
+
 
       {/* Main Content */}
       <main style={{ flex: 1 }}>
@@ -224,14 +215,6 @@ export function SimpleLayout(props: PropsWithChildren) {
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 1rem' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '2rem', marginBottom: '2rem' }} className="footer-grid">
-            <style jsx>{`
-              @media (max-width: 640px) {
-                .footer-grid {
-                  grid-template-columns: 1fr !important;
-                  gap: 1.5rem !important;
-                }
-              }
-            `}</style>
             {/* Company Info */}
             <div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>BeatsChain</h3>
@@ -280,13 +263,6 @@ export function SimpleLayout(props: PropsWithChildren) {
           
           {/* Bottom Section */}
           <div style={{ borderTop: '1px solid #374151', paddingTop: '2rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', flexDirection: 'column' }} className="footer-bottom">
-            <style jsx>{`
-              @media (min-width: 768px) {
-                .footer-bottom {
-                  flex-direction: row !important;
-                }
-              }
-            `}</style>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexWrap: 'wrap' }}>
               <p style={{ margin: 0, fontSize: '0.875rem', color: '#d1d5db' }}>
                 &copy; 2025 BeatsChain. Powered by Ethereum blockchain.
@@ -304,13 +280,6 @@ export function SimpleLayout(props: PropsWithChildren) {
               <a href="https://discord.gg/beatschain" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '0.875rem' }}>Discord</a>
               <a href="https://instagram.com/beatschain" style={{ color: '#d1d5db', textDecoration: 'none', fontSize: '0.875rem' }}>Instagram</a>
             </div>
-            <style jsx>{`
-              @media (min-width: 768px) {
-                .social-links {
-                  justify-content: flex-end !important;
-                }
-              }
-            `}</style>
           </div>
           
           {/* Compliance Notice */}
@@ -323,6 +292,31 @@ export function SimpleLayout(props: PropsWithChildren) {
           </div>
         </div>
       </footer>
+      
+      <style jsx>{`
+        @media (max-width: 768px) {
+          .desktop-nav {
+            display: none !important;
+          }
+          .mobile-menu-btn {
+            display: block !important;
+          }
+        }
+        @media (max-width: 640px) {
+          .footer-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1.5rem !important;
+          }
+        }
+        @media (min-width: 768px) {
+          .footer-bottom {
+            flex-direction: row !important;
+          }
+          .social-links {
+            justify-content: flex-end !important;
+          }
+        }
+      `}</style>
 
       <AuthModal
         isOpen={authModal.isOpen}
