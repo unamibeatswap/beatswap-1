@@ -1,9 +1,10 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useAuth } from '@/context/AuthContext'
 import { useBeats } from '@/hooks/useBeats'
 
-export default function PlatformAnalytics() {
+function PlatformAnalytics() {
   const { userProfile } = useAuth()
   const { beats } = useBeats()
 
@@ -233,3 +234,7 @@ export default function PlatformAnalytics() {
     </div>
   )
 }
+
+export default dynamic(() => Promise.resolve(PlatformAnalytics), {
+  ssr: false
+})
