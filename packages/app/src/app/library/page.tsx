@@ -1,5 +1,6 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useAuth } from '@/context/AuthContext'
 import AudioPlayer from '@/components/audio/AudioPlayer'
 
@@ -26,7 +27,7 @@ const mockPurchasedBeats = [
   }
 ]
 
-export default function LibraryPage() {
+function LibraryPage() {
   const { user, userProfile, loading } = useAuth()
 
   if (loading) {
@@ -174,3 +175,7 @@ export default function LibraryPage() {
     </div>
   )
 }
+
+export default dynamic(() => Promise.resolve(LibraryPage), {
+  ssr: false
+})
