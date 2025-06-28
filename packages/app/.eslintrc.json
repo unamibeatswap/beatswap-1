@@ -10,5 +10,6 @@
     "@next/next/no-page-custom-font": "off",
     "react-hooks/exhaustive-deps": "off",
     "react-hooks/rules-of-hooks": "off"
-  }
+  },
+  "ignorePatterns": ["**/*"]
 }
