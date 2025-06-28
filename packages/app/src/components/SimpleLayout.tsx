@@ -31,6 +31,7 @@ export function SimpleLayout(props: PropsWithChildren) {
           <a href="/dashboard" style={{ color: '#6b7280', textDecoration: 'none' }}>Dashboard</a>
           <a href="/upload" style={{ color: '#6b7280', textDecoration: 'none' }}>Upload</a>
           <a href="/profile" style={{ color: '#6b7280', textDecoration: 'none' }}>Profile</a>
+          <a href="/blog" style={{ color: '#6b7280', textDecoration: 'none' }}>Blog</a>
           <a href="/contact" style={{ color: '#6b7280', textDecoration: 'none' }}>Contact</a>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
             <NotificationCenter />
