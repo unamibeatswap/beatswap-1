@@ -1,82 +1,37 @@
 'use client'
 
 import { useState } from 'react'
+import { useProducers } from '@/hooks/useProducers'
 
 export default function ProducersPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const producersPerPage = 12
 
-  const mockProducers = [
-    {
-      id: '1',
-      name: 'Beat Master Pro',
-      avatar: '🎵',
-      genre: 'Trap, Hip Hop',
-      totalBeats: 45,
-      totalSales: 234,
-      rating: 4.8,
-      verified: true,
-      location: 'Atlanta, GA'
-    },
-    {
-      id: '2', 
-      name: 'Synth Wave',
-      avatar: '🎹',
-      genre: 'Electronic, Future Bass',
-      totalBeats: 32,
-      totalSales: 156,
-      rating: 4.6,
-      verified: true,
-      location: 'Los Angeles, CA'
-    },
-    {
-      id: '3',
-      name: 'Melody Maker',
-      avatar: '🎼',
-      genre: 'R&B, Soul',
-      totalBeats: 28,
-      totalSales: 89,
-      rating: 4.9,
-      verified: false,
-      location: 'Nashville, TN'
-    },
-    {
-      id: '4',
-      name: 'Bass Drop King',
-      avatar: '🔊',
-      genre: 'Dubstep, EDM',
-      totalBeats: 67,
-      totalSales: 445,
-      rating: 4.7,
-      verified: true,
-      location: 'Miami, FL'
-    },
-    {
-      id: '5',
-      name: 'Lo-Fi Dreams',
-      avatar: '🌙',
-      genre: 'Lo-Fi, Chill',
-      totalBeats: 89,
-      totalSales: 678,
-      rating: 4.9,
-      verified: true,
-      location: 'Portland, OR'
-    },
-    {
-      id: '6',
-      name: 'Drill Sergeant',
-      avatar: '⚡',
-      genre: 'Drill, UK Drill',
-      totalBeats: 23,
-      totalSales: 123,
-      rating: 4.5,
-      verified: false,
-      location: 'Chicago, IL'
-    }
-  ]
-
-  // Duplicate for pagination demo
-  const allProducers = [...mockProducers, ...mockProducers, ...mockProducers]
+  const { producers, loading, error } = useProducers()
+  
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🎵</div>
+          <p className="text-gray-600">Loading producers...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-600">Error loading producers: {error}</p>
+        </div>
+      </div>
+    )
+  }
+  
+  const allProducers = producers
   const totalPages = Math.ceil(allProducers.length / producersPerPage)
   const startIndex = (currentPage - 1) * producersPerPage
   const currentProducers = allProducers.slice(startIndex, startIndex + producersPerPage)

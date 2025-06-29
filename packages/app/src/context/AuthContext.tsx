@@ -47,10 +47,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(user)
       
       if (user) {
-        // Fetch user profile from Firestore
-        const profileDoc = await getDoc(doc(db, 'users', user.uid))
-        if (profileDoc.exists()) {
-          setUserProfile(profileDoc.data() as UserProfile)
+        try {
+          // Fetch user profile from Firestore
+          const profileDoc = await getDoc(doc(db, 'users', user.uid))
+          if (profileDoc.exists()) {
+            setUserProfile(profileDoc.data() as UserProfile)
+          } else {
+            // Create fallback profile if none exists
+            const fallbackProfile: UserProfile = {
+              uid: user.uid,
+              email: user.email || '',
+              displayName: user.displayName || user.email?.split('@')[0] || 'User',
+              role: 'user',
+              isVerified: false,
+              createdAt: new Date()
+            }
+            setUserProfile(fallbackProfile)
+          }
+        } catch (err) {
+          console.warn('Firebase offline, using fallback profile:', err)
+          // Create offline fallback profile
+          const fallbackProfile: UserProfile = {
+            uid: user.uid,
+            email: user.email || '',
+            displayName: user.displayName || user.email?.split('@')[0] || 'User',
+            role: 'user',
+            isVerified: false,
+            createdAt: new Date()
+          }
+          setUserProfile(fallbackProfile)
         }
       } else {
         setUserProfile(null)
@@ -113,8 +138,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!user) return
     
     const updatedProfile = { ...userProfile, ...data }
-    await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true })
-    setUserProfile(updatedProfile as UserProfile)
+    try {
+      await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true })
+      setUserProfile(updatedProfile as UserProfile)
+    } catch (err) {
+      console.warn('Failed to update profile online, updating locally:', err)
+      setUserProfile(updatedProfile as UserProfile)
+    }
   }
 
   const value = {

@@ -3,64 +3,40 @@
 import { useState } from 'react'
 import { Beat } from '@/types'
 import BeatCard from '@/components/BeatCard'
+import { useBeats } from '@/hooks/useBeats'
 
 export default function MarketplacePage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [sortBy, setSortBy] = useState('newest')
 
-  const mockBeats: Beat[] = [
-    {
-      id: '1',
-      title: 'Dark Trap Beat',
-      description: 'Hard hitting trap beat with dark melodies',
-      producerId: 'producer-1',
-      audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-      coverImageUrl: '',
-      price: 29.99,
-      genre: 'Trap',
-      bpm: 140,
-      key: 'Am',
-      tags: ['dark', 'trap', 'hard'],
-      isNFT: false,
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15')
-    },
-    {
-      id: '2',
-      title: 'Melodic Hip Hop',
-      description: 'Smooth melodic hip hop with soulful samples',
-      producerId: 'producer-2',
-      audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-      coverImageUrl: '',
-      price: 24.99,
-      genre: 'Hip Hop',
-      bpm: 85,
-      key: 'C',
-      tags: ['melodic', 'hip hop', 'smooth'],
-      isNFT: false,
-      createdAt: new Date('2024-01-16'),
-      updatedAt: new Date('2024-01-16')
-    },
-    {
-      id: '3',
-      title: 'Future Bass Drop',
-      description: 'Energetic future bass with massive drops',
-      producerId: 'producer-3',
-      audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-      coverImageUrl: '',
-      price: 34.99,
-      genre: 'Electronic',
-      bpm: 128,
-      key: 'G',
-      tags: ['future bass', 'electronic', 'drop'],
-      isNFT: false,
-      createdAt: new Date('2024-01-17'),
-      updatedAt: new Date('2024-01-17')
-    }
-  ]
+  const { beats, loading, error } = useBeats()
+  
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">🎵</div>
+          <p className="text-gray-600">Loading beats...</p>
+        </div>
+      </div>
+    )
+  }
+  
+  // Show error state
+  if (error) {
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">⚠️</div>
+          <p className="text-red-600">Error loading beats: {error}</p>
+        </div>
+      </div>
+    )
+  }
 
-  const filteredBeats = mockBeats.filter(beat => {
+  const filteredBeats = beats.filter(beat => {
     const matchesSearch = beat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          beat.genre.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesGenre = selectedGenre === 'all' || beat.genre.toLowerCase() === selectedGenre.toLowerCase()

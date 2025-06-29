@@ -16,12 +16,31 @@ export default function ContactPage() {
     e.preventDefault()
     setSubmitting(true)
     
-    // Simulate form submission
-    await new Promise(resolve => setTimeout(resolve, 2000))
-    
-    alert('Message sent successfully!')
-    setFormData({ name: '', email: '', walletAddress: '', subject: '', message: '' })
-    setSubmitting(false)
+    try {
+      // Send email via API route
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          to: 'info@unamifoundation.org'
+        })
+      })
+      
+      if (response.ok) {
+        alert('Message sent successfully! We\'ll get back to you soon.')
+        setFormData({ name: '', email: '', walletAddress: '', subject: '', message: '' })
+      } else {
+        throw new Error('Failed to send message')
+      }
+    } catch (error) {
+      console.error('Contact form error:', error)
+      alert('Failed to send message. Please try again or contact us directly at info@unamifoundation.org')
+    } finally {
+      setSubmitting(false)
+    }
   }
 
   return (

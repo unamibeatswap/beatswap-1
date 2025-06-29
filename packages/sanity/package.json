@@ -10,7 +10,8 @@
     "deploy": "sanity deploy"
   },
   "dependencies": {
-    "sanity": "^3.0.0",
-    "@sanity/vision": "^3.0.0"
+    "@sanity/vision": "^3.0.0",
+    "css-what": "^6.2.2",
+    "sanity": "^3.0.0"
   }
 }

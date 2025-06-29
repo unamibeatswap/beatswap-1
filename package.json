@@ -11,5 +11,10 @@
     "dev": "yarn workspaces -pt run dev",
     "build": "yarn workspaces -pt run build",
     "test": "yarn workspaces -pt run test"
+  },
+  "dependencies": {
+    "css-select": "^5.2.2",
+    "css-what": "^6.2.2",
+    "pino-pretty": "^13.0.0"
   }
 }
