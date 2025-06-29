@@ -1,3 +1,5 @@
+'use client'
+
 import { usePlatformStats } from '@/hooks/usePlatformStats'
 
 export default function Home() {
