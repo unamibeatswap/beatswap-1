@@ -1,7 +1,7 @@
 {
   "name": "beatschain-app",
   "version": "1.0.0",
-  "description": "BeatSwap - Web3 Music Marketplace Frontend",
+  "description": "BeatsChain - Web3 Music Marketplace Frontend",
   "license": "MIT",
   "scripts": {
     "dev": "next dev -H 0.0.0.0",

@@ -27,7 +27,7 @@ export function useSIWE() {
       const message = new SiweMessage({
         domain: window.location.host,
         address,
-        statement: 'Sign in to BeatSwap with Ethereum',
+        statement: 'Sign in to BeatsChain with Ethereum',
         uri: window.location.origin,
         version: '1',
         chainId: 1,

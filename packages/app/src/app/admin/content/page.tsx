@@ -79,11 +79,34 @@ function ContentModeration() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Content Moderation</h1>
-        <p className="text-gray-600">Review and moderate beat uploads</p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+        color: 'white',
+        padding: '4rem 2rem',
+        marginBottom: '2rem'
+      }}>
+        <div className="container mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-4">🛡️ Content Moderation</h1>
+            <p className="text-xl opacity-90 mb-6">Review and moderate beat uploads to maintain quality</p>
+            <div className="flex justify-center gap-4 text-sm">
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                ⏳ {reviews.filter(r => r.status === 'pending').length} Pending
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                ✓ {reviews.filter(r => r.status === 'approved').length} Approved
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                ❌ {reviews.filter(r => r.status === 'rejected').length} Rejected
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      
+      <div className="container mx-auto px-4 py-8">
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -185,7 +208,7 @@ function ContentModeration() {
                           <span className="font-medium">Key:</span> {beat.key}
                         </div>
                         <div>
-                          <span className="font-medium">Price:</span> ${beat.price}
+                          <span className="font-medium">Price:</span> R{beat.price}
                         </div>
                       </div>
                     )}
@@ -291,6 +314,7 @@ function ContentModeration() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

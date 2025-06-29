@@ -73,7 +73,7 @@ export default function Home() {
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>
-            Why Choose BeatSwap?
+            Why Choose BeatsChain?
           </h2>
           <p style={{ fontSize: '1.25rem', color: '#6b7280', maxWidth: '600px', margin: '0 auto' }}>
             The first decentralized marketplace built specifically for music producers and artists

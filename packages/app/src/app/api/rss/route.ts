@@ -36,12 +36,12 @@ export async function GET() {
     const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
   <channel>
-    <title>BeatSwap - Latest Beats</title>
-    <description>Discover the latest beats from talented producers on BeatSwap</description>
+    <title>BeatsChain - Latest Beats</title>
+    <description>Discover the latest beats from talented producers on BeatsChain</description>
     <link>${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}</link>
     <language>en-us</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
-    <itunes:author>BeatSwap</itunes:author>
+    <itunes:author>BeatsChain</itunes:author>
     <itunes:category text="Music"/>
     
     ${beats.map(beat => `

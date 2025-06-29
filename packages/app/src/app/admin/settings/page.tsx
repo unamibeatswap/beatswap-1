@@ -40,11 +40,34 @@ export default function SystemSettingsPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">System Settings</h1>
-        <p className="text-gray-600">Configure platform settings and preferences</p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+        color: 'white',
+        padding: '4rem 2rem',
+        marginBottom: '2rem'
+      }}>
+        <div className="container mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-4">⚙️ System Settings</h1>
+            <p className="text-xl opacity-90 mb-6">Configure platform settings and preferences</p>
+            <div className="flex justify-center gap-4 text-sm">
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                💰 {settings.platformCommission}% Commission
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                💾 {settings.maxFileSize}MB Max Size
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                {settings.maintenanceMode ? '🔴 Maintenance' : '🟢 Active'}
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      
+      <div className="container mx-auto px-4 py-8">
 
       {/* Tabs */}
       <div className="mb-6">

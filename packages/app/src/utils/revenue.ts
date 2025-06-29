@@ -1,4 +1,4 @@
-// BeatSwap Revenue Model
+// BeatsChain Revenue Model
 
 export const REVENUE_MODEL = {
   // Platform commission on beat sales

@@ -24,11 +24,34 @@ export default function ManageSubscriptionPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Manage Subscription</h1>
-        <p className="text-gray-600">Choose the plan that works best for you</p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+        color: 'white',
+        padding: '4rem 2rem',
+        marginBottom: '2rem'
+      }}>
+        <div className="container mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-4">💳 Manage Subscription</h1>
+            <p className="text-xl opacity-90 mb-6">Choose the plan that works best for your music journey</p>
+            <div className="flex justify-center gap-4 text-sm">
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                🎆 Current: Free Plan
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                📊 Upgrade for More Features
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                🔒 Cancel Anytime
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      
+      <div className="container mx-auto px-4 py-8">
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
         <div className="flex items-center justify-between">
@@ -126,6 +149,7 @@ export default function ManageSubscriptionPage() {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )
