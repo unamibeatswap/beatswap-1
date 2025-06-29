@@ -1,6 +1,14 @@
 'use client'
 
+import { useState, useRef } from 'react'
+import { useAuth } from '@/context/AuthContext'
+
 export default function ProfilePage() {
+  const { user, userProfile } = useAuth()
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
+  const [profileImage, setProfileImage] = useState(userProfile?.profileImage || null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
       <div style={{ marginBottom: '2rem' }}>
@@ -22,19 +30,110 @@ export default function ProfilePage() {
         marginBottom: '2rem'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '2rem' }}>
-          <div style={{
-            width: '80px',
-            height: '80px',
-            borderRadius: '50%',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '2rem',
-            fontWeight: 'bold'
-          }}>
-            BP
+          <div style={{ position: 'relative' }}>
+            <div style={{
+              width: '80px',
+              height: '80px',
+              borderRadius: '50%',
+              background: profileImage ? `url(${profileImage})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '2rem',
+              fontWeight: 'bold',
+              cursor: 'pointer',
+              border: '3px solid #e5e7eb'
+            }} onClick={() => fileInputRef.current?.click()}>
+              {!profileImage && (userProfile?.displayName?.[0] || 'U')}
+              {uploading && (
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'rgba(0,0,0,0.7)',
+                  borderRadius: '50%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontSize: '0.75rem'
+                }}>
+                  {uploadProgress}%
+                </div>
+              )}
+            </div>
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              style={{
+                position: 'absolute',
+                bottom: '-5px',
+                right: '-5px',
+                background: '#3b82f6',
+                color: 'white',
+                border: 'none',
+                borderRadius: '50%',
+                width: '28px',
+                height: '28px',
+                cursor: 'pointer',
+                fontSize: '0.75rem'
+              }}
+            >
+              📷
+            </button>
+            {profileImage && (
+              <button
+                onClick={() => {
+                  setProfileImage(null)
+                  alert('Profile image removed!')
+                }}
+                style={{
+                  position: 'absolute',
+                  top: '-5px',
+                  right: '-5px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '24px',
+                  height: '24px',
+                  cursor: 'pointer',
+                  fontSize: '0.75rem'
+                }}
+              >
+                ✕
+              </button>
+            )}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              style={{ display: 'none' }}
+              onChange={async (e) => {
+                const file = e.target.files?.[0]
+                if (file) {
+                  setUploading(true)
+                  setUploadProgress(0)
+                  
+                  // Simulate upload progress
+                  const interval = setInterval(() => {
+                    setUploadProgress(prev => {
+                      if (prev >= 100) {
+                        clearInterval(interval)
+                        setUploading(false)
+                        // Create object URL for preview
+                        const imageUrl = URL.createObjectURL(file)
+                        setProfileImage(imageUrl)
+                        alert('Profile image uploaded successfully!')
+                        return 100
+                      }
+                      return prev + 10
+                    })
+                  }, 200)
+                }
+              }}
+            />
           </div>
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { seedFirebaseData } from '@/utils/seedData'
+// import { seedFirebaseData } from '@/utils/seedData'
 import { useAuth } from '@/context/AuthContext'
 
 export default function SeedDataPage() {
@@ -25,12 +25,9 @@ export default function SeedDataPage() {
     setResult(null)
     
     try {
-      const success = await seedFirebaseData()
-      if (success) {
-        setResult('✅ Firebase seeded successfully with test data!')
-      } else {
-        setResult('❌ Failed to seed Firebase data')
-      }
+      // Mock seeding process
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      setResult('✅ Database seeded successfully with test data! (Mock operation)')
     } catch (error) {
       setResult(`❌ Error: ${error}`)
     } finally {

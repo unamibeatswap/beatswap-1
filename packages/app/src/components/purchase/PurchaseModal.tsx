@@ -147,7 +147,7 @@ export default function PurchaseModal({ beat, isOpen, onClose, onPurchaseComplet
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-lg font-bold">${(beat.price * license.price).toFixed(2)}</p>
+                        <p className="text-lg font-bold">R{(beat.price * license.price).toFixed(2)}</p>
                         <p className="text-xs text-gray-500">{license.price}x base price</p>
                       </div>
                     </div>
@@ -158,7 +158,7 @@ export default function PurchaseModal({ beat, isOpen, onClose, onPurchaseComplet
               <div className="flex justify-between items-center pt-4 border-t">
                 <div>
                   <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-2xl font-bold">${totalPrice.toFixed(2)}</p>
+                  <p className="text-2xl font-bold">R{totalPrice.toFixed(2)}</p>
                 </div>
                 <button
                   onClick={() => setStep('payment')}
@@ -242,7 +242,7 @@ export default function PurchaseModal({ beat, isOpen, onClose, onPurchaseComplet
               <div className="flex justify-between items-center pt-4 border-t">
                 <div>
                   <p className="text-sm text-gray-600">Total</p>
-                  <p className="text-2xl font-bold">${totalPrice.toFixed(2)}</p>
+                  <p className="text-2xl font-bold">R{totalPrice.toFixed(2)}</p>
                 </div>
                 <button
                   onClick={handlePurchase}

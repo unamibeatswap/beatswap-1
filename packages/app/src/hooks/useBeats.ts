@@ -16,25 +16,68 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
         setLoading(true)
         setError(null)
         
-        let q = query(collection(db, 'beats'), orderBy('createdAt', 'desc'))
+        // Mock beats data for demo
+        const mockBeats: Beat[] = [
+          {
+            id: '1',
+            title: 'Amapiano Fire',
+            description: 'Hot amapiano beat with deep basslines',
+            producerId: 'producer-1',
+            audioUrl: '/audio/sample1.mp3',
+            coverImageUrl: 'https://via.placeholder.com/300x300/667eea/ffffff?text=Amapiano+Fire',
+            price: 299.99,
+            genre: 'amapiano',
+            bpm: 112,
+            key: 'Am',
+            tags: ['amapiano', 'fire', 'deep'],
+            isNFT: false,
+            createdAt: new Date('2024-01-15'),
+            updatedAt: new Date('2024-01-15')
+          },
+          {
+            id: '2',
+            title: 'Afrobeats Groove',
+            description: 'Smooth afrobeats rhythm',
+            producerId: 'producer-2',
+            audioUrl: '/audio/sample2.mp3',
+            coverImageUrl: 'https://via.placeholder.com/300x300/764ba2/ffffff?text=Afrobeats+Groove',
+            price: 249.99,
+            genre: 'afrobeats',
+            bpm: 102,
+            key: 'C',
+            tags: ['afrobeats', 'smooth', 'groove'],
+            isNFT: false,
+            createdAt: new Date('2024-01-20'),
+            updatedAt: new Date('2024-01-20')
+          },
+          {
+            id: '3',
+            title: 'Trap Banger',
+            description: 'Hard hitting trap beat',
+            producerId: 'producer-3',
+            audioUrl: '/audio/sample3.mp3',
+            coverImageUrl: 'https://via.placeholder.com/300x300/1a1a1a/ffffff?text=Trap+Banger',
+            price: 399.99,
+            genre: 'trap',
+            bpm: 140,
+            key: 'Gm',
+            tags: ['trap', 'hard', 'banger'],
+            isNFT: false,
+            createdAt: new Date('2024-01-25'),
+            updatedAt: new Date('2024-01-25')
+          }
+        ]
         
+        // Apply filters
+        let filteredBeats = mockBeats
         if (filters?.genre) {
-          q = query(collection(db, 'beats'), where('genre', '==', filters.genre), orderBy('createdAt', 'desc'))
+          filteredBeats = mockBeats.filter(beat => beat.genre === filters.genre)
         }
-        
         if (filters?.producerId) {
-          q = query(collection(db, 'beats'), where('producerId', '==', filters.producerId), orderBy('createdAt', 'desc'))
+          filteredBeats = mockBeats.filter(beat => beat.producerId === filters.producerId)
         }
         
-        const querySnapshot = await getDocs(q)
-        const firebaseBeats = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate() || new Date(),
-          updatedAt: doc.data().updatedAt?.toDate() || new Date()
-        })) as Beat[]
-        
-        setBeats(firebaseBeats)
+        setBeats(filteredBeats)
       } catch (err: any) {
         console.error('Error fetching beats:', err)
         setError(err.message)
@@ -80,11 +123,23 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
     return beats.filter(beat => beat.producerId === producerId)
   }
 
+  const addBeat = async (beatData: Omit<Beat, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const newBeat: Beat = {
+      ...beatData,
+      id: Date.now().toString(),
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+    setBeats(prev => [newBeat, ...prev])
+    return newBeat
+  }
+
   return {
     beats,
     loading,
     error,
     refreshBeats,
-    getBeatsByProducer
+    getBeatsByProducer,
+    addBeat
   }
 }

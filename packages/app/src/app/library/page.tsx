@@ -4,28 +4,8 @@ import dynamic from 'next/dynamic'
 import { useAuth } from '@/context/AuthContext'
 import AudioPlayer from '@/components/audio/AudioPlayer'
 
-// Mock purchased beats data
-const mockPurchasedBeats = [
-  {
-    id: '1',
-    title: 'Dark Trap Beat',
-    description: 'Hard hitting trap beat with dark melodies',
-    producerId: 'producer-1',
-    audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-    coverImageUrl: 'https://via.placeholder.com/300x300/1a1a1a/ffffff?text=Dark+Trap',
-    price: 29.99,
-    genre: 'trap',
-    bpm: 140,
-    key: 'Am',
-    tags: ['dark', 'trap', 'hard'],
-    isNFT: false,
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date('2024-01-15'),
-    purchaseDate: new Date('2024-01-20'),
-    licenseType: 'premium',
-    downloadCount: 3
-  }
-]
+// Mock purchased beats data - empty for new users
+const mockPurchasedBeats: any[] = []
 
 function LibraryPage() {
   const { user, userProfile, loading } = useAuth()
@@ -45,11 +25,28 @@ function LibraryPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">My Library</h1>
-        <p className="text-gray-600">Your purchased beats and downloads</p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
+        minHeight: '40vh',
+        display: 'flex',
+        alignItems: 'center',
+        color: 'white',
+        position: 'relative'
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)' }}></div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            🎧 My Beat Library
+          </h1>
+          <p style={{ fontSize: '1.125rem', opacity: 0.9 }}>
+            Access your purchased beats, licenses, and downloads
+          </p>
+        </div>
       </div>
+
+      <div className="container mx-auto px-4 py-8">
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -72,7 +69,7 @@ function LibraryPage() {
             <div>
               <p className="text-sm font-medium text-gray-600">Total Spent</p>
               <p className="text-2xl font-bold text-gray-900">
-                ${mockPurchasedBeats.reduce((sum, beat) => sum + beat.price, 0).toFixed(2)}
+                R{mockPurchasedBeats.reduce((sum, beat) => sum + beat.price, 0).toFixed(2)}
               </p>
             </div>
             <div className="bg-green-100 p-3 rounded-full">
@@ -145,10 +142,10 @@ function LibraryPage() {
                   </div>
                   
                   <div className="flex gap-2">
-                    <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
+                    <button onClick={() => alert('Download started! File will be available in your downloads.')} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
                       Download
                     </button>
-                    <button className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 text-sm">
+                    <button onClick={() => alert('License agreement opened! View your usage rights.')} className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 text-sm">
                       License
                     </button>
                   </div>
@@ -172,6 +169,7 @@ function LibraryPage() {
           </p>
         </div>
       </div>
+    </div>
     </div>
   )
 }

@@ -2,15 +2,28 @@
 
 export default function DashboardPage() {
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#1f2937' }}>
-          Producer Dashboard
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
-          Manage your beats, track sales, and grow your music business
-        </p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+        minHeight: '40vh',
+        display: 'flex',
+        alignItems: 'center',
+        color: 'white',
+        position: 'relative'
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)' }}></div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            🎤 Producer Dashboard
+          </h1>
+          <p style={{ fontSize: '1.125rem', opacity: 0.9 }}>
+            Manage your beats, track sales, and grow your music business
+          </p>
+        </div>
       </div>
+
+      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
 
       {/* Stats Cards */}
       <div style={{
@@ -20,11 +33,11 @@ export default function DashboardPage() {
         marginBottom: '2rem'
       }}>
         {[
-          { title: 'Total Beats', value: '12', icon: '🎵', color: '#3b82f6' },
-          { title: 'Total Sales', value: '$1,247', icon: '💰', color: '#059669' },
-          { title: 'Profile Views', value: '1,234', icon: '👁️', color: '#8b5cf6' },
-          { title: 'This Month', value: '$340', icon: '📈', color: '#7c3aed' },
-          { title: 'Plays', value: '2,847', icon: '▶️', color: '#f59e0b' }
+          { title: 'Total Beats', value: '0', icon: '🎵', color: '#3b82f6', note: 'Upload your first beat!' },
+          { title: 'Total Sales', value: 'R0.00', icon: '💰', color: '#059669', note: 'Start earning today' },
+          { title: 'Profile Views', value: '0', icon: '👁️', color: '#8b5cf6', note: 'Build your audience' },
+          { title: 'This Month', value: 'R0.00', icon: '📈', color: '#7c3aed', note: 'Monthly earnings' },
+          { title: 'Plays', value: '0', icon: '▶️', color: '#f59e0b', note: 'Get discovered' }
         ].map((stat, index) => (
           <div key={index} style={{
             background: 'white',
@@ -40,6 +53,9 @@ export default function DashboardPage() {
                 </p>
                 <p style={{ fontSize: '2rem', fontWeight: 'bold', color: '#1f2937' }}>
                   {stat.value}
+                </p>
+                <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+                  {stat.note}
                 </p>
               </div>
               <div style={{
@@ -68,7 +84,7 @@ export default function DashboardPage() {
           Quick Actions
         </h2>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <button style={{
+          <a href="/upload" style={{
             background: '#3b82f6',
             color: 'white',
             padding: '0.75rem 1.5rem',
@@ -78,11 +94,12 @@ export default function DashboardPage() {
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
+            gap: '0.5rem',
+            textDecoration: 'none'
           }}>
             📤 Upload New Beat
-          </button>
-          <button style={{
+          </a>
+          <a href="/admin/analytics" style={{
             background: 'white',
             color: '#3b82f6',
             padding: '0.75rem 1.5rem',
@@ -92,10 +109,11 @@ export default function DashboardPage() {
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem'
+            gap: '0.5rem',
+            textDecoration: 'none'
           }}>
             📊 View Analytics
-          </button>
+          </a>
           <a href="/producer/current-user" style={{
             background: 'white',
             color: '#8b5cf6',
@@ -111,7 +129,7 @@ export default function DashboardPage() {
           }}>
             👁️ View My Profile
           </a>
-          <button style={{
+          <button onClick={() => alert('Withdraw feature coming soon!')} style={{
             background: 'white',
             color: '#059669',
             padding: '0.75rem 1.5rem',
@@ -142,9 +160,7 @@ export default function DashboardPage() {
         </div>
         <div style={{ padding: '1.5rem' }}>
           {[
-            { title: 'Dark Trap Beat', status: 'Published', sales: 5, earnings: '$149.95' },
-            { title: 'Melodic Hip Hop', status: 'Published', sales: 3, earnings: '$74.97' },
-            { title: 'Future Bass Drop', status: 'Draft', sales: 0, earnings: '$0.00' }
+            { title: 'Upload your first beat', status: 'Get Started', sales: 0, earnings: 'R0.00', isPlaceholder: true }
           ].map((beat, index) => (
             <div key={index} style={{
               display: 'flex',
@@ -154,14 +170,11 @@ export default function DashboardPage() {
               borderBottom: index < 2 ? '1px solid #f3f4f6' : 'none'
             }}>
               <div>
-                <h3 style={{ fontWeight: '500', color: '#1f2937', marginBottom: '0.25rem' }}>
+                <h3 style={{ fontWeight: '500', color: beat.isPlaceholder ? '#6b7280' : '#1f2937', marginBottom: '0.25rem' }}>
                   {beat.title}
                 </h3>
                 <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                  Status: <span style={{
-                    color: beat.status === 'Published' ? '#059669' : '#f59e0b',
-                    fontWeight: '500'
-                  }}>{beat.status}</span>
+                  {beat.isPlaceholder ? 'Click "Upload New Beat" to get started' : `Status: ${beat.status}`}
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
@@ -191,6 +204,7 @@ export default function DashboardPage() {
           Upload system, analytics, and earnings tracking all implemented.
         </p>
       </div>
+    </div>
     </div>
   )
 }
