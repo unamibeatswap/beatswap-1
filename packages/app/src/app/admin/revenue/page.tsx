@@ -2,9 +2,11 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { usePlatformStats } from '@/hooks/usePlatformStats'
 
 export default function RevenueTrackingPage() {
   const { userProfile } = useAuth()
+  const { totalRevenue, isLoading } = usePlatformStats()
   const [timeRange, setTimeRange] = useState('30d')
 
   if (userProfile?.role !== 'admin') {
@@ -19,20 +21,43 @@ export default function RevenueTrackingPage() {
   }
 
   const revenueData = {
-    totalRevenue: 45280.50,
-    platformCommission: 6792.08,
-    producerPayouts: 38488.42,
+    totalRevenue: totalRevenue,
+    platformCommission: totalRevenue * 0.15, // 15% commission
+    producerPayouts: totalRevenue * 0.85, // 85% to producers
     monthlyGrowth: 18.5,
-    transactions: 1247,
-    avgTransactionValue: 36.32
+    transactions: Math.floor(totalRevenue / 363.2), // Estimate based on avg transaction
+    avgTransactionValue: 363.2
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Revenue Tracking</h1>
-        <p className="text-gray-600">Monitor platform revenue and commission splits</p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        color: 'white',
+        padding: '4rem 2rem',
+        marginBottom: '2rem'
+      }}>
+        <div className="container mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-4">💰 Revenue Tracking</h1>
+            <p className="text-xl opacity-90 mb-6">Monitor platform revenue and commission splits</p>
+            <div className="flex justify-center gap-4 text-sm">
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                💵 R{isLoading ? '...' : revenueData.totalRevenue.toFixed(0)} Total
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                🏦 R{isLoading ? '...' : revenueData.platformCommission.toFixed(0)} Commission
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                🎤 R{isLoading ? '...' : revenueData.producerPayouts.toFixed(0)} Payouts
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      
+      <div className="container mx-auto px-4 py-8">
 
       {/* Time Range Selector */}
       <div className="mb-6">
@@ -59,7 +84,7 @@ export default function RevenueTrackingPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Revenue</p>
-              <p className="text-2xl font-bold text-gray-900">${revenueData.totalRevenue.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-gray-900">R{isLoading ? '...' : revenueData.totalRevenue.toLocaleString()}</p>
             </div>
             <div className="bg-green-100 p-3 rounded-full">
               <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -76,7 +101,7 @@ export default function RevenueTrackingPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Platform Commission (15%)</p>
-              <p className="text-2xl font-bold text-blue-600">${revenueData.platformCommission.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-blue-600">R{isLoading ? '...' : revenueData.platformCommission.toLocaleString()}</p>
             </div>
             <div className="bg-blue-100 p-3 rounded-full">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,7 +115,7 @@ export default function RevenueTrackingPage() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Producer Payouts (85%)</p>
-              <p className="text-2xl font-bold text-purple-600">${revenueData.producerPayouts.toLocaleString()}</p>
+              <p className="text-2xl font-bold text-purple-600">R{isLoading ? '...' : revenueData.producerPayouts.toLocaleString()}</p>
             </div>
             <div className="bg-purple-100 p-3 rounded-full">
               <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -112,7 +137,7 @@ export default function RevenueTrackingPage() {
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Average Transaction Value</span>
-              <span className="font-semibold">${revenueData.avgTransactionValue}</span>
+              <span className="font-semibold">R{revenueData.avgTransactionValue}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Payment Methods</span>
@@ -129,21 +154,21 @@ export default function RevenueTrackingPage() {
                 <p className="font-medium">Beat Master Pro</p>
                 <p className="text-sm text-gray-600">45 beats sold</p>
               </div>
-              <span className="font-semibold text-green-600">$2,340</span>
+              <span className="font-semibold text-green-600">R23,400</span>
             </div>
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium">Synth Wave</p>
                 <p className="text-sm text-gray-600">32 beats sold</p>
               </div>
-              <span className="font-semibold text-green-600">$1,890</span>
+              <span className="font-semibold text-green-600">R18,900</span>
             </div>
             <div className="flex justify-between items-center">
               <div>
                 <p className="font-medium">Lo-Fi Dreams</p>
                 <p className="text-sm text-gray-600">28 beats sold</p>
               </div>
-              <span className="font-semibold text-green-600">$1,560</span>
+              <span className="font-semibold text-green-600">R15,600</span>
             </div>
           </div>
         </div>
@@ -171,8 +196,8 @@ export default function RevenueTrackingPage() {
                 <tr className="border-b border-gray-100">
                   <td className="py-3 px-4 text-sm">2024-01-25</td>
                   <td className="py-3 px-4 text-sm">Beat Purchase</td>
-                  <td className="py-3 px-4 text-sm font-medium">$45.99</td>
-                  <td className="py-3 px-4 text-sm text-blue-600">$6.90</td>
+                  <td className="py-3 px-4 text-sm font-medium">R459.99</td>
+                  <td className="py-3 px-4 text-sm text-blue-600">R69.00</td>
                   <td className="py-3 px-4 text-sm">Beat Master Pro</td>
                   <td className="py-3 px-4 text-sm">
                     <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">Crypto</span>
@@ -181,8 +206,8 @@ export default function RevenueTrackingPage() {
                 <tr className="border-b border-gray-100">
                   <td className="py-3 px-4 text-sm">2024-01-25</td>
                   <td className="py-3 px-4 text-sm">Beat Purchase</td>
-                  <td className="py-3 px-4 text-sm font-medium">$29.99</td>
-                  <td className="py-3 px-4 text-sm text-blue-600">$4.50</td>
+                  <td className="py-3 px-4 text-sm font-medium">R299.99</td>
+                  <td className="py-3 px-4 text-sm text-blue-600">R45.00</td>
                   <td className="py-3 px-4 text-sm">Synth Wave</td>
                   <td className="py-3 px-4 text-sm">
                     <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">Stripe</span>
@@ -191,8 +216,8 @@ export default function RevenueTrackingPage() {
                 <tr className="border-b border-gray-100">
                   <td className="py-3 px-4 text-sm">2024-01-24</td>
                   <td className="py-3 px-4 text-sm">Beat Purchase</td>
-                  <td className="py-3 px-4 text-sm font-medium">$89.99</td>
-                  <td className="py-3 px-4 text-sm text-blue-600">$13.50</td>
+                  <td className="py-3 px-4 text-sm font-medium">R899.99</td>
+                  <td className="py-3 px-4 text-sm text-blue-600">R135.00</td>
                   <td className="py-3 px-4 text-sm">Lo-Fi Dreams</td>
                   <td className="py-3 px-4 text-sm">
                     <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded-full text-xs">Crypto</span>
@@ -202,6 +227,7 @@ export default function RevenueTrackingPage() {
             </table>
           </div>
         </div>
+      </div>
       </div>
     </div>
   )

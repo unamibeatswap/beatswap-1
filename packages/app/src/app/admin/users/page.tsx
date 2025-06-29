@@ -26,7 +26,7 @@ const mockUsers: User[] = [
     createdAt: new Date('2024-01-15'),
     lastActive: new Date('2024-01-25'),
     totalSpent: 0,
-    totalEarned: 1250.00
+    totalEarned: 12500.00
   },
   {
     id: '2',
@@ -36,7 +36,7 @@ const mockUsers: User[] = [
     isVerified: false,
     createdAt: new Date('2024-01-20'),
     lastActive: new Date('2024-01-24'),
-    totalSpent: 89.99,
+    totalSpent: 899.99,
     totalEarned: 0
   }
 ]
@@ -72,11 +72,34 @@ function UserManagement() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">User Management</h1>
-        <p className="text-gray-600">Manage users, roles, and permissions</p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
+        color: 'white',
+        padding: '4rem 2rem',
+        marginBottom: '2rem'
+      }}>
+        <div className="container mx-auto">
+          <div className="text-center">
+            <h1 className="text-4xl font-bold mb-4">👥 User Management</h1>
+            <p className="text-xl opacity-90 mb-6">Manage users, roles, and permissions across the platform</p>
+            <div className="flex justify-center gap-4 text-sm">
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                👤 {users.length} Total Users
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                🎤 {users.filter(u => u.role === 'producer').length} Producers
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                ✓ {users.filter(u => u.isVerified).length} Verified
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+      
+      <div className="container mx-auto px-4 py-8">
 
       {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
@@ -196,8 +219,8 @@ function UserManagement() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     <div>
-                      <div>Spent: ${user.totalSpent.toFixed(2)}</div>
-                      <div>Earned: ${user.totalEarned.toFixed(2)}</div>
+                      <div>Spent: R{user.totalSpent.toFixed(2)}</div>
+                      <div>Earned: R{user.totalEarned.toFixed(2)}</div>
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
@@ -253,11 +276,11 @@ function UserManagement() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Total Spent</label>
-                  <p className="text-gray-900">${selectedUser.totalSpent.toFixed(2)}</p>
+                  <p className="text-gray-900">R{selectedUser.totalSpent.toFixed(2)}</p>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Total Earned</label>
-                  <p className="text-gray-900">${selectedUser.totalEarned.toFixed(2)}</p>
+                  <p className="text-gray-900">R{selectedUser.totalEarned.toFixed(2)}</p>
                 </div>
               </div>
               <div className="flex gap-2 pt-4">
@@ -275,6 +298,7 @@ function UserManagement() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }

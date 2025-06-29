@@ -26,7 +26,7 @@ createAppKit({
   networks: [mainnet, sepolia],
   projectId,
   metadata: {
-    name: 'BeatSwap',
+    name: 'BeatsChain',
     description: 'Web3 Music Marketplace',
     url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
     icons: ['https://avatars.githubusercontent.com/u/37784886']

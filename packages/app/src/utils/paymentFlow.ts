@@ -1,4 +1,4 @@
-// Payment Flow Explanation for BeatSwap
+// Payment Flow Explanation for BeatsChain
 
 export const PAYMENT_FLOWS = {
   
@@ -31,7 +31,7 @@ export const PAYMENT_FLOWS = {
   }
 }
 
-// HYBRID APPROACH - What BeatSwap Actually Does
+// HYBRID APPROACH - What BeatsChain Actually Does
 export const BEATSWAP_APPROACH = {
   
   cryptoPayments: {

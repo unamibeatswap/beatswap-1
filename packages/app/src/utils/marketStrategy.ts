@@ -1,4 +1,4 @@
-// BeatSwap Market Strategy: SA Producers → Global Market
+// BeatsChain Market Strategy: SA Producers → Global Market
 
 export const MARKET_POSITIONING = {
   

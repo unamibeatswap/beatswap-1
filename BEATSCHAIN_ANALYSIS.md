@@ -151,7 +151,7 @@ CTA: "Join the future of music ownership"
 ### 🚀 RECOMMENDED BRAND EVOLUTION:
 
 ```
-OLD: BeatSwap (taken, generic)
+OLD: BeatsChain (taken, generic)
 NEW: BeatsChain (available, perfect)
 
 DOMAIN: beatschain.app
