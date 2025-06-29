@@ -24,7 +24,6 @@ export function Footer() {
               <a href="/marketplace" className="text-gray-300 hover:text-white text-sm transition-colors">Marketplace</a>
               <a href="/producers" className="text-gray-300 hover:text-white text-sm transition-colors">Producers</a>
               <a href="/upload" className="text-gray-300 hover:text-white text-sm transition-colors">Upload Beats</a>
-              <a href="/dashboard" className="text-gray-300 hover:text-white text-sm transition-colors">Dashboard</a>
             </div>
           </div>
           
