@@ -44,15 +44,39 @@ export default function MarketplacePage() {
   })
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-4xl font-bold mb-2 text-gray-900">
-          Marketplace
-        </h1>
-        <p className="text-gray-600 text-lg">
-          Discover and purchase beats from talented producers worldwide
-        </p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        minHeight: '60vh',
+        display: 'flex',
+        alignItems: 'center',
+        color: 'white',
+        position: 'relative'
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)' }}></div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+            🎵 Beat Marketplace
+          </h1>
+          <p style={{ fontSize: '1.25rem', marginBottom: '2rem', opacity: 0.9 }}>
+            Discover and purchase premium beats from talented South African producers
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.3)' }}>
+              🔥 Hot Amapiano Beats
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.3)' }}>
+              🎶 Afrobeats Collection
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.3)' }}>
+              💎 Exclusive Drops
+            </div>
+          </div>
+        </div>
       </div>
+
+      <div className="container mx-auto px-4 py-8">
 
       {/* Search and Filters */}
       <div className="bg-white p-6 rounded-lg shadow-sm border mb-8">
@@ -114,17 +138,6 @@ export default function MarketplacePage() {
         </div>
       )}
 
-      {/* Development Notice */}
-      <div className="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
-          <p className="text-blue-800 text-sm">
-            <strong>Marketplace:</strong> Full functionality with real audio player and purchase flow. 
-            Using mock data - will integrate with Firestore when ready.
-          </p>
-        </div>
       </div>
     </div>
   )

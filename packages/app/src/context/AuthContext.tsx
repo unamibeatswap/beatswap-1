@@ -88,6 +88,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
+    // Hardcoded admin login
+    if (email === 'info@unamifoundation.org' && password === 'Proof321#') {
+      // Create mock admin user
+      const mockAdminProfile: UserProfile = {
+        uid: 'admin-mock-123',
+        email: 'info@unamifoundation.org',
+        displayName: 'Admin User',
+        role: 'admin',
+        isVerified: true,
+        createdAt: new Date()
+      }
+      setUserProfile(mockAdminProfile)
+      // Create mock Firebase user
+      const mockUser = {
+        uid: 'admin-mock-123',
+        email: 'info@unamifoundation.org',
+        displayName: 'Admin User'
+      } as User
+      setUser(mockUser)
+      return
+    }
     await signInWithEmailAndPassword(auth, email, password)
   }
 

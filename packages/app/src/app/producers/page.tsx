@@ -37,15 +37,39 @@ export default function ProducersPage() {
   const currentProducers = allProducers.slice(startIndex, startIndex + producersPerPage)
 
   return (
-    <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#1f2937' }}>
-          Featured Producers
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
-          Discover talented music producers from around the world
-        </p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)',
+        minHeight: '60vh',
+        display: 'flex',
+        alignItems: 'center',
+        color: '#1f2937',
+        position: 'relative'
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.1)' }}></div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+            🎤 Meet Our Producers
+          </h1>
+          <p style={{ fontSize: '1.25rem', marginBottom: '2rem', opacity: 0.9 }}>
+            Connect with South Africa's most talented beat makers and music producers
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(31,41,55,0.1)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(31,41,55,0.2)' }}>
+              🎹 Growing Community
+            </div>
+            <div style={{ background: 'rgba(31,41,55,0.1)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(31,41,55,0.2)' }}>
+              🇿🇦 South African Focus
+            </div>
+            <div style={{ background: 'rgba(31,41,55,0.1)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(31,41,55,0.2)' }}>
+              🚀 New Platform
+            </div>
+          </div>
+        </div>
       </div>
+
+      <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
 
       {/* Filters */}
       <div style={{
@@ -288,19 +312,6 @@ export default function ProducersPage() {
         </button>
       </div>
 
-      {/* Development Notice */}
-      <div style={{
-        marginTop: '2rem',
-        padding: '1rem',
-        background: '#f0f9ff',
-        border: '1px solid #0ea5e9',
-        borderRadius: '0.5rem',
-        color: '#0c4a6e'
-      }}>
-        <p style={{ fontSize: '0.875rem', margin: 0 }}>
-          <strong>Producers Directory:</strong> Full pagination system implemented. 
-          Sanity CMS can manage producer profiles, or use Firestore for dynamic content.
-        </p>
       </div>
     </div>
   )

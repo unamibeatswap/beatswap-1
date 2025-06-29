@@ -1,0 +1,8 @@
+{
+  "/manage-subscription/page": "app/manage-subscription/page.js",
+  "/blog/page": "app/blog/page.js",
+  "/contact/page": "app/contact/page.js",
+  "/library/page": "app/library/page.js",
+  "/dashboard/page": "app/dashboard/page.js",
+  "/profile/page": "app/profile/page.js"
+}

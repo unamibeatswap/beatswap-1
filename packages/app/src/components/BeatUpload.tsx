@@ -13,7 +13,7 @@ export default function BeatUpload() {
     genre: 'hip-hop',
     bpm: 120,
     key: 'C',
-    price: 29.99,
+    price: 299.99,
     tags: ''
   })
   const [audioFile, setAudioFile] = useState<File | null>(null)
@@ -76,13 +76,15 @@ export default function BeatUpload() {
         genre: 'hip-hop',
         bpm: 120,
         key: 'C',
-        price: 29.99,
+        price: 299.99,
         tags: ''
       })
       setAudioFile(null)
       setCoverFile(null)
 
-      alert('Beat uploaded successfully!')
+      alert('Beat uploaded successfully! Your beat is now live on the marketplace.')
+      // Redirect to dashboard
+      window.location.href = '/dashboard'
     } catch (err) {
       console.error('Upload failed:', err)
     } finally {
@@ -99,10 +101,28 @@ export default function BeatUpload() {
   }
 
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem' }}>
-      <h2 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '2rem', color: '#1f2937' }}>
-        Upload New Beat
-      </h2>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+        minHeight: '40vh',
+        display: 'flex',
+        alignItems: 'center',
+        color: 'white',
+        position: 'relative'
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)' }}></div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            🎵 Upload Your Beat
+          </h1>
+          <p style={{ fontSize: '1.125rem', opacity: 0.9 }}>
+            Share your music with the world and start earning from your creativity
+          </p>
+        </div>
+      </div>
+
+      <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem' }}>
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
         {/* Audio Upload */}
@@ -176,7 +196,7 @@ export default function BeatUpload() {
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-              Price ($)
+              Price (R)
             </label>
             <input
               type="number"
@@ -329,6 +349,7 @@ export default function BeatUpload() {
           {submitting ? 'Uploading Beat...' : 'Upload Beat'}
         </button>
       </form>
+      </div>
     </div>
   )
 }

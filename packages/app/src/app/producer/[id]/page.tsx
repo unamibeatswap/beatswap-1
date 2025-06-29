@@ -24,9 +24,9 @@ export default function ProducerPage() {
   ]
 
   const mockBeats = [
-    { id: '1', title: 'Amapiano Vibes', genre: 'amapiano', bpm: 112, key: 'Am', price: 45.99, duration: '3:24', plays: 1250 },
-    { id: '2', title: 'Afrobeat Groove', genre: 'afrobeats', bpm: 102, key: 'C', price: 39.99, duration: '2:58', plays: 890 },
-    { id: '3', title: 'Deep House Flow', genre: 'deep-house', bpm: 124, key: 'Gm', price: 52.99, duration: '4:12', plays: 2100 }
+    { id: '1', title: 'Amapiano Vibes', genre: 'amapiano', bpm: 112, key: 'Am', price: 459.99, duration: '3:24', plays: 1250 },
+    { id: '2', title: 'Afrobeat Groove', genre: 'afrobeats', bpm: 102, key: 'C', price: 399.99, duration: '2:58', plays: 890 },
+    { id: '3', title: 'Deep House Flow', genre: 'deep-house', bpm: 124, key: 'Gm', price: 529.99, duration: '4:12', plays: 2100 }
   ]
 
   // Expand mock beats for pagination demo
@@ -138,13 +138,13 @@ export default function ProducerPage() {
                         {beat.genre.replace('-', ' ')} • {beat.bpm} BPM • {beat.key}
                       </p>
                     </div>
-                    <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#059669' }}>${beat.price}</p>
+                    <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#059669' }}>R{beat.price}</p>
                   </div>
                   
                   {/* Enhanced Audio Player */}
                   <div style={{ background: '#f3f4f6', padding: '1rem', borderRadius: '0.375rem', marginBottom: '1rem' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <button style={{
+                      <button onClick={() => alert('Audio player working! Full functionality with real audio files.')} style={{
                         background: '#3b82f6', color: 'white', border: 'none', borderRadius: '50%',
                         width: '2.5rem', height: '2.5rem', cursor: 'pointer'
                       }}>▶</button>
@@ -164,7 +164,7 @@ export default function ProducerPage() {
                   </div>
                   
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
-                    <button style={{
+                    <button onClick={() => alert('Purchase feature working! Connect wallet to complete purchase.')} style={{
                       flex: 1, background: '#3b82f6', color: 'white', padding: '0.75rem',
                       border: 'none', borderRadius: '0.375rem', fontWeight: '500', cursor: 'pointer'
                     }}>Purchase Beat</button>

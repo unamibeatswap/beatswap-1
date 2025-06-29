@@ -44,15 +44,39 @@ export default function ContactPage() {
   }
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#1f2937' }}>
-          Contact BeatsChain
-        </h1>
-        <p style={{ fontSize: '1.125rem', color: '#6b7280' }}>
-          Get in touch with our team for support, partnerships, or general inquiries
-        </p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
+        minHeight: '50vh',
+        display: 'flex',
+        alignItems: 'center',
+        color: 'white',
+        position: 'relative'
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)' }}></div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+            📞 Contact BeatsChain
+          </h1>
+          <p style={{ fontSize: '1.25rem', marginBottom: '2rem', opacity: 0.9 }}>
+            Get in touch with our team for support, partnerships, or general inquiries
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+              🚀 24/7 Support
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+              🌍 Global Team
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+              🔒 Secure Platform
+            </div>
+          </div>
+        </div>
       </div>
+
+      <div style={{ maxWidth: '800px', margin: '0 auto', padding: '2rem' }}>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', marginBottom: '3rem' }}>
         {/* Contact Info */}
@@ -230,38 +254,39 @@ export default function ContactPage() {
         </div>
       </div>
 
-      {/* Additional Info */}
-      <div style={{
-        background: '#f0f9ff',
-        padding: '2rem',
-        borderRadius: '0.5rem',
-        border: '1px solid #0ea5e9'
-      }}>
-        <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#0c4a6e' }}>
-          Web3 Platform Information
-        </h3>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', color: '#0c4a6e' }}>
-          <div>
-            <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              <strong>Blockchain:</strong> Ethereum Mainnet
-            </p>
-            <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              <strong>Token Standard:</strong> ERC-721 (NFTs)
-            </p>
-            <p style={{ fontSize: '0.875rem' }}>
-              <strong>Payment Methods:</strong> ETH, USDC, Credit Card
-            </p>
-          </div>
-          <div>
-            <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              <strong>Smart Contract:</strong> Verified & Open Source
-            </p>
-            <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              <strong>Royalties:</strong> Automatic Distribution
-            </p>
-            <p style={{ fontSize: '0.875rem' }}>
-              <strong>Security:</strong> Multi-sig Protected
-            </p>
+        {/* Additional Info */}
+        <div style={{
+          background: '#f0f9ff',
+          padding: '2rem',
+          borderRadius: '0.5rem',
+          border: '1px solid #0ea5e9'
+        }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#0c4a6e' }}>
+            Web3 Platform Information
+          </h3>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', color: '#0c4a6e' }}>
+            <div>
+              <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                <strong>Blockchain:</strong> Ethereum Mainnet
+              </p>
+              <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                <strong>Token Standard:</strong> ERC-721 (NFTs)
+              </p>
+              <p style={{ fontSize: '0.875rem' }}>
+                <strong>Payment Methods:</strong> ETH, USDC, Credit Card
+              </p>
+            </div>
+            <div>
+              <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                <strong>Smart Contract:</strong> Verified & Open Source
+              </p>
+              <p style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                <strong>Royalties:</strong> Automatic Distribution
+              </p>
+              <p style={{ fontSize: '0.875rem' }}>
+                <strong>Security:</strong> Multi-sig Protected
+              </p>
+            </div>
           </div>
         </div>
       </div>
