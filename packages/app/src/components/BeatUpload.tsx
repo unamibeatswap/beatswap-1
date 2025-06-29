@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useFileUpload } from '@/hooks/useFileUpload'
 import { useBeats } from '@/hooks/useBeats'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/context/AuthContext'
 
 export default function BeatUpload() {
   const [formData, setFormData] = useState({
