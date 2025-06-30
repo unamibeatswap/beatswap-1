@@ -1,8 +1,6 @@
 {
-  "/producers/page": "app/producers/page.js",
-  "/marketplace/page": "app/marketplace/page.js",
-  "/admin/page": "app/admin/page.js",
-  "/blog/page": "app/blog/page.js",
-  "/upload/page": "app/upload/page.js",
-  "/how-it-works/page": "app/how-it-works/page.js"
+  "/page": "app/page.js",
+  "/how-it-works/page": "app/how-it-works/page.js",
+  "/faq/page": "app/faq/page.js",
+  "/blog/page": "app/blog/page.js"
 }

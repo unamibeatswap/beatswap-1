@@ -7,3 +7,5 @@ export const SITE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:300
 
 export const SOCIAL_TWITTER = 'beatschain'
 export const SOCIAL_GITHUB = 'beatschain/beatschain'
+export const SOCIAL_INSTAGRAM = 'beatschain'
+export const SOCIAL_LINKEDIN = 'company/beatschain'

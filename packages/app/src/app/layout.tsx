@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { PropsWithChildren } from 'react'
-import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL, SOCIAL_TWITTER } from '@/utils/site'
+import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL, SOCIAL_TWITTER, SOCIAL_INSTAGRAM, SOCIAL_LINKEDIN } from '@/utils/site'
 import { Layout } from '@/components/Layout'
 import { AuthProvider } from '@/context/AuthContext'
 import { Web3Provider } from '@/context/Web3Provider'
@@ -23,18 +23,32 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: 'website',
-    title: SITE_NAME,
+    title: `${SITE_NAME} - ${SITE_INFO}`,
     siteName: SITE_NAME,
     description: SITE_DESCRIPTION,
     url: SITE_URL,
-    images: '/opengraph-image',
+    images: [
+      {
+        url: '/og-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: `${SITE_NAME} - Blockchain Beat Marketplace`,
+      },
+    ],
+    locale: 'en_US',
+  },
+  other: {
+    'instagram:site': `@${SOCIAL_INSTAGRAM}`,
+    'linkedin:site': SOCIAL_LINKEDIN,
+    'fb:app_id': process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '',
   },
   twitter: {
     card: 'summary_large_image',
-    site: SOCIAL_TWITTER,
-    title: SITE_NAME,
+    site: `@${SOCIAL_TWITTER}`,
+    creator: `@${SOCIAL_TWITTER}`,
+    title: `${SITE_NAME} - ${SITE_INFO}`,
     description: SITE_DESCRIPTION,
-    images: '/opengraph-image',
+    images: ['/og-image.jpg'],
   },
 }
 
@@ -75,6 +89,18 @@ export default function RootLayout(props: PropsWithChildren) {
             </NotificationProvider>
           </AuthProvider>
         </Web3Provider>
+        
+        {/* Google Tag Manager - Will be controlled by admin settings */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              // GTM will be initialized by admin settings
+            `,
+          }}
+        />
       </body>
     </html>
   )
