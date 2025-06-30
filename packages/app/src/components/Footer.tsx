@@ -23,7 +23,7 @@ export function Footer() {
             <div className="flex flex-col gap-2">
               <a href="/marketplace" className="text-gray-300 hover:text-white text-sm transition-colors">Marketplace</a>
               <a href="/producers" className="text-gray-300 hover:text-white text-sm transition-colors">Producers</a>
-              <a href="/upload" className="text-gray-300 hover:text-white text-sm transition-colors">Upload Beats</a>
+              <a href="/how-it-works" className="text-gray-300 hover:text-white text-sm transition-colors">How It Works</a>
             </div>
           </div>
           
@@ -33,8 +33,8 @@ export function Footer() {
             <div className="flex flex-col gap-2">
               <a href="/blog" className="text-gray-300 hover:text-white text-sm transition-colors">Blog</a>
               <a href="/api/rss" className="text-gray-300 hover:text-white text-sm transition-colors">RSS Feed</a>
+              <a href="/faq" className="text-gray-300 hover:text-white text-sm transition-colors">FAQ</a>
               <a href="/contact" className="text-gray-300 hover:text-white text-sm transition-colors">Contact</a>
-              <a href="/disclaimer" className="text-gray-300 hover:text-white text-sm transition-colors">Web3 Disclaimer</a>
             </div>
           </div>
           
