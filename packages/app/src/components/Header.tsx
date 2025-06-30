@@ -12,17 +12,18 @@ export function Header() {
   const [showSignIn, setShowSignIn] = useState(false)
   const [showSignUp, setShowSignUp] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
   
-  // Close dropdown when clicking outside
+  // Close dropdowns when clicking outside
   React.useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (mobileMenuOpen && !(event.target as Element).closest('.relative')) {
-        setMobileMenuOpen(false)
+      if (userMenuOpen && !(event.target as Element).closest('.relative')) {
+        setUserMenuOpen(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [mobileMenuOpen])
+  }, [userMenuOpen])
   const { user, userProfile, logout } = useAuth()
 
   return (
@@ -51,7 +52,7 @@ export function Header() {
             {user ? (
               <div className="relative">
                 <button 
-                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
                 >
                   <span>{userProfile?.displayName || 'User'}</span>
@@ -61,7 +62,7 @@ export function Header() {
                 </button>
                 
                 {/* User Dropdown Menu */}
-                {mobileMenuOpen && (
+                {userMenuOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg z-50">
                     <div className="py-2">
                       <LinkComponent href="/dashboard" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -110,20 +111,18 @@ export function Header() {
               </div>
             )}
 
-            {/* Mobile Menu Button - Only for non-authenticated users */}
-            {!user && (
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden text-gray-600"
-              >
-                {mobileMenuOpen ? '✕' : '☰'}
-              </button>
-            )}
+            {/* Mobile Menu Button - Always show on mobile */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden text-gray-600"
+            >
+              {mobileMenuOpen ? '✕' : '☰'}
+            </button>
           </div>
         </div>
 
-        {/* Mobile Menu - Only for non-authenticated users */}
-        {!user && mobileMenuOpen && (
+        {/* Mobile Menu - Always show when open */}
+        {mobileMenuOpen && (
           <div className="md:hidden mt-4 pt-4 border-t border-gray-200">
             <div className="flex flex-col space-y-3">
               <LinkComponent href="/" className="text-gray-600 hover:text-gray-900">Home</LinkComponent>
@@ -131,6 +130,18 @@ export function Header() {
               <LinkComponent href="/producers" className="text-gray-600 hover:text-gray-900">Producers</LinkComponent>
               <LinkComponent href="/blog" className="text-gray-600 hover:text-gray-900">Blog</LinkComponent>
               <LinkComponent href="/contact" className="text-gray-600 hover:text-gray-900">Contact</LinkComponent>
+              {user && (
+                <>
+                  <div className="border-t border-gray-200 mt-3 pt-3 space-y-3">
+                    <LinkComponent href="/dashboard" className="text-gray-600 hover:text-gray-900">📊 Dashboard</LinkComponent>
+                    <LinkComponent href="/library" className="text-gray-600 hover:text-gray-900">📚 My Library</LinkComponent>
+                    <LinkComponent href="/profile" className="text-gray-600 hover:text-gray-900">👤 Profile</LinkComponent>
+                    {userProfile?.role === 'admin' && (
+                      <LinkComponent href="/admin" className="text-gray-600 hover:text-gray-900">⚙️ Admin Panel</LinkComponent>
+                    )}
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}

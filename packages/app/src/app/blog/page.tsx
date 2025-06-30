@@ -29,15 +29,39 @@ export default async function BlogPage() {
   const posts = await getBlogPosts()
 
   return (
-    <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
-      <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '1rem', color: '#1f2937' }}>
-          BeatsChain Blog
-        </h1>
-        <p style={{ fontSize: '1.125rem', color: '#6b7280' }}>
-          Latest insights on music production, Web3, and the future of beats
-        </p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%)',
+        minHeight: '50vh',
+        display: 'flex',
+        alignItems: 'center',
+        color: 'white',
+        position: 'relative'
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.2)' }}></div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
+            📝 BeatsChain Blog
+          </h1>
+          <p style={{ fontSize: '1.25rem', marginBottom: '2rem', opacity: 0.9 }}>
+            Latest insights on music production, Web3, and the future of beats
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+              🎵 Music Insights
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+              🔗 Web3 Updates
+            </div>
+            <div style={{ background: 'rgba(255,255,255,0.1)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.2)' }}>
+              💡 Producer Tips
+            </div>
+          </div>
+        </div>
       </div>
+
+      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '2rem' }}>
 
       {posts.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '3rem', background: '#f9fafb', borderRadius: '0.5rem' }}>
@@ -111,6 +135,7 @@ export default async function BlogPage() {
           ))}
         </div>
       )}
+      </div>
     </div>
   )
 }
