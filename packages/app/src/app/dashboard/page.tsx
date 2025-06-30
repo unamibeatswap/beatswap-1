@@ -1,6 +1,10 @@
 'use client'
 
+import { BackToDashboard } from '@/components/BackToDashboard'
+import { useAuth } from '@/context/AuthContext'
+
 export default function DashboardPage() {
+  const { userProfile } = useAuth()
   return (
     <div>
       {/* Hero Section */}
@@ -24,6 +28,11 @@ export default function DashboardPage() {
       </div>
 
       <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
+        {userProfile?.role === 'admin' && (
+          <div style={{ marginBottom: '1rem' }}>
+            <BackToDashboard />
+          </div>
+        )}
 
       {/* Stats Cards */}
       <div style={{

@@ -11,7 +11,11 @@ import { mainnet, sepolia } from '@reown/appkit/networks'
 const queryClient = new QueryClient()
 
 // Get projectId from environment
-const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID!
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'aa91d5eab1d0156ff3d90cc596741756'
+
+if (!projectId) {
+  console.error('WalletConnect Project ID is required')
+}
 
 // Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
@@ -27,12 +31,14 @@ createAppKit({
   projectId,
   metadata: {
     name: 'BeatsChain',
-    description: 'Web3 Music Marketplace',
-    url: process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000',
-    icons: ['https://avatars.githubusercontent.com/u/37784886']
+    description: 'Decentralized marketplace for music producers and artists',
+    url: 'https://www.beatschain.app',
+    icons: ['https://www.beatschain.app/favicon.ico']
   },
   features: {
-    analytics: true
+    analytics: true,
+    email: false,
+    socials: []
   }
 })
 

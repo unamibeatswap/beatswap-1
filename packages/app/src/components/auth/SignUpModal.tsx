@@ -13,6 +13,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [displayName, setDisplayName] = useState('')
+  const [role, setRole] = useState<'user' | 'producer'>('user')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -24,7 +25,7 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
     setError('')
 
     try {
-      await signUp(email, password, displayName)
+      await signUp(email, password, displayName, role)
       onClose()
     } catch (error: any) {
       setError(error.message)
@@ -80,6 +81,48 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Account Type
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className={`border-2 rounded-lg p-3 cursor-pointer transition-colors ${
+                role === 'user' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+              }`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="user"
+                  checked={role === 'user'}
+                  onChange={(e) => setRole(e.target.value as 'user')}
+                  className="sr-only"
+                />
+                <div className="text-center">
+                  <div className="text-2xl mb-1">🎧</div>
+                  <div className="font-medium">Music Lover</div>
+                  <div className="text-xs text-gray-600">Buy and collect beats</div>
+                </div>
+              </label>
+              <label className={`border-2 rounded-lg p-3 cursor-pointer transition-colors ${
+                role === 'producer' ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+              }`}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="producer"
+                  checked={role === 'producer'}
+                  onChange={(e) => setRole(e.target.value as 'producer')}
+                  className="sr-only"
+                />
+                <div className="text-center">
+                  <div className="text-2xl mb-1">🎵</div>
+                  <div className="font-medium">Producer</div>
+                  <div className="text-xs text-gray-600">Create and sell beats</div>
+                </div>
+              </label>
+            </div>
           </div>
 
           <div>

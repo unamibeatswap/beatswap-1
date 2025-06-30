@@ -13,10 +13,60 @@ function AdminDashboard() {
 
   if (!user || userProfile?.role !== 'admin') {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
-          <p className="text-gray-600">Admin access required</p>
+      <div>
+        {/* Hero Section */}
+        <div style={{
+          background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
+          color: 'white',
+          padding: '4rem 2rem',
+          marginBottom: '2rem'
+        }}>
+          <div className="container mx-auto text-center">
+            <h1 className="text-4xl font-bold mb-4">🔒 Admin Access Required</h1>
+            <p className="text-xl opacity-90 mb-6">This area is restricted to administrators only</p>
+            <div className="flex justify-center gap-4 text-sm">
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                🛡️ Secure Area
+              </div>
+              <div className="bg-white/10 px-4 py-2 rounded-full">
+                👨‍💼 Admin Only
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="bg-white rounded-lg shadow-lg p-8">
+              <div className="text-6xl mb-4">🚫</div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
+              <p className="text-gray-600 mb-6">
+                You need administrator privileges to access this area. 
+                Please contact your system administrator if you believe this is an error.
+              </p>
+              
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-gray-900 mb-2">Need Admin Access?</h3>
+                  <p className="text-sm text-gray-600">
+                    Contact: <a href="mailto:info@unamifoundation.org" className="text-blue-600 hover:underline">info@unamifoundation.org</a>
+                  </p>
+                </div>
+                
+                <div className="flex gap-4 justify-center">
+                  <button 
+                    onClick={() => window.history.back()}
+                    className="bg-gray-600 text-white px-6 py-2 rounded-md hover:bg-gray-700"
+                  >
+                    ← Go Back
+                  </button>
+                  <LinkComponent href="/dashboard" className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700">
+                    Dashboard
+                  </LinkComponent>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     )
