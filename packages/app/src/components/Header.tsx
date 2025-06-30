@@ -55,6 +55,19 @@ export function Header() {
                   onClick={() => setUserMenuOpen(!userMenuOpen)}
                   className="flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
                 >
+                  {userProfile?.profileImage ? (
+                    <img 
+                      src={userProfile.profileImage} 
+                      alt={userProfile.displayName}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center">
+                      <span className="text-xs font-medium text-gray-600">
+                        {(userProfile?.displayName || 'U').charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
                   <span>{userProfile?.displayName || 'User'}</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />

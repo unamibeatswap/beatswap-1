@@ -8,47 +8,57 @@ import { NotificationProvider } from '@/context/Notifications'
 import '../assets/globals.css'
 
 export const metadata: Metadata = {
-  applicationName: SITE_NAME,
+  applicationName: 'BeatsChain',
   title: {
-    default: `${SITE_NAME} · ${SITE_INFO}`,
-    template: `${SITE_NAME} · %s`,
+    default: 'BeatsChain - Web3 Music Marketplace',
+    template: 'BeatsChain - %s',
   },
-  metadataBase: new URL(SITE_URL),
-  description: SITE_DESCRIPTION,
+  metadataBase: new URL('https://www.beatschain.app'),
+  description: 'Decentralized marketplace for music producers and artists. Buy, sell, and trade beats using blockchain technology.',
+  keywords: ['beats', 'music', 'blockchain', 'web3', 'NFT', 'producers', 'marketplace', 'crypto'],
+  authors: [{ name: 'BeatsChain Team' }],
+  creator: 'BeatsChain',
+  publisher: 'BeatsChain',
   manifest: '/manifest.json',
   appleWebApp: {
-    title: SITE_NAME,
+    title: 'BeatsChain',
     capable: true,
     statusBarStyle: 'black-translucent',
   },
   openGraph: {
     type: 'website',
-    title: `${SITE_NAME} - ${SITE_INFO}`,
-    siteName: SITE_NAME,
-    description: SITE_DESCRIPTION,
-    url: SITE_URL,
+    title: 'BeatsChain - Web3 Music Marketplace',
+    siteName: 'BeatsChain',
+    description: 'Decentralized marketplace for music producers and artists. Buy, sell, and trade beats using blockchain technology.',
+    url: 'https://www.beatschain.app',
     images: [
       {
         url: '/og-image.jpg',
         width: 1200,
         height: 630,
-        alt: `${SITE_NAME} - Blockchain Beat Marketplace`,
+        alt: 'BeatsChain - Web3 Music Marketplace',
       },
     ],
     locale: 'en_US',
   },
-  other: {
-    'instagram:site': `@${SOCIAL_INSTAGRAM}`,
-    'linkedin:site': SOCIAL_LINKEDIN,
-    'fb:app_id': process.env.NEXT_PUBLIC_FACEBOOK_APP_ID || '',
-  },
   twitter: {
     card: 'summary_large_image',
-    site: `@${SOCIAL_TWITTER}`,
-    creator: `@${SOCIAL_TWITTER}`,
-    title: `${SITE_NAME} - ${SITE_INFO}`,
-    description: SITE_DESCRIPTION,
+    site: '@BeatsChain',
+    creator: '@BeatsChain',
+    title: 'BeatsChain - Web3 Music Marketplace',
+    description: 'Decentralized marketplace for music producers and artists. Buy, sell, and trade beats using blockchain technology.',
     images: ['/og-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
   },
 }
 
@@ -88,17 +98,30 @@ export default function RootLayout(props: PropsWithChildren) {
           </AuthProvider>
         </Web3Provider>
         
-        {/* Google Tag Manager - Will be controlled by admin settings */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              // GTM will be initialized by admin settings
-            `,
-          }}
-        />
+        {/* Google Tag Manager */}
+        {process.env.NEXT_PUBLIC_GTM_ID && (
+          <>
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                  new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                  j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                  'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                  })(window,document,'script','dataLayer','${process.env.NEXT_PUBLIC_GTM_ID}');
+                `,
+              }}
+            />
+            <noscript>
+              <iframe
+                src={`https://www.googletagmanager.com/ns.html?id=${process.env.NEXT_PUBLIC_GTM_ID}`}
+                height="0"
+                width="0"
+                style={{ display: 'none', visibility: 'hidden' }}
+              />
+            </noscript>
+          </>
+        )}
       </body>
     </html>
   )

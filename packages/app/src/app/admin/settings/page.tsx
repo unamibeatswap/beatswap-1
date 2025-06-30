@@ -75,9 +75,11 @@ export default function SystemSettingsPage() {
           <nav className="-mb-px flex space-x-8">
             {[
               { id: 'general', name: 'General' },
+              { id: 'site', name: 'Site Settings' },
               { id: 'payments', name: 'Payments' },
               { id: 'uploads', name: 'Uploads' },
-              { id: 'notifications', name: 'Notifications' }
+              { id: 'notifications', name: 'Notifications' },
+              { id: 'cms', name: 'CMS' }
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -162,6 +164,167 @@ export default function SystemSettingsPage() {
                     }`}
                   />
                 </button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Site Settings */}
+        {activeTab === 'site' && (
+          <div className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Site Settings</h3>
+            <div className="space-y-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h4 className="font-medium text-blue-900 mb-3">🔍 SEO & Analytics</h4>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Google Tag Manager ID
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="GTM-XXXXXXX"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">Configure in environment: NEXT_PUBLIC_GTM_ID</p>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Site Title
+                    </label>
+                    <input
+                      type="text"
+                      defaultValue="BeatsChain - Web3 Music Marketplace"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Meta Description
+                    </label>
+                    <textarea
+                      rows={3}
+                      defaultValue="Decentralized marketplace for music producers and artists. Buy, sell, and trade beats using blockchain technology."
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h4 className="font-medium text-green-900 mb-3">📱 Social Media</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Twitter Handle
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="@BeatsChain"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Instagram Handle
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="@beatschain"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Facebook Page
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="BeatsChain"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      LinkedIn Company
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="beatschain"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      TikTok Handle
+                    </label>
+                    <input
+                      type="text"
+                      placeholder="@beatschain"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Open Graph Image URL
+                    </label>
+                    <input
+                      type="url"
+                      placeholder="https://www.beatschain.app/og-image.jpg"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
+                    />
+                  </div>
+                </div>
+              </div>
+              
+              <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <h4 className="font-medium text-purple-900 mb-3">🌐 Site Configuration</h4>
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Primary Domain
+                    </label>
+                    <input
+                      type="url"
+                      defaultValue="https://www.beatschain.app"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                      Contact Email
+                    </label>
+                    <input
+                      type="email"
+                      defaultValue="info@unamifoundation.org"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                  </div>
+                  
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700">
+                        Enable Robots.txt
+                      </label>
+                      <p className="text-sm text-gray-500">
+                        Allow search engines to index the site
+                      </p>
+                    </div>
+                    <button
+                      className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors bg-blue-600"
+                    >
+                      <span className="inline-block h-4 w-4 transform rounded-full bg-white transition-transform translate-x-6" />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -299,6 +462,74 @@ export default function SystemSettingsPage() {
                       <span className="text-sm text-gray-700 uppercase">{format}</span>
                     </label>
                   ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* CMS Settings */}
+        {activeTab === 'cms' && (
+          <div className="p-6">
+            <h3 className="text-lg font-semibold mb-4">Content Management System</h3>
+            <div className="space-y-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="bg-blue-100 p-3 rounded-full">
+                    <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-blue-900">Sanity Studio</h4>
+                    <p className="text-blue-700 text-sm">Manage blog posts, featured content, and site content</p>
+                  </div>
+                </div>
+                
+                <div className="flex gap-3">
+                  <a
+                    href="https://beatschain.sanity.studio"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium inline-flex items-center gap-2"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Open Sanity Studio
+                  </a>
+                  <a
+                    href="/blog"
+                    className="bg-gray-100 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 font-medium"
+                  >
+                    View Blog
+                  </a>
+                </div>
+                
+                <div className="mt-4 p-3 bg-gray-50 rounded-lg">
+                  <p className="text-sm text-gray-600">
+                    <strong>Studio URL:</strong> https://beatschain.sanity.studio<br/>
+                    <strong>Project ID:</strong> 3tpr4tci<br/>
+                    <strong>Dataset:</strong> production
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h5 className="font-medium text-gray-900 mb-2">📝 Blog Management</h5>
+                  <p className="text-sm text-gray-600 mb-3">Create and manage blog posts, categories, and authors</p>
+                  <div className="text-xs text-gray-500">
+                    Access: /studio → Posts
+                  </div>
+                </div>
+                
+                <div className="bg-white border border-gray-200 rounded-lg p-4">
+                  <h5 className="font-medium text-gray-900 mb-2">🎵 Featured Content</h5>
+                  <p className="text-sm text-gray-600 mb-3">Manage featured beats, producers, and homepage content</p>
+                  <div className="text-xs text-gray-500">
+                    Access: /studio → Featured
+                  </div>
                 </div>
               </div>
             </div>

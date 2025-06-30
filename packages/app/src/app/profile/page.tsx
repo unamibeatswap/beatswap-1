@@ -2,15 +2,26 @@
 
 import { useState, useRef } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { BackToDashboard } from '@/components/BackToDashboard'
 
 export default function ProfilePage() {
   const { user, userProfile } = useAuth()
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [profileImage, setProfileImage] = useState(userProfile?.profileImage || null)
+  const [settings, setSettings] = useState({
+    emailNotifications: true,
+    marketingEmails: false,
+    twoFactorAuth: false
+  })
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handleSettingChange = (key: string, value: boolean) => {
+    setSettings(prev => ({ ...prev, [key]: value }))
+  }
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+      <BackToDashboard />
       <div style={{ marginBottom: '2rem' }}>
         <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#1f2937' }}>
           Profile Settings
@@ -267,11 +278,11 @@ export default function ProfilePage() {
         
         <div style={{ display: 'grid', gap: '1rem' }}>
           {[
-            { label: 'Email Notifications', description: 'Receive notifications about sales and updates' },
-            { label: 'Marketing Emails', description: 'Receive promotional emails and newsletters' },
-            { label: 'Two-Factor Authentication', description: 'Add an extra layer of security to your account' }
+            { key: 'emailNotifications', label: 'Email Notifications', description: 'Receive notifications about sales and updates' },
+            { key: 'marketingEmails', label: 'Marketing Emails', description: 'Receive promotional emails and newsletters' },
+            { key: 'twoFactorAuth', label: 'Two-Factor Authentication', description: 'Add an extra layer of security to your account' }
           ].map((setting, index) => (
-            <div key={index} style={{
+            <div key={setting.key} style={{
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center',
@@ -286,32 +297,31 @@ export default function ProfilePage() {
                   {setting.description}
                 </p>
               </div>
-              <label style={{ position: 'relative', display: 'inline-block', width: '44px', height: '24px' }}>
-                <input type="checkbox" defaultChecked={index === 0} style={{ opacity: 0, width: 0, height: 0 }} />
+              <button
+                onClick={() => handleSettingChange(setting.key, !settings[setting.key as keyof typeof settings])}
+                style={{
+                  position: 'relative',
+                  width: '44px',
+                  height: '24px',
+                  background: settings[setting.key as keyof typeof settings] ? '#3b82f6' : '#d1d5db',
+                  borderRadius: '24px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background-color 0.3s'
+                }}
+              >
                 <span style={{
                   position: 'absolute',
-                  cursor: 'pointer',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  background: index === 0 ? '#3b82f6' : '#d1d5db',
-                  borderRadius: '24px',
-                  transition: '0.4s'
-                }}>
-                  <span style={{
-                    position: 'absolute',
-                    content: '',
-                    height: '18px',
-                    width: '18px',
-                    left: index === 0 ? '23px' : '3px',
-                    bottom: '3px',
-                    background: 'white',
-                    borderRadius: '50%',
-                    transition: '0.4s'
-                  }}></span>
-                </span>
-              </label>
+                  height: '18px',
+                  width: '18px',
+                  left: settings[setting.key as keyof typeof settings] ? '23px' : '3px',
+                  top: '3px',
+                  background: 'white',
+                  borderRadius: '50%',
+                  transition: 'left 0.3s',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.3)'
+                }}></span>
+              </button>
             </div>
           ))}
         </div>

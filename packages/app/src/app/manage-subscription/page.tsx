@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { SUBSCRIPTION_PLANS } from '@/types/subscription'
+import { BackToDashboard } from '@/components/BackToDashboard'
 
 export default function ManageSubscriptionPage() {
   const { user } = useAuth()
@@ -52,6 +53,7 @@ export default function ManageSubscriptionPage() {
       </div>
       
       <div className="container mx-auto px-4 py-8">
+        <BackToDashboard />
 
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
         <div className="flex items-center justify-between">

@@ -29,7 +29,7 @@ interface AuthContextType {
   userProfile: UserProfile | null
   loading: boolean
   signIn: (email: string, password: string) => Promise<void>
-  signUp: (email: string, password: string, displayName: string) => Promise<void>
+  signUp: (email: string, password: string, displayName: string, role?: 'user' | 'producer') => Promise<void>
   signInWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   updateProfile: (data: Partial<UserProfile>) => Promise<void>
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithEmailAndPassword(auth, email, password)
   }
 
-  const signUp = async (email: string, password: string, displayName: string) => {
+  const signUp = async (email: string, password: string, displayName: string, role: 'user' | 'producer' = 'user') => {
     const { user } = await createUserWithEmailAndPassword(auth, email, password)
     
     // Create user profile in Firestore
@@ -120,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       uid: user.uid,
       email: user.email!,
       displayName,
-      role: 'user',
+      role,
       isVerified: false,
       createdAt: new Date()
     }
@@ -152,7 +152,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const logout = async () => {
-    await signOut(auth)
+    try {
+      // Clear local state first
+      setUser(null)
+      setUserProfile(null)
+      
+      // Then sign out from Firebase
+      await signOut(auth)
+      
+      // Force reload to clear any cached state
+      window.location.href = '/'
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Force clear state even if Firebase fails
+      setUser(null)
+      setUserProfile(null)
+      window.location.href = '/'
+    }
   }
 
   const updateProfile = async (data: Partial<UserProfile>) => {
