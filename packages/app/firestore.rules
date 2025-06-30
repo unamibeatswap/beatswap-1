@@ -95,6 +95,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
+    // Admin settings
+    match /admin-settings/{document=**} {
+      allow read, write: if isAdmin();
+    }
+    
     // Blog posts (for Sanity CMS integration)
     match /blog-posts/{postId} {
       allow read: if true; // Public read for blog

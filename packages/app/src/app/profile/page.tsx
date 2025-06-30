@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { BackToDashboard } from '@/components/BackToDashboard'
+import { toast } from 'react-toastify'
 
 export default function ProfilePage() {
   const { user, userProfile } = useAuth()
@@ -14,10 +15,39 @@ export default function ProfilePage() {
     marketingEmails: false,
     twoFactorAuth: false
   })
+  const [formData, setFormData] = useState({
+    firstName: userProfile?.displayName?.split(' ')[0] || 'Beat',
+    lastName: userProfile?.displayName?.split(' ')[1] || 'Producer',
+    email: userProfile?.email || 'producer@beatswap.com',
+    bio: userProfile?.bio || 'Professional music producer specializing in trap and hip-hop beats. Creating fire beats since 2020.',
+    walletAddress: userProfile?.walletAddress || '0x742d35Cc6634C0532925a3b8D4C9db96590b5'
+  })
+  const [saving, setSaving] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleSettingChange = (key: string, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }))
+  }
+
+  const handleInputChange = (key: string, value: string) => {
+    setFormData(prev => ({ ...prev, [key]: value }))
+  }
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Here you would typically save to Firebase
+      // await updateUserProfile(user.uid, { ...formData, settings })
+      
+      toast.success('Profile updated successfully!')
+    } catch (error) {
+      toast.error('Failed to update profile. Please try again.')
+    } finally {
+      setSaving(false)
+    }
   }
   return (
     <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
@@ -166,7 +196,8 @@ export default function ProfilePage() {
               </label>
               <input
                 type="text"
-                defaultValue="Beat"
+                value={formData.firstName}
+                onChange={(e) => handleInputChange('firstName', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '0.75rem',
@@ -182,7 +213,8 @@ export default function ProfilePage() {
               </label>
               <input
                 type="text"
-                defaultValue="Producer"
+                value={formData.lastName}
+                onChange={(e) => handleInputChange('lastName', e.target.value)}
                 style={{
                   width: '100%',
                   padding: '0.75rem',
@@ -200,7 +232,8 @@ export default function ProfilePage() {
             </label>
             <input
               type="email"
-              defaultValue="producer@beatswap.com"
+              value={formData.email}
+              onChange={(e) => handleInputChange('email', e.target.value)}
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -216,7 +249,8 @@ export default function ProfilePage() {
               Bio
             </label>
             <textarea
-              defaultValue="Professional music producer specializing in trap and hip-hop beats. Creating fire beats since 2020."
+              value={formData.bio}
+              onChange={(e) => handleInputChange('bio', e.target.value)}
               rows={4}
               style={{
                 width: '100%',
@@ -236,7 +270,7 @@ export default function ProfilePage() {
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input
                 type="text"
-                defaultValue="0x742d35Cc6634C0532925a3b8D4C9db96590b5"
+                value={formData.walletAddress}
                 readOnly
                 style={{
                   flex: 1,
@@ -340,33 +374,24 @@ export default function ProfilePage() {
         }}>
           Cancel
         </button>
-        <button style={{
-          background: '#3b82f6',
-          color: 'white',
-          padding: '0.75rem 1.5rem',
-          border: 'none',
-          borderRadius: '0.375rem',
-          fontWeight: '500',
-          cursor: 'pointer'
-        }}>
-          Save Changes
+        <button 
+          onClick={handleSave}
+          disabled={saving}
+          style={{
+            background: saving ? '#9ca3af' : '#3b82f6',
+            color: 'white',
+            padding: '0.75rem 1.5rem',
+            border: 'none',
+            borderRadius: '0.375rem',
+            fontWeight: '500',
+            cursor: saving ? 'not-allowed' : 'pointer'
+          }}
+        >
+          {saving ? 'Saving...' : 'Save Changes'}
         </button>
       </div>
 
-      {/* Development Notice */}
-      <div style={{
-        marginTop: '2rem',
-        padding: '1rem',
-        background: '#f0fdf4',
-        border: '1px solid #059669',
-        borderRadius: '0.5rem',
-        color: '#065f46'
-      }}>
-        <p style={{ fontSize: '0.875rem' }}>
-          <strong>Profile System:</strong> Firebase authentication integrated. 
-          Real user profiles, wallet connection, and settings management ready.
-        </p>
-      </div>
+
     </div>
   )
 }

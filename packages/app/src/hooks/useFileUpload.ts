@@ -94,11 +94,17 @@ export function useFileUpload() {
     }
   }
 
+  // Alias methods for compatibility
+  const uploadAudio = uploadBeatAudio
+  const uploadImage = uploadCoverImage
+
   return {
     uploading,
     progress,
     error,
     uploadBeatAudio,
-    uploadCoverImage
+    uploadCoverImage,
+    uploadAudio,
+    uploadImage
   }
 }

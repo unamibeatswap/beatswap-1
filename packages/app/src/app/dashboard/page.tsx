@@ -199,20 +199,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Development Notice */}
-      <div style={{
-        marginTop: '2rem',
-        padding: '1rem',
-        background: '#dbeafe',
-        border: '1px solid #3b82f6',
-        borderRadius: '0.5rem',
-        color: '#1e40af'
-      }}>
-        <p style={{ fontSize: '0.875rem' }}>
-          <strong>Producer Dashboard:</strong> Full functionality ready with Firebase backend. 
-          Upload system, analytics, and earnings tracking all implemented.
-        </p>
-      </div>
+
     </div>
     </div>
   )

@@ -12,6 +12,7 @@ interface BeatCardProps {
 
 export default function BeatCard({ beat }: BeatCardProps) {
   const [showPurchaseModal, setShowPurchaseModal] = useState(false)
+  const [isLiked, setIsLiked] = useState(false)
   const { user } = useAuth()
 
   const handlePurchase = () => {
@@ -29,9 +30,18 @@ export default function BeatCard({ beat }: BeatCardProps) {
     // Add to user's library, show success notification, etc.
   }
 
+  const handleLike = () => {
+    if (!user) {
+      alert('Please sign in to like beats')
+      return
+    }
+    setIsLiked(!isLiked)
+    // Here you would save to Firebase
+  }
+
   return (
     <>
-      <div className="bg-white rounded-lg shadow-sm border overflow-hidden hover:shadow-md transition-shadow">
+      <div className="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
         {/* Beat Cover */}
         <div className="aspect-square bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white">
           {beat.coverImageUrl ? (
@@ -85,12 +95,19 @@ export default function BeatCard({ beat }: BeatCardProps) {
           <div className="flex gap-2">
             <button
               onClick={handlePurchase}
-              className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors font-medium"
+              className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 text-white py-2.5 px-4 rounded-md hover:from-blue-700 hover:to-purple-700 transition-all duration-200 font-medium shadow-md hover:shadow-lg"
             >
-              Purchase Beat
+              🛒 Purchase Beat
             </button>
-            <button className="p-2 border border-gray-300 rounded-md hover:bg-gray-50 transition-colors">
-              <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <button 
+              onClick={handleLike}
+              className={`p-2 border rounded-md transition-all duration-200 ${
+                isLiked 
+                  ? 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100' 
+                  : 'border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-red-300'
+              }`}
+            >
+              <svg className="w-5 h-5" fill={isLiked ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
               </svg>
             </button>
