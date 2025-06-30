@@ -7,13 +7,17 @@ interface SiteSettings {
   gtmEnabled: boolean
   analyticsEnabled: boolean
   maintenanceMode: boolean
+  logoUrl: string
+  siteName: string
 }
 
 const defaultSettings: SiteSettings = {
   gtmId: '',
   gtmEnabled: false,
   analyticsEnabled: true,
-  maintenanceMode: false
+  maintenanceMode: false,
+  logoUrl: '',
+  siteName: 'BeatsChain'
 }
 
 export function useSiteSettings() {
