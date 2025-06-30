@@ -5,6 +5,7 @@ import { useDropzone } from 'react-dropzone'
 import { useFileUpload } from '@/hooks/useFileUpload'
 import { useBeats } from '@/hooks/useBeats'
 import { useAuth } from '@/context/AuthContext'
+import { toast } from 'react-toastify'
 
 export default function BeatUpload() {
   const [formData, setFormData] = useState({
@@ -38,7 +39,27 @@ export default function BeatUpload() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user || !audioFile) return
+    
+    // Validation
+    if (!user) {
+      toast.error('Please sign in to upload beats')
+      return
+    }
+    
+    if (!audioFile) {
+      toast.error('Please select an audio file')
+      return
+    }
+    
+    if (!formData.title.trim()) {
+      toast.error('Please enter a title for your beat')
+      return
+    }
+    
+    if (formData.price <= 0) {
+      toast.error('Please enter a valid price')
+      return
+    }
 
     setSubmitting(true)
 
@@ -82,11 +103,15 @@ export default function BeatUpload() {
       setAudioFile(null)
       setCoverFile(null)
 
-      alert('Beat uploaded successfully! Your beat is now live on the marketplace.')
-      // Redirect to dashboard
-      window.location.href = '/dashboard'
-    } catch (err) {
+      toast.success('🎵 Beat uploaded successfully! Your beat is now live on the marketplace.')
+      
+      // Redirect to dashboard after a short delay
+      setTimeout(() => {
+        window.location.href = '/dashboard'
+      }, 2000)
+    } catch (err: any) {
       console.error('Upload failed:', err)
+      toast.error(`Upload failed: ${err.message || 'Please try again'}`)
     } finally {
       setSubmitting(false)
     }

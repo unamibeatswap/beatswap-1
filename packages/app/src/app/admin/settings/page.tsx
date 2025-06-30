@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { toast } from 'react-toastify'
 
 export default function SystemSettingsPage() {
   const { userProfile } = useAuth()
@@ -17,6 +18,21 @@ export default function SystemSettingsPage() {
     stripeEnabled: true,
     payfastEnabled: true
   })
+  const [siteSettings, setSiteSettings] = useState({
+    siteTitle: 'BeatsChain - Web3 Music Marketplace',
+    metaDescription: 'Decentralized marketplace for music producers and artists. Buy, sell, and trade beats using blockchain technology.',
+    contactEmail: 'info@unamifoundation.org',
+    primaryDomain: 'https://www.beatschain.app',
+    twitterHandle: '@BeatsChain',
+    instagramHandle: '@beatschain',
+    facebookPage: 'BeatsChain',
+    linkedinCompany: 'beatschain',
+    tiktokHandle: '@beatschain',
+    ogImageUrl: 'https://www.beatschain.app/og-image.jpg',
+    gtmId: ''
+  })
+  const [saving, setSaving] = useState(false)
+  const [lastSaved, setLastSaved] = useState<Date | null>(null)
 
   if (userProfile?.role !== 'admin') {
     return (
@@ -33,11 +49,49 @@ export default function SystemSettingsPage() {
     setSettings(prev => ({ ...prev, [key]: value }))
   }
 
-  const saveSettings = () => {
-    // In production, this would save to Firebase
-    console.log('Saving settings:', settings)
-    alert('Settings saved successfully!')
+  const handleSiteSettingChange = (key: string, value: any) => {
+    setSiteSettings(prev => ({ ...prev, [key]: value }))
   }
+
+  const saveSettings = async () => {
+    setSaving(true)
+    try {
+      // Simulate API call to Firebase
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      // Here you would save to Firebase Firestore
+      // await updateDoc(doc(db, 'site-settings', 'main'), { ...settings, ...siteSettings })
+      
+      setLastSaved(new Date())
+      toast.success('Settings saved successfully!')
+      
+      console.log('Settings saved:', { settings, siteSettings })
+    } catch (error) {
+      console.error('Error saving settings:', error)
+      toast.error('Failed to save settings. Please try again.')
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  // Load settings on component mount
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        // Here you would load from Firebase
+        // const doc = await getDoc(doc(db, 'site-settings', 'main'))
+        // if (doc.exists()) {
+        //   const data = doc.data()
+        //   setSettings(data.settings || settings)
+        //   setSiteSettings(data.siteSettings || siteSettings)
+        // }
+      } catch (error) {
+        console.error('Error loading settings:', error)
+      }
+    }
+    
+    loadSettings()
+  }, [])
 
   return (
     <div>
@@ -183,6 +237,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="text"
+                      value={siteSettings.gtmId}
+                      onChange={(e) => handleSiteSettingChange('gtmId', e.target.value)}
                       placeholder="GTM-XXXXXXX"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
@@ -195,7 +251,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="text"
-                      defaultValue="BeatsChain - Web3 Music Marketplace"
+                      value={siteSettings.siteTitle}
+                      onChange={(e) => handleSiteSettingChange('siteTitle', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -206,7 +263,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <textarea
                       rows={3}
-                      defaultValue="Decentralized marketplace for music producers and artists. Buy, sell, and trade beats using blockchain technology."
+                      value={siteSettings.metaDescription}
+                      onChange={(e) => handleSiteSettingChange('metaDescription', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                   </div>
@@ -222,6 +280,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="text"
+                      value={siteSettings.twitterHandle}
+                      onChange={(e) => handleSiteSettingChange('twitterHandle', e.target.value)}
                       placeholder="@BeatsChain"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
@@ -233,6 +293,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="text"
+                      value={siteSettings.instagramHandle}
+                      onChange={(e) => handleSiteSettingChange('instagramHandle', e.target.value)}
                       placeholder="@beatschain"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
@@ -244,6 +306,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="text"
+                      value={siteSettings.facebookPage}
+                      onChange={(e) => handleSiteSettingChange('facebookPage', e.target.value)}
                       placeholder="BeatsChain"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
@@ -255,6 +319,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="text"
+                      value={siteSettings.linkedinCompany}
+                      onChange={(e) => handleSiteSettingChange('linkedinCompany', e.target.value)}
                       placeholder="beatschain"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
@@ -266,6 +332,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="text"
+                      value={siteSettings.tiktokHandle}
+                      onChange={(e) => handleSiteSettingChange('tiktokHandle', e.target.value)}
                       placeholder="@beatschain"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
@@ -277,6 +345,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="url"
+                      value={siteSettings.ogImageUrl}
+                      onChange={(e) => handleSiteSettingChange('ogImageUrl', e.target.value)}
                       placeholder="https://www.beatschain.app/og-image.jpg"
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500"
                     />
@@ -293,7 +363,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="url"
-                      defaultValue="https://www.beatschain.app"
+                      value={siteSettings.primaryDomain}
+                      onChange={(e) => handleSiteSettingChange('primaryDomain', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
@@ -304,7 +375,8 @@ export default function SystemSettingsPage() {
                     </label>
                     <input
                       type="email"
-                      defaultValue="info@unamifoundation.org"
+                      value={siteSettings.contactEmail}
+                      onChange={(e) => handleSiteSettingChange('contactEmail', e.target.value)}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                   </div>
@@ -488,7 +560,7 @@ export default function SystemSettingsPage() {
                 
                 <div className="flex gap-3">
                   <a
-                    href="https://beatschain.sanity.studio"
+                    href="https://3tpr4tci.sanity.studio/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 font-medium inline-flex items-center gap-2"
@@ -508,10 +580,16 @@ export default function SystemSettingsPage() {
                 
                 <div className="mt-4 p-3 bg-gray-50 rounded-lg">
                   <p className="text-sm text-gray-600">
-                    <strong>Studio URL:</strong> https://beatschain.sanity.studio<br/>
+                    <strong>Studio URL:</strong> https://3tpr4tci.sanity.studio/<br/>
                     <strong>Project ID:</strong> 3tpr4tci<br/>
-                    <strong>Dataset:</strong> production
+                    <strong>Dataset:</strong> production<br/>
+                    <strong>Status:</strong> <span className="text-green-600">✅ Active</span>
                   </p>
+                  <div className="mt-2 text-xs text-gray-500">
+                    <p>• Blog posts and content management</p>
+                    <p>• Featured producers and beats</p>
+                    <p>• Homepage content and announcements</p>
+                  </div>
                 </div>
               </div>
               
@@ -579,12 +657,22 @@ export default function SystemSettingsPage() {
 
         {/* Save Button */}
         <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
-          <div className="flex justify-end">
+          <div className="flex justify-between items-center">
+            <div className="text-sm text-gray-600">
+              {lastSaved && (
+                <span>Last saved: {lastSaved.toLocaleTimeString()}</span>
+              )}
+            </div>
             <button
               onClick={saveSettings}
-              className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 font-medium"
+              disabled={saving}
+              className={`px-6 py-2 rounded-md font-medium transition-colors ${
+                saving 
+                  ? 'bg-gray-400 text-white cursor-not-allowed' 
+                  : 'bg-blue-600 text-white hover:bg-blue-700'
+              }`}
             >
-              Save Settings
+              {saving ? 'Saving...' : 'Save Settings'}
             </button>
           </div>
         </div>

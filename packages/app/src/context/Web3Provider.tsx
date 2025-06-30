@@ -14,7 +14,7 @@ const queryClient = new QueryClient()
 const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'aa91d5eab1d0156ff3d90cc596741756'
 
 if (!projectId) {
-  console.error('WalletConnect Project ID is required')
+  console.warn('Using default WalletConnect Project ID. For production, set NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID')
 }
 
 // Create Wagmi Adapter
@@ -25,22 +25,31 @@ const wagmiAdapter = new WagmiAdapter({
 })
 
 // Create AppKit instance
-createAppKit({
-  adapters: [wagmiAdapter],
-  networks: [mainnet, sepolia],
-  projectId,
-  metadata: {
-    name: 'BeatsChain',
-    description: 'Decentralized marketplace for music producers and artists',
-    url: 'https://www.beatschain.app',
-    icons: ['https://www.beatschain.app/favicon.ico']
-  },
-  features: {
-    analytics: true,
-    email: false,
-    socials: []
-  }
-})
+try {
+  createAppKit({
+    adapters: [wagmiAdapter],
+    networks: [mainnet, sepolia],
+    projectId,
+    metadata: {
+      name: 'BeatsChain',
+      description: 'Decentralized marketplace for music producers and artists',
+      url: 'https://www.beatschain.app',
+      icons: ['https://www.beatschain.app/favicon.ico']
+    },
+    features: {
+      analytics: true,
+      email: false,
+      socials: []
+    },
+    themeMode: 'light',
+    themeVariables: {
+      '--w3m-color-mix': '#3b82f6',
+      '--w3m-color-mix-strength': 20
+    }
+  })
+} catch (error) {
+  console.warn('Web3 wallet connection setup failed:', error)
+}
 
 export function Web3Provider({ children }: PropsWithChildren) {
   return (
