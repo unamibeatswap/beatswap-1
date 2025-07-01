@@ -14,8 +14,8 @@ export const metadata: Metadata = {
     template: 'BeatsChain - %s',
   },
   metadataBase: new URL('https://www.beatschain.app'),
-  description: 'Decentralized marketplace for music producers and artists. Buy, sell, and trade beats using blockchain technology.',
-  keywords: ['beats', 'music', 'blockchain', 'web3', 'NFT', 'producers', 'marketplace', 'crypto'],
+  description: 'Premium marketplace for music producers and artists. Discover, purchase, and sell high-quality beats from talented South African producers.',
+  keywords: ['beats', 'music', 'amapiano', 'afrobeats', 'producers', 'marketplace', 'south africa', 'hip hop', 'trap'],
   authors: [{ name: 'BeatsChain Team' }],
   creator: 'BeatsChain',
   publisher: 'BeatsChain',
@@ -75,8 +75,9 @@ export default function RootLayout(props: PropsWithChildren) {
   return (
     <html lang='en'>
       <head>
+        <link rel='icon' href='/favicon.svg' type='image/svg+xml' />
+        <link rel='apple-touch-icon' sizes='180x180' href='/favicon.svg' />
         <link rel='icon' href='/favicon.ico' />
-        <link rel='apple-touch-icon' sizes='180x180' href='/favicon.ico' />
         <script src="https://cdn.tailwindcss.com"></script>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
         <style>{`

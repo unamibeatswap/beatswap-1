@@ -1,7 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
+import { toast } from 'react-toastify'
 
 interface SignUpModalProps {
   isOpen: boolean
@@ -21,32 +22,70 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (loading) return
+    
     setLoading(true)
     setError('')
 
     try {
       await signUp(email, password, displayName, role)
+      toast.success('Account created successfully!')
       onClose()
     } catch (error: any) {
-      setError(error.message)
+      console.error('Sign up error:', error)
+      let errorMessage = 'Failed to create account. Please try again.'
+      
+      if (error.code === 'auth/email-already-in-use') {
+        errorMessage = 'An account with this email already exists.'
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = 'Password should be at least 6 characters.'
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = 'Please enter a valid email address.'
+      }
+      
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
   }
 
   const handleGoogleSignIn = async () => {
+    if (loading) return
+    
     setLoading(true)
     setError('')
 
     try {
       await signInWithGoogle()
+      toast.success('Account created successfully with Google!')
       onClose()
     } catch (error: any) {
-      setError(error.message)
+      console.error('Google sign up error:', error)
+      let errorMessage = 'Failed to create account with Google.'
+      
+      if (error.code === 'auth/popup-closed-by-user') {
+        errorMessage = 'Sign up was cancelled.'
+      }
+      
+      setError(errorMessage)
+      toast.error(errorMessage)
     } finally {
       setLoading(false)
     }
   }
+
+  // Reset form when modal closes
+  React.useEffect(() => {
+    if (!isOpen) {
+      setEmail('')
+      setPassword('')
+      setDisplayName('')
+      setRole('user')
+      setError('')
+      setLoading(false)
+    }
+  }, [isOpen])
 
   if (!isOpen) return null
 
@@ -154,10 +193,17 @@ export default function SignUpModal({ isOpen, onClose, onSwitchToSignIn }: SignU
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:opacity-50"
+            disabled={loading || !email || !password || !displayName}
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 font-medium transition-all duration-200 shadow-md hover:shadow-lg"
           >
-            {loading ? 'Creating Account...' : 'Sign Up'}
+            {loading ? (
+              <div className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                Creating Account...
+              </div>
+            ) : (
+              'Create Account'
+            )}
           </button>
         </form>
 

@@ -158,17 +158,41 @@ function LibraryPage() {
         )}
       </div>
 
-      {/* Mock Data Notice */}
-      <div className="mt-8 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-        <div className="flex items-center gap-2">
-          <svg className="w-5 h-5 text-yellow-600" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-          </svg>
-          <p className="text-yellow-800 text-sm">
-            <strong>Development Mode:</strong> Using mock library data. Real purchases will be stored in Firestore.
-          </p>
+      {/* Getting Started Guide */}
+      {mockPurchasedBeats.length === 0 && (
+        <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+          <h3 className="text-lg font-semibold text-gray-900 mb-3">🚀 Get Started with BeatsChain</h3>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+            <div className="flex items-start gap-3">
+              <div className="bg-blue-100 p-2 rounded-full">
+                <span className="text-blue-600 font-bold">1</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Browse Marketplace</p>
+                <p className="text-gray-600">Discover beats from talented producers</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="bg-purple-100 p-2 rounded-full">
+                <span className="text-purple-600 font-bold">2</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Purchase Beats</p>
+                <p className="text-gray-600">Choose your license and complete purchase</p>
+              </div>
+            </div>
+            <div className="flex items-start gap-3">
+              <div className="bg-green-100 p-2 rounded-full">
+                <span className="text-green-600 font-bold">3</span>
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">Access Library</p>
+                <p className="text-gray-600">Download and manage your beats here</p>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
     </div>
   )

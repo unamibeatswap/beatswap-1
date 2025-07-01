@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { usePayments } from '@/hooks/usePayments'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuth } from '@/context/AuthContext'
 
 interface PurchaseModalProps {
   isOpen: boolean
@@ -24,13 +24,16 @@ export default function PurchaseModal({ isOpen, onClose, beat }: PurchaseModalPr
   if (!isOpen) return null
 
   const licenseOptions = {
-    basic: { price: beat.price, name: 'Basic License', description: 'For non-commercial use' },
-    premium: { price: beat.price * 2, name: 'Premium License', description: 'Commercial use allowed' },
-    exclusive: { price: beat.price * 10, name: 'Exclusive License', description: 'Full ownership rights' }
+    basic: { price: beat.price * 0.8, name: 'Basic License', description: 'For non-commercial use' },
+    premium: { price: beat.price, name: 'Premium License', description: 'Commercial use allowed' },
+    exclusive: { price: beat.price * 5, name: 'Exclusive License', description: 'Full ownership rights' }
   }
 
   const handlePurchase = async () => {
-    if (!user) return
+    if (!user) {
+      alert('Please sign in to complete purchase')
+      return
+    }
 
     const purchaseData = {
       beatId: beat.id,
@@ -41,14 +44,22 @@ export default function PurchaseModal({ isOpen, onClose, beat }: PurchaseModalPr
 
     try {
       if (paymentMethod === 'crypto') {
+        // Check if wallet is connected for crypto payments
+        const { address } = await import('wagmi')
+        if (!address) {
+          alert('Please connect your wallet for crypto payments')
+          return
+        }
         await purchaseWithCrypto(purchaseData)
       } else {
+        // Fiat payments don't require wallet
         await purchaseWithFiat(purchaseData)
       }
       onClose()
       alert('Purchase successful!')
-    } catch (err) {
+    } catch (err: any) {
       console.error('Purchase failed:', err)
+      alert(`Purchase failed: ${err.message}`)
     }
   }
 
@@ -226,19 +237,19 @@ export default function PurchaseModal({ isOpen, onClose, beat }: PurchaseModalPr
           </button>
           <button
             onClick={handlePurchase}
-            disabled={processing || !user}
+            disabled={processing}
             style={{
               flex: 2,
-              background: (processing || !user) ? '#9ca3af' : '#3b82f6',
+              background: processing ? '#9ca3af' : '#3b82f6',
               color: 'white',
               padding: '0.75rem',
               border: 'none',
               borderRadius: '0.375rem',
               fontWeight: '500',
-              cursor: (processing || !user) ? 'not-allowed' : 'pointer'
+              cursor: processing ? 'not-allowed' : 'pointer'
             }}
           >
-            {processing ? 'Processing...' : `Purchase for $${licenseOptions[licenseType].price}`}
+            {processing ? 'Processing...' : `Purchase for R${licenseOptions[licenseType].price}`}
           </button>
         </div>
       </div>

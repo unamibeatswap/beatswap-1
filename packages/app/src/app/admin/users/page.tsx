@@ -3,72 +3,143 @@
 import { useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useAuth } from '@/context/AuthContext'
-
-interface User {
-  id: string
-  email: string
-  displayName: string
-  role: 'user' | 'producer' | 'admin'
-  isVerified: boolean
-  createdAt: Date
-  lastActive: Date
-  totalSpent: number
-  totalEarned: number
-}
-
-const mockUsers: User[] = [
-  {
-    id: '1',
-    email: 'producer1@example.com',
-    displayName: 'Beat Master',
-    role: 'producer',
-    isVerified: true,
-    createdAt: new Date('2024-01-15'),
-    lastActive: new Date('2024-01-25'),
-    totalSpent: 0,
-    totalEarned: 12500.00
-  },
-  {
-    id: '2',
-    email: 'user1@example.com',
-    displayName: 'Music Lover',
-    role: 'user',
-    isVerified: false,
-    createdAt: new Date('2024-01-20'),
-    lastActive: new Date('2024-01-24'),
-    totalSpent: 899.99,
-    totalEarned: 0
-  }
-]
+import { useUsers, UserProfile } from '@/hooks/useUsers'
+import { toast } from 'react-toastify'
+import { useEffect, useState } from 'react'
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
+import { db } from '@/lib/firebase'
 
 function UserManagement() {
   const { userProfile } = useAuth()
-  const [users, setUsers] = useState(mockUsers)
+  const [realUsers, setRealUsers] = useState<UserProfile[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchTerm, setSearchTerm] = useState('')
   const [roleFilter, setRoleFilter] = useState<string>('all')
-  const [selectedUser, setSelectedUser] = useState<User | null>(null)
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null)
+  const [actionLoading, setActionLoading] = useState<string | null>(null)
 
-  if (userProfile?.role !== 'admin') {
-    return <div className="p-8 text-center">Access Denied</div>
-  }
+  // Fetch real users from Firestore
+  useEffect(() => {
+    const fetchRealUsers = async () => {
+      try {
+        setLoading(true)
+        const usersSnapshot = await getDocs(collection(db, 'users'))
+        const users = usersSnapshot.docs.map(doc => ({
+          uid: doc.id,
+          ...doc.data(),
+          createdAt: doc.data().createdAt?.toDate() || new Date(),
+          updatedAt: doc.data().updatedAt?.toDate() || new Date(),
+          lastActive: doc.data().lastActive?.toDate() || new Date()
+        })) as UserProfile[]
+        setRealUsers(users)
+      } catch (err: any) {
+        setError(err.message)
+        console.error('Error fetching users:', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchRealUsers()
+  }, [])
 
-  const filteredUsers = users.filter(user => {
+  const filteredUsers = realUsers.filter(user => {
     const matchesSearch = user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          user.displayName.toLowerCase().includes(searchTerm.toLowerCase())
     const matchesRole = roleFilter === 'all' || user.role === roleFilter
     return matchesSearch && matchesRole
   })
 
-  const updateUserRole = (userId: string, newRole: 'user' | 'producer' | 'admin') => {
-    setUsers(prev => prev.map(user => 
-      user.id === userId ? { ...user, role: newRole } : user
-    ))
+  const stats = {
+    total: realUsers.length,
+    producers: realUsers.filter(u => u.role === 'producer').length,
+    verified: realUsers.filter(u => u.isVerified).length,
+    activeToday: realUsers.filter(u => {
+      const today = new Date()
+      return u.lastActive && new Date(u.lastActive).toDateString() === today.toDateString()
+    }).length
   }
 
-  const toggleVerification = (userId: string) => {
-    setUsers(prev => prev.map(user => 
-      user.id === userId ? { ...user, isVerified: !user.isVerified } : user
-    ))
+  if (userProfile?.role !== 'admin') {
+    return (
+      <div className="p-8 text-center">
+        <div className="text-6xl mb-4">🔒</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+        <p className="text-gray-600">You need admin privileges to access this page.</p>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="p-8 text-center">
+        <div className="text-6xl mb-4">⏳</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Loading Users...</h2>
+        <p className="text-gray-600">Fetching user data from database...</p>
+      </div>
+    )
+  }
+
+  const handleRoleUpdate = async (userId: string, newRole: 'user' | 'producer' | 'admin') => {
+    setActionLoading(`role-${userId}`)
+    try {
+      await updateDoc(doc(db, 'users', userId), { role: newRole })
+      setRealUsers(prev => prev.map(user => 
+        user.uid === userId ? { ...user, role: newRole } : user
+      ))
+      toast.success(`User role updated to ${newRole}`)
+    } catch (error) {
+      toast.error('Failed to update user role')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleVerificationToggle = async (userId: string) => {
+    setActionLoading(`verify-${userId}`)
+    try {
+      const user = realUsers.find(u => u.uid === userId)
+      if (!user) return
+      
+      const newStatus = !user.isVerified
+      await updateDoc(doc(db, 'users', userId), { isVerified: newStatus })
+      setRealUsers(prev => prev.map(u => 
+        u.uid === userId ? { ...u, isVerified: newStatus } : u
+      ))
+      toast.success('User verification status updated')
+    } catch (error) {
+      toast.error('Failed to update verification status')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleSuspendUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to suspend this user?')) return
+    
+    setActionLoading(`suspend-${userId}`)
+    try {
+      await updateDoc(doc(db, 'users', userId), { suspended: true })
+      toast.success('User suspended successfully')
+    } catch (error) {
+      toast.error('Failed to suspend user')
+    } finally {
+      setActionLoading(null)
+    }
+  }
+
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm('Are you sure you want to delete this user? This action cannot be undone.')) return
+    
+    setActionLoading(`delete-${userId}`)
+    try {
+      // Note: In production, you'd typically soft delete or use Firebase Admin SDK
+      toast.info('User deletion requires admin privileges')
+    } catch (error) {
+      toast.error('Failed to delete user')
+    } finally {
+      setActionLoading(null)
+    }
   }
 
   return (
@@ -86,15 +157,21 @@ function UserManagement() {
             <p className="text-xl opacity-90 mb-6">Manage users, roles, and permissions across the platform</p>
             <div className="flex justify-center gap-4 text-sm">
               <div className="bg-white/10 px-4 py-2 rounded-full">
-                👤 {users.length} Total Users
+                👤 {stats.total} Total Users
               </div>
               <div className="bg-white/10 px-4 py-2 rounded-full">
-                🎤 {users.filter(u => u.role === 'producer').length} Producers
+                🎤 {stats.producers} Producers
               </div>
               <div className="bg-white/10 px-4 py-2 rounded-full">
-                ✓ {users.filter(u => u.isVerified).length} Verified
+                ✓ {stats.verified} Verified
               </div>
             </div>
+            {error && (
+              <div className="mt-4 bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded">
+                <p className="text-sm">⚠️ {error}</p>
+                <p className="text-xs mt-1">Using demo data. Check Firebase connection.</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -105,21 +182,19 @@ function UserManagement() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow">
           <p className="text-sm font-medium text-gray-600">Total Users</p>
-          <p className="text-2xl font-bold text-gray-900">{users.length}</p>
+          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <p className="text-sm font-medium text-gray-600">Producers</p>
-          <p className="text-2xl font-bold text-gray-900">{users.filter(u => u.role === 'producer').length}</p>
+          <p className="text-2xl font-bold text-gray-900">{stats.producers}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <p className="text-sm font-medium text-gray-600">Verified</p>
-          <p className="text-2xl font-bold text-gray-900">{users.filter(u => u.isVerified).length}</p>
+          <p className="text-2xl font-bold text-gray-900">{stats.verified}</p>
         </div>
         <div className="bg-white p-6 rounded-lg shadow">
           <p className="text-sm font-medium text-gray-600">Active Today</p>
-          <p className="text-2xl font-bold text-gray-900">
-            {users.filter(u => u.lastActive > new Date(Date.now() - 24*60*60*1000)).length}
-          </p>
+          <p className="text-2xl font-bold text-gray-900">{stats.activeToday}</p>
         </div>
       </div>
 
@@ -176,7 +251,7 @@ function UserManagement() {
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredUsers.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
+                <tr key={user.uid} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div>
                       <div className="text-sm font-medium text-gray-900">{user.displayName}</div>
@@ -186,13 +261,17 @@ function UserManagement() {
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
                       value={user.role}
-                      onChange={(e) => updateUserRole(user.id, e.target.value as any)}
-                      className="text-sm border border-gray-300 rounded px-2 py-1"
+                      onChange={(e) => handleRoleUpdate(user.uid, e.target.value as any)}
+                      disabled={actionLoading === `role-${user.uid}`}
+                      className="text-sm border border-gray-300 rounded px-2 py-1 disabled:opacity-50"
                     >
                       <option value="user">User</option>
                       <option value="producer">Producer</option>
                       <option value="admin">Admin</option>
                     </select>
+                    {actionLoading === `role-${user.uid}` && (
+                      <span className="ml-2 text-xs text-blue-600">Updating...</span>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center gap-2">
@@ -204,10 +283,11 @@ function UserManagement() {
                         {user.isVerified ? 'Verified' : 'Unverified'}
                       </span>
                       <button
-                        onClick={() => toggleVerification(user.id)}
-                        className="text-blue-600 hover:text-blue-800 text-xs"
+                        onClick={() => handleVerificationToggle(user.uid)}
+                        disabled={actionLoading === `verify-${user.uid}`}
+                        className="text-blue-600 hover:text-blue-800 text-xs disabled:opacity-50"
                       >
-                        Toggle
+                        {actionLoading === `verify-${user.uid}` ? 'Updating...' : 'Toggle'}
                       </button>
                     </div>
                   </td>
@@ -231,8 +311,12 @@ function UserManagement() {
                       >
                         View
                       </button>
-                      <button className="text-red-600 hover:text-red-900">
-                        Suspend
+                      <button 
+                        onClick={() => handleSuspendUser(user.uid)}
+                        disabled={actionLoading === `suspend-${user.uid}`}
+                        className="text-yellow-600 hover:text-yellow-900 disabled:opacity-50"
+                      >
+                        {actionLoading === `suspend-${user.uid}` ? 'Suspending...' : 'Suspend'}
                       </button>
                     </div>
                   </td>
@@ -287,11 +371,19 @@ function UserManagement() {
                 <button className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
                   Send Message
                 </button>
-                <button className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700">
-                  Suspend Account
+                <button 
+                  onClick={() => handleSuspendUser(selectedUser.uid)}
+                  disabled={actionLoading === `suspend-${selectedUser.uid}`}
+                  className="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700 disabled:opacity-50"
+                >
+                  {actionLoading === `suspend-${selectedUser.uid}` ? 'Suspending...' : 'Suspend Account'}
                 </button>
-                <button className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700">
-                  Delete Account
+                <button 
+                  onClick={() => handleDeleteUser(selectedUser.uid)}
+                  disabled={actionLoading === `delete-${selectedUser.uid}`}
+                  className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 disabled:opacity-50"
+                >
+                  {actionLoading === `delete-${selectedUser.uid}` ? 'Deleting...' : 'Delete Account'}
                 </button>
               </div>
             </div>

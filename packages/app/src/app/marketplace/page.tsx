@@ -4,11 +4,14 @@ import { useState } from 'react'
 import { Beat } from '@/types'
 import BeatCard from '@/components/BeatCard'
 import { useBeats } from '@/hooks/useBeats'
+import { toast } from 'react-toastify'
 
 export default function MarketplacePage() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedGenre, setSelectedGenre] = useState('all')
   const [sortBy, setSortBy] = useState('newest')
+  const [currentPage, setCurrentPage] = useState(1)
+  const beatsPerPage = 8
 
   const { beats, loading, error } = useBeats()
   
@@ -42,6 +45,16 @@ export default function MarketplacePage() {
     const matchesGenre = selectedGenre === 'all' || beat.genre.toLowerCase() === selectedGenre.toLowerCase()
     return matchesSearch && matchesGenre
   })
+
+  // Pagination logic
+  const totalPages = Math.ceil(filteredBeats.length / beatsPerPage)
+  const startIndex = (currentPage - 1) * beatsPerPage
+  const currentBeats = filteredBeats.slice(startIndex, startIndex + beatsPerPage)
+  
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, selectedGenre, sortBy])
 
   return (
     <div>
@@ -117,24 +130,76 @@ export default function MarketplacePage() {
       </div>
 
       {/* Results Count */}
-      <div className="mb-6">
+      <div className="mb-6 flex justify-between items-center">
         <p className="text-gray-600">
-          Showing {filteredBeats.length} beat{filteredBeats.length !== 1 ? 's' : ''}
+          Showing {startIndex + 1}-{Math.min(startIndex + beatsPerPage, filteredBeats.length)} of {filteredBeats.length} beat{filteredBeats.length !== 1 ? 's' : ''}
+        </p>
+        <p className="text-sm text-gray-500">
+          Page {currentPage} of {totalPages}
         </p>
       </div>
 
       {/* Beats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredBeats.map(beat => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
+        {currentBeats.map(beat => (
           <BeatCard key={beat.id} beat={beat} />
         ))}
       </div>
 
-      {filteredBeats.length === 0 && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🎵</div>
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">No beats found</h3>
-          <p className="text-gray-600">Try adjusting your search or filters</p>
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-2 mb-8">
+          <button
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+          
+          {[...Array(totalPages)].map((_, i) => (
+            <button
+              key={i + 1}
+              onClick={() => setCurrentPage(i + 1)}
+              className={`px-3 py-2 border rounded-md ${
+                currentPage === i + 1
+                  ? 'bg-blue-600 text-white border-blue-600'
+                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {i + 1}
+            </button>
+          ))}
+          
+          <button
+            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
+        </div>
+      )}
+
+      {currentBeats.length === 0 && (
+        <div className="text-center py-16">
+          <div className="text-8xl mb-6">🎵</div>
+          <h3 className="text-2xl font-semibold text-gray-900 mb-3">No beats found</h3>
+          <p className="text-gray-600 mb-6">Try adjusting your search terms or filters to discover more beats</p>
+          <div className="flex flex-wrap justify-center gap-2">
+            {['amapiano', 'afrobeats', 'trap', 'hip hop'].map(genre => (
+              <button
+                key={genre}
+                onClick={() => {
+                  setSelectedGenre(genre)
+                  setSearchTerm('')
+                }}
+                className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition-colors text-sm font-medium"
+              >
+                Try {genre}
+              </button>
+            ))}
+          </div>
         </div>
       )}
 
