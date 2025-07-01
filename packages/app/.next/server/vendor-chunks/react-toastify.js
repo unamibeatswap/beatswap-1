@@ -11,6 +11,86 @@ exports.id = "vendor-chunks/react-toastify";
 exports.ids = ["vendor-chunks/react-toastify"];
 exports.modules = {
 
+/***/ "(rsc)/../../node_modules/react-toastify/dist/ReactToastify.css":
+/*!****************************************************************!*\
+  !*** ../../node_modules/react-toastify/dist/ReactToastify.css ***!
+  \****************************************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"default\": () => (__WEBPACK_DEFAULT_EXPORT__)\n/* harmony export */ });\n/* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = (\"791fe3d42eca\");\nif (false) {}\n//# sourceURL=[module]\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiKHJzYykvLi4vLi4vbm9kZV9tb2R1bGVzL3JlYWN0LXRvYXN0aWZ5L2Rpc3QvUmVhY3RUb2FzdGlmeS5jc3MiLCJtYXBwaW5ncyI6Ijs7OztBQUFBLGlFQUFlLGNBQWM7QUFDN0IsSUFBSSxLQUFVLEVBQUUsRUFBdUIiLCJzb3VyY2VzIjpbIi93b3Jrc3BhY2VzL2JlYXRzd2FwLTEvbm9kZV9tb2R1bGVzL3JlYWN0LXRvYXN0aWZ5L2Rpc3QvUmVhY3RUb2FzdGlmeS5jc3MiXSwic291cmNlc0NvbnRlbnQiOlsiZXhwb3J0IGRlZmF1bHQgXCI3OTFmZTNkNDJlY2FcIlxuaWYgKG1vZHVsZS5ob3QpIHsgbW9kdWxlLmhvdC5hY2NlcHQoKSB9XG4iXSwibmFtZXMiOltdLCJpZ25vcmVMaXN0IjpbMF0sInNvdXJjZVJvb3QiOiIifQ==\n//# sourceURL=webpack-internal:///(rsc)/../../node_modules/react-toastify/dist/ReactToastify.css\n");
+
+/***/ }),
+
+/***/ "(rsc)/../../node_modules/react-toastify/dist/react-toastify.esm.mjs":
+/*!*********************************************************************!*\
+  !*** ../../node_modules/react-toastify/dist/react-toastify.esm.mjs ***!
+  \*********************************************************************/
+/***/ ((__unused_webpack___webpack_module__, __webpack_exports__, __webpack_require__) => {
+
+__webpack_require__.r(__webpack_exports__);
+/* harmony export */ __webpack_require__.d(__webpack_exports__, {
+/* harmony export */   Bounce: () => (/* binding */ Bounce),
+/* harmony export */   Flip: () => (/* binding */ Flip),
+/* harmony export */   Icons: () => (/* binding */ Icons),
+/* harmony export */   Slide: () => (/* binding */ Slide),
+/* harmony export */   ToastContainer: () => (/* binding */ ToastContainer),
+/* harmony export */   Zoom: () => (/* binding */ Zoom),
+/* harmony export */   collapseToast: () => (/* binding */ collapseToast),
+/* harmony export */   cssTransition: () => (/* binding */ cssTransition),
+/* harmony export */   toast: () => (/* binding */ toast),
+/* harmony export */   useToast: () => (/* binding */ useToast),
+/* harmony export */   useToastContainer: () => (/* binding */ useToastContainer)
+/* harmony export */ });
+/* harmony import */ var react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! react-server-dom-webpack/server.edge */ "(rsc)/../../node_modules/next/dist/server/route-modules/app-page/vendored/rsc/react-server-dom-webpack-server-edge.js");
+
+const Bounce = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call Bounce() from the server but Bounce is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"Bounce",
+);const Flip = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call Flip() from the server but Flip is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"Flip",
+);const Icons = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call Icons() from the server but Icons is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"Icons",
+);const Slide = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call Slide() from the server but Slide is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"Slide",
+);const ToastContainer = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call ToastContainer() from the server but ToastContainer is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"ToastContainer",
+);const Zoom = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call Zoom() from the server but Zoom is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"Zoom",
+);const collapseToast = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call collapseToast() from the server but collapseToast is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"collapseToast",
+);const cssTransition = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call cssTransition() from the server but cssTransition is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"cssTransition",
+);const toast = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call toast() from the server but toast is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"toast",
+);const useToast = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call useToast() from the server but useToast is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"useToast",
+);const useToastContainer = (0,react_server_dom_webpack_server_edge__WEBPACK_IMPORTED_MODULE_0__.registerClientReference)(
+function() { throw new Error("Attempted to call useToastContainer() from the server but useToastContainer is on the client. It's not possible to invoke a client function from the server, it can only be rendered as a Component or passed to props of a Client Component."); },
+"/workspaces/beatswap-1/node_modules/react-toastify/dist/react-toastify.esm.mjs",
+"useToastContainer",
+);
+
+/***/ }),
+
 /***/ "(ssr)/../../node_modules/react-toastify/dist/ReactToastify.min.css":
 /*!********************************************************************!*\
   !*** ../../node_modules/react-toastify/dist/ReactToastify.min.css ***!

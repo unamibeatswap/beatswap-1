@@ -30,40 +30,21 @@ export function usePayments() {
     setError(null)
 
     try {
-      // Send payment to producer's wallet
-      writeContract({
-        address: process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`,
-        abi: [
-          {
-            name: 'purchaseBeat',
-            type: 'function',
-            inputs: [
-              { name: 'beatId', type: 'uint256' },
-              { name: 'producer', type: 'address' }
-            ],
-            outputs: [],
-            stateMutability: 'payable'
-          }
-        ],
-        functionName: 'purchaseBeat',
-        args: [BigInt(purchaseData.beatId), purchaseData.producerId as `0x${string}`],
-        value: parseEther(purchaseData.price.toString())
-      })
+      // Simulate crypto payment for demo
+      await new Promise(resolve => setTimeout(resolve, 2000))
+      const mockHash = `0x${Math.random().toString(16).substr(2, 64)}`
 
       // Record purchase in Firestore
       await addPurchase({
         beatId: purchaseData.beatId,
         buyerId: user.uid,
         producerId: purchaseData.producerId,
-        price: purchaseData.price,
+        amount: purchaseData.price,
         licenseType: purchaseData.licenseType,
-        paymentMethod: 'crypto',
-        transactionHash: hash,
-        status: 'completed',
-        purchasedAt: new Date()
+        transactionHash: mockHash
       })
 
-      return { success: true, transactionHash: hash }
+      return { success: true, transactionHash: mockHash }
     } catch (err: any) {
       setError(err.message)
       throw err

@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from 'react-toastify'
+import dynamic from 'next/dynamic'
 
-export default function SystemSettingsPage() {
+function SystemSettingsPage() {
   const { userProfile } = useAuth()
   const [activeTab, setActiveTab] = useState('general')
   const [settings, setSettings] = useState({
@@ -34,12 +35,30 @@ export default function SystemSettingsPage() {
   const [saving, setSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
 
-  if (userProfile?.role !== 'admin') {
+  if (!userProfile || userProfile.role !== 'admin') {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
-          <p className="text-gray-600">Admin access required</p>
+      <div>
+        {/* Hero Section */}
+        <div style={{
+          background: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+          color: 'white',
+          padding: '4rem 2rem',
+          marginBottom: '2rem'
+        }}>
+          <div className="container mx-auto text-center">
+            <div className="text-6xl mb-4">🔒</div>
+            <h1 className="text-4xl font-bold mb-4">Access Denied</h1>
+            <p className="text-xl opacity-90">Admin privileges required to access system settings</p>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 py-8 text-center">
+          <p className="text-gray-600 mb-6">Please contact an administrator if you need access to these settings.</p>
+          <button 
+            onClick={() => window.location.href = '/dashboard'}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Return to Dashboard
+          </button>
         </div>
       </div>
     )
@@ -681,3 +700,7 @@ export default function SystemSettingsPage() {
     </div>
   )
 }
+
+export default dynamic(() => Promise.resolve(SystemSettingsPage), {
+  ssr: false
+})
