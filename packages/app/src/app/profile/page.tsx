@@ -1,29 +1,78 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useAuth } from '@/context/AuthContext'
 import { BackToDashboard } from '@/components/BackToDashboard'
 import { toast } from 'react-toastify'
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
+import { storage } from '@/lib/firebase'
 
 export default function ProfilePage() {
-  const { user, userProfile } = useAuth()
+  const { user, userProfile, updateProfile } = useAuth()
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [profileImage, setProfileImage] = useState(userProfile?.profileImage || null)
+  const [profileImage, setProfileImage] = useState<string | null>(null)
   const [settings, setSettings] = useState({
     emailNotifications: true,
     marketingEmails: false,
     twoFactorAuth: false
   })
   const [formData, setFormData] = useState({
-    firstName: userProfile?.displayName?.split(' ')[0] || 'Beat',
-    lastName: userProfile?.displayName?.split(' ')[1] || 'Producer',
-    email: userProfile?.email || 'producer@beatswap.com',
-    bio: userProfile?.bio || 'Professional music producer specializing in trap and hip-hop beats. Creating fire beats since 2020.',
-    walletAddress: userProfile?.walletAddress || '0x742d35Cc6634C0532925a3b8D4C9db96590b5'
+    firstName: '',
+    lastName: '',
+    email: '',
+    bio: '',
+    walletAddress: ''
   })
   const [saving, setSaving] = useState(false)
+  const [loading, setLoading] = useState(true)
   const fileInputRef = useRef<HTMLInputElement>(null)
+
+  // Initialize form data when userProfile loads
+  useEffect(() => {
+    if (userProfile) {
+      const nameParts = userProfile.displayName?.split(' ') || ['', '']
+      setFormData({
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        email: userProfile.email || '',
+        bio: userProfile.bio || '',
+        walletAddress: userProfile.walletAddress || ''
+      })
+      setProfileImage(userProfile.profileImage || null)
+      setLoading(false)
+    } else if (user) {
+      // Fallback if userProfile is not loaded yet
+      setFormData({
+        firstName: user.displayName?.split(' ')[0] || '',
+        lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
+        email: user.email || '',
+        bio: '',
+        walletAddress: ''
+      })
+      setLoading(false)
+    }
+  }, [userProfile, user])
+
+  if (!user) {
+    return (
+      <div className="p-8 text-center">
+        <div className="text-6xl mb-4">🔒</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Please Sign In</h2>
+        <p className="text-gray-600">You need to be signed in to access your profile.</p>
+      </div>
+    )
+  }
+
+  if (loading) {
+    return (
+      <div className="p-8 text-center">
+        <div className="text-6xl mb-4">⏳</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Loading Profile...</h2>
+        <p className="text-gray-600">Fetching your profile data...</p>
+      </div>
+    )
+  }
 
   const handleSettingChange = (key: string, value: boolean) => {
     setSettings(prev => ({ ...prev, [key]: value }))
@@ -33,33 +82,100 @@ export default function ProfilePage() {
     setFormData(prev => ({ ...prev, [key]: value }))
   }
 
+  const handleImageUpload = async (file: File) => {
+    if (!user) return
+    
+    setUploading(true)
+    setUploadProgress(0)
+    
+    try {
+      const storageRef = ref(storage, `profile-images/${user.uid}/${file.name}`)
+      const uploadTask = uploadBytesResumable(storageRef, file)
+      
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          setUploadProgress(Math.round(progress))
+        },
+        (error) => {
+          console.error('Upload error:', error)
+          toast.error('Failed to upload image')
+          setUploading(false)
+        },
+        async () => {
+          try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
+            setProfileImage(downloadURL)
+            
+            // Update user profile with new image
+            await updateProfile({ profileImage: downloadURL })
+            toast.success('Profile image updated successfully!')
+          } catch (error) {
+            console.error('Error getting download URL:', error)
+            toast.error('Failed to save profile image')
+          } finally {
+            setUploading(false)
+          }
+        }
+      )
+    } catch (error) {
+      console.error('Error uploading file:', error)
+      toast.error('Failed to upload image')
+      setUploading(false)
+    }
+  }
+
   const handleSave = async () => {
+    if (!user || saving) return
+    
     setSaving(true)
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
+      const displayName = `${formData.firstName} ${formData.lastName}`.trim()
       
-      // Here you would typically save to Firebase
-      // await updateUserProfile(user.uid, { ...formData, settings })
+      await updateProfile({
+        displayName,
+        bio: formData.bio,
+        walletAddress: formData.walletAddress
+      })
       
-      toast.success('Profile updated successfully!')
-    } catch (error) {
-      toast.error('Failed to update profile. Please try again.')
+      toast.success('Profile updated successfully!', {
+        position: 'top-center',
+        autoClose: 3000
+      })
+    } catch (error: any) {
+      console.error('Error updating profile:', error)
+      toast.error('Failed to update profile. Please try again.', {
+        position: 'top-center',
+        autoClose: 3000
+      })
     } finally {
       setSaving(false)
     }
   }
   return (
-    <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
-      <BackToDashboard />
-      <div style={{ marginBottom: '2rem' }}>
-        <h1 style={{ fontSize: '2.5rem', fontWeight: 'bold', marginBottom: '0.5rem', color: '#1f2937' }}>
-          Profile Settings
-        </h1>
-        <p style={{ color: '#6b7280', fontSize: '1.125rem' }}>
-          Manage your account settings and preferences
-        </p>
+    <div>
+      {/* Hero Section */}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        minHeight: '40vh',
+        display: 'flex',
+        alignItems: 'center',
+        color: 'white',
+        position: 'relative'
+      }}>
+        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)' }}></div>
+        <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
+          <h1 style={{ fontSize: '3rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            📝 Profile Settings
+          </h1>
+          <p style={{ fontSize: '1.125rem', opacity: 0.9 }}>
+            Manage your account settings and preferences
+          </p>
+        </div>
       </div>
+
+      <div style={{ padding: '2rem', maxWidth: '800px', margin: '0 auto' }}>
+        <BackToDashboard />
 
       {/* Profile Card */}
       <div style={{
@@ -88,7 +204,7 @@ export default function ProfilePage() {
               cursor: 'pointer',
               border: '3px solid #e5e7eb'
             }} onClick={() => fileInputRef.current?.click()}>
-              {!profileImage && (userProfile?.displayName?.[0] || 'U')}
+              {!profileImage && (formData.firstName?.[0] || user?.displayName?.[0] || 'U')}
               {uploading && (
                 <div style={{
                   position: 'absolute',
@@ -125,9 +241,14 @@ export default function ProfilePage() {
             </button>
             {profileImage && (
               <button
-                onClick={() => {
+                onClick={async () => {
                   setProfileImage(null)
-                  alert('Profile image removed!')
+                  try {
+                    await updateProfile({ profileImage: null })
+                    toast.success('Profile image removed!')
+                  } catch (error) {
+                    toast.error('Failed to remove profile image')
+                  }
                 }}
                 style={{
                   position: 'absolute',
@@ -151,39 +272,41 @@ export default function ProfilePage() {
               type="file"
               accept="image/*"
               style={{ display: 'none' }}
-              onChange={async (e) => {
+              onChange={(e) => {
                 const file = e.target.files?.[0]
                 if (file) {
-                  setUploading(true)
-                  setUploadProgress(0)
+                  // Validate file size (max 5MB)
+                  if (file.size > 5 * 1024 * 1024) {
+                    toast.error('Image size must be less than 5MB')
+                    return
+                  }
                   
-                  // Simulate upload progress
-                  const interval = setInterval(() => {
-                    setUploadProgress(prev => {
-                      if (prev >= 100) {
-                        clearInterval(interval)
-                        setUploading(false)
-                        // Create object URL for preview
-                        const imageUrl = URL.createObjectURL(file)
-                        setProfileImage(imageUrl)
-                        alert('Profile image uploaded successfully!')
-                        return 100
-                      }
-                      return prev + 10
-                    })
-                  }, 200)
+                  // Validate file type
+                  if (!file.type.startsWith('image/')) {
+                    toast.error('Please select a valid image file')
+                    return
+                  }
+                  
+                  handleImageUpload(file)
                 }
               }}
             />
           </div>
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
-              Beat Producer
+              {formData.firstName && formData.lastName ? `${formData.firstName} ${formData.lastName}` : user?.displayName || 'User'}
             </h2>
-            <p style={{ color: '#6b7280' }}>producer@beatswap.com</p>
-            <p style={{ color: '#059669', fontSize: '0.875rem', fontWeight: '500' }}>
-              ✓ Verified Producer
-            </p>
+            <p style={{ color: '#6b7280' }}>{formData.email || user?.email}</p>
+            {userProfile?.isVerified && (
+              <p style={{ color: '#059669', fontSize: '0.875rem', fontWeight: '500' }}>
+                ✓ Verified {userProfile.role === 'producer' ? 'Producer' : userProfile.role === 'admin' ? 'Admin' : 'User'}
+              </p>
+            )}
+            {!userProfile?.isVerified && (
+              <p style={{ color: '#f59e0b', fontSize: '0.875rem', fontWeight: '500' }}>
+                ⏳ Verification Pending
+              </p>
+            )}
           </div>
         </div>
 
@@ -392,6 +515,7 @@ export default function ProfilePage() {
       </div>
 
 
+      </div>
     </div>
   )
 }

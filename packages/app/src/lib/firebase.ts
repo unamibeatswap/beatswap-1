@@ -7,9 +7,9 @@ const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyB5YAsAbKf3aeTegpXYZPBOzCqW2abCORg',
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'beatswap-36c32.firebaseapp.com',
   projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'beatswap-36c32',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'beatswap-36c32.appspot.com',
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'beatswap-36c32.firebasestorage.app',
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '750321012530',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:750321012530:web:abcdef123456',
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:750321012530:web:1349ade6e8897015b0912b',
 }
 
 // Initialize Firebase
@@ -20,10 +20,21 @@ export const auth = getAuth(app)
 export const db = getFirestore(app)
 export const storage = getStorage(app)
 
-// Enable offline persistence
+// Handle network connectivity
 if (typeof window !== 'undefined') {
-  // Enable network by default
-  enableNetwork(db).catch(console.warn)
+  // Enable network and handle offline scenarios
+  enableNetwork(db).catch((error) => {
+    console.warn('Firebase network enable failed:', error)
+  })
+  
+  // Listen for online/offline events
+  window.addEventListener('online', () => {
+    enableNetwork(db).catch(console.warn)
+  })
+  
+  window.addEventListener('offline', () => {
+    console.log('App is offline, using cached data')
+  })
 }
 
 export default app
