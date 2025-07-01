@@ -1,11 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useAuth } from '@/context/AuthContext'
 import { useUsers, UserProfile } from '@/hooks/useUsers'
 import { toast } from 'react-toastify'
-import { useEffect, useState } from 'react'
 import { collection, getDocs, doc, updateDoc } from 'firebase/firestore'
 import { db } from '@/lib/firebase'
 
