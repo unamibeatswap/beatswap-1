@@ -10,8 +10,28 @@ import {
   GoogleAuthProvider,
   signInWithPopup
 } from 'firebase/auth'
-import { doc, setDoc, getDoc } from 'firebase/firestore'
+import { doc, setDoc, getDoc, connectFirestoreEmulator } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase'
+
+// Firebase connection health check
+let firebaseHealthy = true
+let lastHealthCheck = 0
+
+const checkFirebaseHealth = async () => {
+  const now = Date.now()
+  if (now - lastHealthCheck < 30000) return firebaseHealthy // Cache for 30s
+  
+  try {
+    await getDoc(doc(db, '_health', 'check'))
+    firebaseHealthy = true
+  } catch (error: any) {
+    console.warn('Firebase health check failed:', error.code)
+    firebaseHealthy = false
+  }
+  
+  lastHealthCheck = now
+  return firebaseHealthy
+}
 
 interface UserProfile {
   uid: string
@@ -47,13 +67,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(user)
       
       if (user) {
-        try {
-          // Fetch user profile from Firestore
-          const profileDoc = await getDoc(doc(db, 'users', user.uid))
-          if (profileDoc.exists()) {
-            setUserProfile(profileDoc.data() as UserProfile)
-          } else {
-            // Create fallback profile if none exists
+        const isHealthy = await checkFirebaseHealth()
+        
+        if (isHealthy) {
+          try {
+            // Fetch user profile from Firestore
+            const profileDoc = await getDoc(doc(db, 'users', user.uid))
+            if (profileDoc.exists()) {
+              setUserProfile(profileDoc.data() as UserProfile)
+            } else {
+              // Create fallback profile if none exists
+              const fallbackProfile: UserProfile = {
+                uid: user.uid,
+                email: user.email || '',
+                displayName: user.displayName || user.email?.split('@')[0] || 'User',
+                role: 'user',
+                isVerified: false,
+                createdAt: new Date()
+              }
+              setUserProfile(fallbackProfile)
+            }
+          } catch (err) {
+            console.warn('Firebase error, using fallback profile:', err)
+            firebaseHealthy = false
+            // Create offline fallback profile
             const fallbackProfile: UserProfile = {
               uid: user.uid,
               email: user.email || '',
@@ -64,9 +101,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             }
             setUserProfile(fallbackProfile)
           }
-        } catch (err) {
-          console.warn('Firebase offline, using fallback profile:', err)
-          // Create offline fallback profile
+        } else {
+          // Firebase is unhealthy, use fallback immediately
           const fallbackProfile: UserProfile = {
             uid: user.uid,
             email: user.email || '',
@@ -182,25 +218,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       updatedAt: new Date()
     }
     
-    try {
-      console.log('Updating profile in Firestore:', updatedProfile)
-      await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true })
-      setUserProfile(updatedProfile as UserProfile)
-      console.log('Profile updated successfully')
-    } catch (err: any) {
-      console.error('Failed to update profile in Firestore:', err)
-      
-      // Check if it's a network/permission error
-      if (err.code === 'permission-denied') {
-        throw new Error('Permission denied. Please check your account permissions.')
-      } else if (err.code === 'network-request-failed' || err.code === 'unavailable') {
-        // Update locally if offline
-        console.warn('Updating profile locally due to network issues')
+    const isHealthy = await checkFirebaseHealth()
+    
+    if (isHealthy) {
+      try {
+        console.log('Updating profile in Firestore:', updatedProfile)
+        await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true })
         setUserProfile(updatedProfile as UserProfile)
-        throw new Error('Network error. Profile updated locally but may not sync until online.')
-      } else {
-        throw new Error(`Failed to update profile: ${err.message || 'Unknown error'}`)
+        console.log('Profile updated successfully')
+      } catch (err: any) {
+        console.error('Failed to update profile in Firestore:', err)
+        firebaseHealthy = false
+        
+        // Always update locally as fallback
+        setUserProfile(updatedProfile as UserProfile)
+        
+        // Check if it's a network/permission error
+        if (err.code === 'permission-denied') {
+          throw new Error('Permission denied. Profile updated locally.')
+        } else {
+          throw new Error('Network error. Profile updated locally but may not sync until online.')
+        }
       }
+    } else {
+      // Firebase is unhealthy, update locally only
+      console.warn('Firebase unhealthy, updating profile locally only')
+      setUserProfile(updatedProfile as UserProfile)
+      // Don't throw error, just update locally
     }
   }
 
