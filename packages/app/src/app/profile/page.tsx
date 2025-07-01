@@ -108,7 +108,10 @@ export default function ProfilePage() {
             setProfileImage(downloadURL)
             
             // Update user profile with new image
-            await updateProfile({ profileImage: downloadURL })
+            await updateProfile({ 
+              profileImage: downloadURL,
+              updatedAt: new Date()
+            })
             toast.success('Profile image updated successfully!')
           } catch (error) {
             console.error('Error getting download URL:', error)
@@ -128,15 +131,26 @@ export default function ProfilePage() {
   const handleSave = async () => {
     if (!user || saving) return
     
+    // Validate required fields
+    if (!formData.firstName.trim()) {
+      toast.error('First name is required')
+      return
+    }
+    
     setSaving(true)
     try {
-      const displayName = `${formData.firstName} ${formData.lastName}`.trim()
+      const displayName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim()
       
-      await updateProfile({
+      const updateData = {
         displayName,
-        bio: formData.bio,
-        walletAddress: formData.walletAddress
-      })
+        bio: formData.bio.trim(),
+        walletAddress: formData.walletAddress.trim(),
+        updatedAt: new Date()
+      }
+      
+      console.log('Updating profile with data:', updateData)
+      
+      await updateProfile(updateData)
       
       toast.success('Profile updated successfully!', {
         position: 'top-center',
@@ -144,9 +158,19 @@ export default function ProfilePage() {
       })
     } catch (error: any) {
       console.error('Error updating profile:', error)
-      toast.error('Failed to update profile. Please try again.', {
+      
+      let errorMessage = 'Failed to update profile. Please try again.'
+      if (error.code === 'permission-denied') {
+        errorMessage = 'Permission denied. Please check your account permissions.'
+      } else if (error.code === 'network-request-failed') {
+        errorMessage = 'Network error. Please check your connection.'
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+      
+      toast.error(errorMessage, {
         position: 'top-center',
-        autoClose: 3000
+        autoClose: 5000
       })
     } finally {
       setSaving(false)
@@ -244,9 +268,13 @@ export default function ProfilePage() {
                 onClick={async () => {
                   setProfileImage(null)
                   try {
-                    await updateProfile({ profileImage: null })
+                    await updateProfile({ 
+                      profileImage: null,
+                      updatedAt: new Date()
+                    })
                     toast.success('Profile image removed!')
-                  } catch (error) {
+                  } catch (error: any) {
+                    console.error('Error removing profile image:', error)
                     toast.error('Failed to remove profile image')
                   }
                 }}

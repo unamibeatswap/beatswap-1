@@ -172,15 +172,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const updateProfile = async (data: Partial<UserProfile>) => {
-    if (!user) return
+    if (!user || !userProfile) {
+      throw new Error('User not authenticated or profile not loaded')
+    }
     
-    const updatedProfile = { ...userProfile, ...data }
+    const updatedProfile = { 
+      ...userProfile, 
+      ...data,
+      updatedAt: new Date()
+    }
+    
     try {
+      console.log('Updating profile in Firestore:', updatedProfile)
       await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true })
       setUserProfile(updatedProfile as UserProfile)
-    } catch (err) {
-      console.warn('Failed to update profile online, updating locally:', err)
-      setUserProfile(updatedProfile as UserProfile)
+      console.log('Profile updated successfully')
+    } catch (err: any) {
+      console.error('Failed to update profile in Firestore:', err)
+      
+      // Check if it's a network/permission error
+      if (err.code === 'permission-denied') {
+        throw new Error('Permission denied. Please check your account permissions.')
+      } else if (err.code === 'network-request-failed' || err.code === 'unavailable') {
+        // Update locally if offline
+        console.warn('Updating profile locally due to network issues')
+        setUserProfile(updatedProfile as UserProfile)
+        throw new Error('Network error. Profile updated locally but may not sync until online.')
+      } else {
+        throw new Error(`Failed to update profile: ${err.message || 'Unknown error'}`)
+      }
     }
   }
 
