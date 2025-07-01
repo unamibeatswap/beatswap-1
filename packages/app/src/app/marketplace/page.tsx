@@ -15,6 +15,11 @@ export default function MarketplacePage() {
 
   const { beats, loading, error } = useBeats()
   
+  // Reset to page 1 when filters change - MUST be at top level
+  useEffect(() => {
+    setCurrentPage(1)
+  }, [searchTerm, selectedGenre, sortBy])
+  
   // Show loading state
   if (loading) {
     return (
@@ -50,11 +55,6 @@ export default function MarketplacePage() {
   const totalPages = Math.ceil(filteredBeats.length / beatsPerPage)
   const startIndex = (currentPage - 1) * beatsPerPage
   const currentBeats = filteredBeats.slice(startIndex, startIndex + beatsPerPage)
-  
-  // Reset to page 1 when filters change
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchTerm, selectedGenre, sortBy])
 
   return (
     <div>
