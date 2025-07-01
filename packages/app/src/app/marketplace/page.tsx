@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Beat } from '@/types'
 import BeatCard from '@/components/BeatCard'
 import { useBeats } from '@/hooks/useBeats'
