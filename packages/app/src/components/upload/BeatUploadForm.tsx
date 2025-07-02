@@ -49,11 +49,33 @@ export default function BeatUploadForm({ onSuccess, onCancel }: BeatUploadFormPr
       setUploading(true)
       setProgress(25)
       
-      // Upload files
-      const audioUrl = await ApiClient.uploadFile(audioFile, 'audio')
+      // Upload to IPFS
+      const audioUpload = await fetch('/api/upload', {
+        method: 'POST',
+        body: (() => {
+          const formData = new FormData()
+          formData.append('file', audioFile)
+          formData.append('type', 'audio')
+          return formData
+        })()
+      })
+      const { url: audioUrl } = await audioUpload.json()
       setProgress(50)
       
-      const coverImageUrl = coverFile ? await ApiClient.uploadFile(coverFile, 'image') : undefined
+      let coverImageUrl
+      if (coverFile) {
+        const imageUpload = await fetch('/api/upload', {
+          method: 'POST',
+          body: (() => {
+            const formData = new FormData()
+            formData.append('file', coverFile)
+            formData.append('type', 'image')
+            return formData
+          })()
+        })
+        const result = await imageUpload.json()
+        coverImageUrl = result.url
+      }
       setProgress(75)
 
       // Create beat object
@@ -68,7 +90,7 @@ export default function BeatUploadForm({ onSuccess, onCancel }: BeatUploadFormPr
         bpm: parseInt(formData.bpm),
         key: formData.key,
         tags: formData.tags.split(',').map(tag => tag.trim()),
-        isNFT: false,
+        isNFT: true,
         createdAt: new Date(),
         updatedAt: new Date()
       }

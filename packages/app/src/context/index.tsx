@@ -2,9 +2,9 @@
 
 import { PropsWithChildren } from 'react'
 import { Web3Provider } from './Web3'
-import { DataProvider } from './Data'
+import { Web3DataProvider } from './Web3DataContext'
+import { SIWEProvider } from './SIWEContext'
 import { NotificationProvider } from './Notifications'
-import { AuthProvider } from './AuthContext'
 
 interface Props extends PropsWithChildren {
   cookies: string | null
@@ -14,11 +14,11 @@ export function Providers(props: Props) {
   return (
     <>
       <Web3Provider cookies={props.cookies}>
-        <AuthProvider>
-          <DataProvider>
+        <SIWEProvider>
+          <Web3DataProvider>
             <NotificationProvider>{props.children}</NotificationProvider>
-          </DataProvider>
-        </AuthProvider>
+          </Web3DataProvider>
+        </SIWEProvider>
       </Web3Provider>
     </>
   )

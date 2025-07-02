@@ -1,40 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { adminAuth, adminDb } from '@/lib/firebase-admin'
+import { SiweMessage } from 'siwe'
 
 export async function POST(request: NextRequest) {
   try {
-    const { idToken } = await request.json()
-
-    if (!idToken) {
-      return NextResponse.json({ error: 'ID token required' }, { status: 400 })
-    }
-
-    // Verify the ID token
-    const decodedToken = await adminAuth.verifyIdToken(idToken)
-    const uid = decodedToken.uid
-
-    // Get user profile from Firestore
-    const userDoc = await adminDb.collection('users').doc(uid).get()
+    const { message, signature } = await request.json()
     
-    if (!userDoc.exists) {
-      return NextResponse.json({ error: 'User not found' }, { status: 404 })
+    const siweMessage = new SiweMessage(message)
+    const result = await siweMessage.verify({ signature })
+    
+    if (result.success) {
+      return NextResponse.json({ 
+        success: true,
+        address: siweMessage.address 
+      })
+    } else {
+      return NextResponse.json(
+        { error: 'Invalid signature' },
+        { status: 401 }
+      )
     }
-
-    const userProfile = userDoc.data()
-
-    return NextResponse.json({
-      success: true,
-      user: {
-        uid: decodedToken.uid,
-        email: decodedToken.email,
-        ...userProfile
-      }
-    })
-
-  } catch (error: any) {
-    console.error('Auth verification error:', error)
+  } catch (error) {
+    console.error('SIWE verification failed:', error)
     return NextResponse.json(
-      { error: 'Authentication failed', details: error.message },
+      { error: 'Verification failed' },
       { status: 401 }
     )
   }
