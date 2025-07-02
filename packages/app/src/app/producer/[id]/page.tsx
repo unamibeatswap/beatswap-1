@@ -3,14 +3,11 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import { useProducerStats } from '@/hooks/useProducerStats'
-import BeatCard from '@/components/BeatCard'
 
 export default function ProducerPage() {
   const params = useParams()
   const producerId = params.id as string
   const [selectedGenre, setSelectedGenre] = useState('all')
-  const [currentPage, setCurrentPage] = useState(1)
-  const beatsPerPage = 6
   const { stats, incrementProfileView } = useProducerStats(producerId)
   
   // Track profile view on page load
@@ -23,26 +20,6 @@ export default function ProducerPage() {
     'hip-hop', 'drill', 'gqom', 'kwaito', 'electronic', 'techno', 'progressive',
     'trance', 'dubstep', 'drum-bass', 'garage', 'breakbeat', 'ambient'
   ]
-
-  const mockBeats = [
-    { id: '1', title: 'Amapiano Vibes', genre: 'amapiano', bpm: 112, key: 'Am', price: 459.99, duration: '3:24', plays: 1250 },
-    { id: '2', title: 'Afrobeat Groove', genre: 'afrobeats', bpm: 102, key: 'C', price: 399.99, duration: '2:58', plays: 890 },
-    { id: '3', title: 'Deep House Flow', genre: 'deep-house', bpm: 124, key: 'Gm', price: 529.99, duration: '4:12', plays: 2100 }
-  ]
-
-  // Expand mock beats for pagination demo
-  const expandedBeats = [...mockBeats, ...mockBeats, ...mockBeats, ...mockBeats]
-  const filteredBeats = selectedGenre === 'all' ? expandedBeats : expandedBeats.filter(beat => beat.genre === selectedGenre)
-  
-  // Pagination logic
-  const totalPages = Math.ceil(filteredBeats.length / beatsPerPage)
-  const startIndex = (currentPage - 1) * beatsPerPage
-  const currentBeats = filteredBeats.slice(startIndex, startIndex + beatsPerPage)
-  
-  // Reset to page 1 when genre changes
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [selectedGenre])
 
   return (
     <div>
@@ -67,7 +44,7 @@ export default function ProducerPage() {
                 Beat Master Pro ✓
               </h1>
               <p style={{ fontSize: '1.125rem', opacity: 0.9, margin: 0 }}>
-                Johannesburg, SA • 45 beats • 234 sales
+                Johannesburg, SA • 0 beats • 0 sales
               </p>
             </div>
           </div>
@@ -82,7 +59,7 @@ export default function ProducerPage() {
         }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>About</h2>
           <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-            Professional music producer from Johannesburg, specializing in Amapiano and Afrobeats. Creating fire beats since 2020.
+            Professional music producer from Johannesburg, specializing in Amapiano and Afrobeats. Ready to upload beats to the platform.
           </p>
         </div>
 
@@ -110,89 +87,15 @@ export default function ProducerPage() {
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
             <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1f2937' }}>
-              Beats Collection ({filteredBeats.length})
+              Beats Collection (0)
             </h2>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-              Page {currentPage} of {totalPages}
-            </div>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
-            {currentBeats.map((beat, index) => (
-              <BeatCard key={`${beat.id}-${index}`} beat={{
-                id: beat.id,
-                title: beat.title,
-                genre: beat.genre,
-                bpm: beat.bpm,
-                key: beat.key,
-                price: beat.price,
-                tags: [],
-                producerId: producerId,
-                audioUrl: '',
-                coverImageUrl: '',
-                createdAt: new Date(),
-                updatedAt: new Date()
-              }} />
-            ))}
           </div>
           
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              gap: '0.5rem',
-              marginTop: '2rem'
-            }}>
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                style={{
-                  padding: '0.5rem 1rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '0.375rem',
-                  background: currentPage === 1 ? '#f9fafb' : 'white',
-                  color: currentPage === 1 ? '#9ca3af' : '#374151',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Previous
-              </button>
-              
-              {[...Array(totalPages)].map((_, i) => (
-                <button
-                  key={i + 1}
-                  onClick={() => setCurrentPage(i + 1)}
-                  style={{
-                    padding: '0.5rem 0.75rem',
-                    border: '1px solid #d1d5db',
-                    borderRadius: '0.375rem',
-                    background: currentPage === i + 1 ? '#3b82f6' : 'white',
-                    color: currentPage === i + 1 ? 'white' : '#374151',
-                    cursor: 'pointer',
-                    fontWeight: currentPage === i + 1 ? '600' : '400'
-                  }}
-                >
-                  {i + 1}
-                </button>
-              ))}
-              
-              <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                style={{
-                  padding: '0.5rem 1rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '0.375rem',
-                  background: currentPage === totalPages ? '#f9fafb' : 'white',
-                  color: currentPage === totalPages ? '#9ca3af' : '#374151',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
-                }}
-              >
-                Next
-              </button>
-            </div>
-          )}
+          <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#6b7280' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎵</div>
+            <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem', color: '#1f2937' }}>No beats uploaded yet</h3>
+            <p>This producer hasn't uploaded any beats to the platform yet.</p>
+          </div>
         </div>
       </div>
     </div>

@@ -1,208 +1,194 @@
-import { collection, addDoc, doc, setDoc } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { adminDb } from '@/lib/firebase-admin'
+import { Beat, UserProfile } from '@/types'
 
-// Test Users Data
-const testUsers = [
+const SEED_USERS: Omit<UserProfile, 'uid'>[] = [
   {
-    uid: 'user-001',
-    email: 'producer1@beatschain.com',
-    displayName: 'Beat Master Pro',
+    email: 'beatmaster@beatschain.app',
+    displayName: 'Beat Master',
     role: 'producer',
-    bio: 'Professional producer from Johannesburg specializing in Amapiano and Afrobeats',
-    location: 'Johannesburg, SA',
-    genres: ['amapiano', 'afrobeats', 'house'],
     isVerified: true,
-    createdAt: new Date('2024-01-15'),
-    updatedAt: new Date()
+    createdAt: new Date('2024-01-01')
   },
   {
-    uid: 'user-002', 
-    email: 'producer2@beatschain.com',
-    displayName: 'Synth Wave',
+    email: 'djpro@beatschain.app',
+    displayName: 'DJ Pro',
     role: 'producer',
-    bio: 'Electronic music producer creating future bass and synthwave',
-    location: 'Cape Town, SA',
-    genres: ['electronic', 'synthwave', 'future-bass'],
     isVerified: true,
-    createdAt: new Date('2024-01-16'),
-    updatedAt: new Date()
+    createdAt: new Date('2024-01-05')
   },
   {
-    uid: 'user-003',
-    email: 'user1@beatschain.com', 
+    email: 'musiclover@beatschain.app',
     displayName: 'Music Lover',
     role: 'user',
-    bio: 'Hip hop enthusiast and beat collector',
-    location: 'Durban, SA',
     isVerified: false,
-    createdAt: new Date('2024-01-20'),
-    updatedAt: new Date()
-  },
-  {
-    uid: 'admin-001',
-    email: 'admin@beatschain.com',
-    displayName: 'BeatsChain Admin',
-    role: 'admin',
-    bio: 'Platform administrator',
-    location: 'Remote',
-    isVerified: true,
-    createdAt: new Date('2024-01-01'),
-    updatedAt: new Date()
+    createdAt: new Date('2024-01-10')
   }
 ]
 
-// Test Beats Data
-const testBeats = [
+const SEED_BEATS: Omit<Beat, 'id'>[] = [
   {
-    id: 'beat-001',
-    title: 'Amapiano Vibes',
-    description: 'Smooth amapiano beat with piano melodies and log drum',
-    producerId: 'user-001',
+    title: 'Amapiano Fire',
+    description: 'Hot amapiano beat with deep basslines and smooth piano melodies',
+    producerId: 'producer-1',
     audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-    coverImageUrl: '',
-    price: 45.99,
+    coverImageUrl: 'https://via.placeholder.com/400x400/667eea/ffffff?text=Amapiano+Fire',
+    price: 299.99,
     genre: 'amapiano',
     bpm: 112,
-    key: 'Am',
-    tags: ['amapiano', 'piano', 'smooth'],
-    duration: 180,
+    key: 'C minor',
+    tags: ['amapiano', 'piano', 'bass', 'south african'],
     isNFT: false,
-    plays: 1250,
-    likes: 89,
-    createdAt: new Date('2024-01-16'),
-    updatedAt: new Date()
+    createdAt: new Date('2024-01-15'),
+    updatedAt: new Date('2024-01-15')
   },
   {
-    id: 'beat-002',
-    title: 'Afrobeat Groove',
-    description: 'Energetic afrobeat with traditional percussion',
-    producerId: 'user-001', 
+    title: 'Afrobeats Groove',
+    description: 'Infectious afrobeats rhythm with traditional percussion',
+    producerId: 'producer-2',
     audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-    coverImageUrl: '',
-    price: 39.99,
+    coverImageUrl: 'https://via.placeholder.com/400x400/764ba2/ffffff?text=Afrobeats+Groove',
+    price: 249.99,
     genre: 'afrobeats',
     bpm: 102,
-    key: 'C',
-    tags: ['afrobeats', 'percussion', 'groove'],
-    duration: 195,
+    key: 'F major',
+    tags: ['afrobeats', 'percussion', 'groove', 'african'],
     isNFT: false,
-    plays: 890,
-    likes: 67,
-    createdAt: new Date('2024-01-17'),
-    updatedAt: new Date()
+    createdAt: new Date('2024-01-10'),
+    updatedAt: new Date('2024-01-10')
   },
   {
-    id: 'beat-003',
-    title: 'Deep House Flow',
-    description: 'Deep house track with atmospheric pads',
-    producerId: 'user-002',
+    title: 'Trap Banger',
+    description: 'Hard-hitting trap beat with 808s and crisp hi-hats',
+    producerId: 'producer-1',
     audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
-    coverImageUrl: '',
-    price: 52.99,
-    genre: 'deep-house',
+    coverImageUrl: 'https://via.placeholder.com/400x400/f093fb/ffffff?text=Trap+Banger',
+    price: 399.99,
+    genre: 'trap',
+    bpm: 140,
+    key: 'G minor',
+    tags: ['trap', '808', 'hard', 'banger'],
+    isNFT: true,
+    tokenId: 1,
+    createdAt: new Date('2024-01-20'),
+    updatedAt: new Date('2024-01-20')
+  },
+  {
+    title: 'Deep House Vibes',
+    description: 'Smooth deep house with atmospheric pads and groovy bassline',
+    producerId: 'producer-2',
+    audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+    coverImageUrl: 'https://via.placeholder.com/400x400/4facfe/ffffff?text=Deep+House',
+    price: 199.99,
+    genre: 'house',
     bpm: 124,
-    key: 'Gm',
-    tags: ['deep-house', 'atmospheric', 'pads'],
-    duration: 210,
+    key: 'A minor',
+    tags: ['house', 'deep', 'atmospheric', 'groove'],
     isNFT: false,
-    plays: 2100,
-    likes: 156,
-    createdAt: new Date('2024-01-18'),
-    updatedAt: new Date()
+    createdAt: new Date('2024-01-25'),
+    updatedAt: new Date('2024-01-25')
+  },
+  {
+    title: 'Gqom Energy',
+    description: 'High-energy gqom beat with heavy kicks and minimal synths',
+    producerId: 'producer-1',
+    audioUrl: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+    coverImageUrl: 'https://via.placeholder.com/400x400/ff6b6b/ffffff?text=Gqom+Energy',
+    price: 329.99,
+    genre: 'gqom',
+    bpm: 130,
+    key: 'E minor',
+    tags: ['gqom', 'energy', 'minimal', 'south african'],
+    isNFT: false,
+    createdAt: new Date('2024-02-01'),
+    updatedAt: new Date('2024-02-01')
   }
 ]
 
-// Producer Stats Data
-const testProducerStats = [
+const SEED_TRANSACTIONS = [
   {
-    userId: 'user-001',
-    totalBeats: 15,
-    totalSales: 234,
-    totalEarnings: 8950.50,
-    profileViews: 3420,
-    followers: 89,
-    rating: 4.8,
-    ratingCount: 45,
-    lastActive: new Date()
-  },
-  {
-    userId: 'user-002',
-    totalBeats: 12,
-    totalSales: 156,
-    totalEarnings: 6780.25,
-    profileViews: 2100,
-    followers: 67,
-    rating: 4.6,
-    ratingCount: 32,
-    lastActive: new Date()
-  }
-]
-
-// Test Purchases Data
-const testPurchases = [
-  {
-    id: 'purchase-001',
-    beatId: 'beat-001',
-    buyerId: 'user-003',
-    producerId: 'user-001',
-    amount: 45.99,
-    licenseType: 'basic',
-    paymentMethod: 'stripe',
-    status: 'completed',
-    createdAt: new Date('2024-01-21')
-  },
-  {
-    id: 'purchase-002', 
-    beatId: 'beat-002',
-    buyerId: 'user-003',
-    producerId: 'user-001',
-    amount: 39.99,
+    beatId: 'beat-1',
+    buyerId: 'user-1',
+    producerId: 'producer-1',
+    amount: 299.99,
     licenseType: 'premium',
-    paymentMethod: 'crypto',
+    paymentMethod: 'fiat',
+    transactionHash: 'fiat_1704067200_abc123',
     status: 'completed',
-    createdAt: new Date('2024-01-22')
+    createdAt: new Date('2024-01-01'),
+    fees: 10.50
+  },
+  {
+    beatId: 'beat-2',
+    buyerId: 'user-1',
+    producerId: 'producer-2',
+    amount: 249.99,
+    licenseType: 'basic',
+    paymentMethod: 'crypto',
+    transactionHash: '0x1234567890abcdef',
+    status: 'completed',
+    createdAt: new Date('2024-01-15'),
+    fees: 6.25
   }
 ]
 
-export async function seedFirebaseData() {
+export async function seedFirestore() {
   try {
-    console.log('🌱 Seeding Firebase with test data...')
-    
-    // Seed Users
-    for (const user of testUsers) {
-      await setDoc(doc(db, 'users', user.uid), user)
-      console.log(`✅ Created user: ${user.displayName}`)
-    }
-    
-    // Seed Beats
-    for (const beat of testBeats) {
-      await setDoc(doc(db, 'beats', beat.id), beat)
-      console.log(`✅ Created beat: ${beat.title}`)
-    }
-    
-    // Seed Producer Stats
-    for (const stats of testProducerStats) {
-      await setDoc(doc(db, 'producer-stats', stats.userId), stats)
-      console.log(`✅ Created stats for: ${stats.userId}`)
-    }
-    
-    // Seed Purchases
-    for (const purchase of testPurchases) {
-      await setDoc(doc(db, 'purchases', purchase.id), purchase)
-      console.log(`✅ Created purchase: ${purchase.id}`)
-    }
-    
-    console.log('🎉 Firebase seeding completed successfully!')
-    return true
-    
-  } catch (error) {
-    console.error('❌ Error seeding Firebase:', error)
-    return false
-  }
-}
+    console.log('🌱 Starting Firestore seeding...')
 
-// Function to clear test data (for development)
-export async function clearTestData() {
-  console.log('🧹 This would clear test data in production implementation')
-  // Implementation would delete test documents
+    // Seed Users
+    console.log('👥 Seeding users...')
+    for (const [index, userData] of SEED_USERS.entries()) {
+      const userId = `user-${index + 1}`
+      await adminDb.collection('users').doc(userId).set({
+        uid: userId,
+        ...userData
+      })
+      console.log(`✅ Created user: ${userData.displayName}`)
+    }
+
+    // Seed Beats
+    console.log('🎵 Seeding beats...')
+    for (const [index, beatData] of SEED_BEATS.entries()) {
+      const beatId = `beat-${index + 1}`
+      await adminDb.collection('beats').doc(beatId).set({
+        id: beatId,
+        ...beatData
+      })
+      console.log(`✅ Created beat: ${beatData.title}`)
+    }
+
+    // Seed Transactions
+    console.log('💰 Seeding transactions...')
+    for (const [index, transactionData] of SEED_TRANSACTIONS.entries()) {
+      const transactionId = `transaction-${index + 1}`
+      await adminDb.collection('transactions').doc(transactionId).set({
+        id: transactionId,
+        ...transactionData
+      })
+      console.log(`✅ Created transaction: ${transactionId}`)
+    }
+
+    // Seed Producer Stats
+    console.log('📊 Seeding producer stats...')
+    await adminDb.collection('producer-stats').doc('producer-1').set({
+      totalEarnings: 2450.75,
+      totalSales: 12,
+      totalPlays: 1847,
+      updatedAt: new Date()
+    })
+    
+    await adminDb.collection('producer-stats').doc('producer-2').set({
+      totalEarnings: 1890.50,
+      totalSales: 8,
+      totalPlays: 1203,
+      updatedAt: new Date()
+    })
+
+    console.log('🎉 Firestore seeding completed successfully!')
+    return { success: true, message: 'Database seeded successfully' }
+
+  } catch (error) {
+    console.error('❌ Seeding failed:', error)
+    return { success: false, error: error.message }
+  }
 }

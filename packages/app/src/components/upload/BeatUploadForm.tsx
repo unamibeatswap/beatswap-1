@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
-import { useFileUpload } from '@/hooks/useFileUpload'
+import { ApiClient } from '@/lib/api'
 import { useDropzone } from 'react-dropzone'
 import { Beat } from '@/types'
 
@@ -13,7 +13,9 @@ interface BeatUploadFormProps {
 
 export default function BeatUploadForm({ onSuccess, onCancel }: BeatUploadFormProps) {
   const { user } = useAuth()
-  const { uploadAudio, uploadImage, uploading, progress, error } = useFileUpload()
+  const [uploading, setUploading] = useState(false)
+  const [progress, setProgress] = useState(0)
+  const [error, setError] = useState<string | null>(null)
   
   const [step, setStep] = useState(1)
   const [formData, setFormData] = useState({
@@ -44,17 +46,23 @@ export default function BeatUploadForm({ onSuccess, onCancel }: BeatUploadFormPr
     if (!audioFile || !user) return
 
     try {
+      setUploading(true)
+      setProgress(25)
+      
       // Upload files
-      const audioUpload = await uploadAudio(audioFile)
-      const coverUpload = coverFile ? await uploadImage(coverFile) : null
+      const audioUrl = await ApiClient.uploadFile(audioFile, 'audio')
+      setProgress(50)
+      
+      const coverImageUrl = coverFile ? await ApiClient.uploadFile(coverFile, 'image') : undefined
+      setProgress(75)
 
       // Create beat object
       const beat: Partial<Beat> = {
         title: formData.title,
         description: formData.description,
         producerId: user.uid,
-        audioUrl: audioUpload.url,
-        coverImageUrl: coverUpload?.url,
+        audioUrl,
+        coverImageUrl,
         price: parseFloat(formData.price),
         genre: formData.genre,
         bpm: parseInt(formData.bpm),
@@ -65,14 +73,19 @@ export default function BeatUploadForm({ onSuccess, onCancel }: BeatUploadFormPr
         updatedAt: new Date()
       }
 
-      // TODO: Save to Firestore
-      console.log('Beat created:', beat)
+      // Create beat via API
+      const createdBeat = await ApiClient.createBeat(beat as Omit<Beat, 'id' | 'createdAt' | 'updatedAt'>)
+      setProgress(100)
       
       if (onSuccess) {
-        onSuccess(beat as Beat)
+        onSuccess(createdBeat)
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Upload failed:', err)
+      setError(err.message)
+    } finally {
+      setUploading(false)
+      setProgress(0)
     }
   }
 

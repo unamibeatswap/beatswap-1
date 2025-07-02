@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { collection, query, orderBy, where, getDocs } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
 import { Beat } from '@/types'
+import { useAuth } from '@/context/AuthContext'
 
 export function useBeats(filters?: { genre?: string, producerId?: string }) {
   const [beats, setBeats] = useState<Beat[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { user } = useAuth()
 
   useEffect(() => {
     const fetchBeats = async () => {
@@ -16,39 +16,33 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
         setLoading(true)
         setError(null)
         
-        // Try to fetch real beats from Firestore
-        let q = query(collection(db, 'beats'), orderBy('createdAt', 'desc'))
+        // Build query parameters
+        const params = new URLSearchParams()
+        if (filters?.genre) params.append('genre', filters.genre)
+        if (filters?.producerId) params.append('producerId', filters.producerId)
+        params.append('limit', '50')
         
-        if (filters?.genre) {
-          q = query(collection(db, 'beats'), where('genre', '==', filters.genre), orderBy('createdAt', 'desc'))
+        const response = await fetch(`/api/beats?${params.toString()}`)
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
         }
         
-        if (filters?.producerId) {
-          q = query(collection(db, 'beats'), where('producerId', '==', filters.producerId), orderBy('createdAt', 'desc'))
-        }
+        const data = await response.json()
         
-        const querySnapshot = await getDocs(q)
-        
-        if (querySnapshot.empty) {
-          // If no beats in Firestore, use mock data for demo
-          console.log('No beats found in Firestore, using mock data')
-          setBeats(getMockBeats(filters))
+        if (data.beats && data.beats.length > 0) {
+          setBeats(data.beats.map((beat: any) => ({
+            ...beat,
+            createdAt: new Date(beat.createdAt),
+            updatedAt: new Date(beat.updatedAt)
+          })))
         } else {
-          const firestoreBeats = querySnapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data(),
-            createdAt: doc.data().createdAt?.toDate() || new Date(),
-            updatedAt: doc.data().updatedAt?.toDate() || new Date()
-          })) as Beat[]
-          
-          setBeats(firestoreBeats)
+          setBeats([])
         }
       } catch (err: any) {
         console.error('Error fetching beats:', err)
-        // Fallback to mock data if Firestore fails
-        console.log('Firestore error, using mock data as fallback')
-        setBeats(getMockBeats(filters))
-        setError(`Database connection issue: ${err.message}`)
+        setBeats([])
+        setError(`API connection issue: ${err.message}`)
       } finally {
         setLoading(false)
       }
@@ -59,33 +53,31 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
 
   const refreshBeats = async () => {
     try {
-      let q = query(collection(db, 'beats'), orderBy('createdAt', 'desc'))
+      const params = new URLSearchParams()
+      if (filters?.genre) params.append('genre', filters.genre)
+      if (filters?.producerId) params.append('producerId', filters.producerId)
+      params.append('limit', '50')
       
-      if (filters?.genre) {
-        q = query(collection(db, 'beats'), where('genre', '==', filters.genre), orderBy('createdAt', 'desc'))
+      const response = await fetch(`/api/beats?${params.toString()}`)
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
       }
       
-      if (filters?.producerId) {
-        q = query(collection(db, 'beats'), where('producerId', '==', filters.producerId), orderBy('createdAt', 'desc'))
-      }
+      const data = await response.json()
       
-      const querySnapshot = await getDocs(q)
-      
-      if (querySnapshot.empty) {
-        setBeats(getMockBeats(filters))
+      if (data.beats && data.beats.length > 0) {
+        setBeats(data.beats.map((beat: any) => ({
+          ...beat,
+          createdAt: new Date(beat.createdAt),
+          updatedAt: new Date(beat.updatedAt)
+        })))
       } else {
-        const firebaseBeats = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data(),
-          createdAt: doc.data().createdAt?.toDate() || new Date(),
-          updatedAt: doc.data().updatedAt?.toDate() || new Date()
-        })) as Beat[]
-        
-        setBeats(firebaseBeats)
+        setBeats([])
       }
     } catch (err: any) {
       console.error('Error refreshing beats:', err)
-      setBeats(getMockBeats(filters))
+      setBeats([])
       setError(err.message)
     }
   }
@@ -95,14 +87,41 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
   }
 
   const addBeat = async (beatData: Omit<Beat, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newBeat: Beat = {
-      ...beatData,
-      id: Date.now().toString(),
-      createdAt: new Date(),
-      updatedAt: new Date()
+    try {
+      if (!user) throw new Error('User not authenticated')
+      
+      const idToken = await user.getIdToken()
+      
+      const response = await fetch('/api/beats', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify(beatData)
+      })
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      
+      if (data.success) {
+        const newBeat = {
+          ...data.beat,
+          createdAt: new Date(data.beat.createdAt),
+          updatedAt: new Date(data.beat.updatedAt)
+        }
+        setBeats(prev => [newBeat, ...prev])
+        return newBeat
+      } else {
+        throw new Error(data.error || 'Failed to create beat')
+      }
+    } catch (err: any) {
+      console.error('Error adding beat:', err)
+      throw err
     }
-    setBeats(prev => [newBeat, ...prev])
-    return newBeat
   }
 
   return {
@@ -115,67 +134,3 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
   }
 }
 
-// Mock data fallback
-function getMockBeats(filters?: { genre?: string, producerId?: string }): Beat[] {
-  const mockBeats: Beat[] = [
-    {
-      id: '1',
-      title: 'Amapiano Fire',
-      description: 'Hot amapiano beat with deep basslines',
-      producerId: 'producer-1',
-      audioUrl: '/audio/sample1.mp3',
-      coverImageUrl: 'https://via.placeholder.com/300x300/667eea/ffffff?text=Amapiano+Fire',
-      price: 299.99,
-      genre: 'amapiano',
-      bpm: 112,
-      key: 'Am',
-      tags: ['amapiano', 'fire', 'deep'],
-      isNFT: false,
-      createdAt: new Date('2024-01-15'),
-      updatedAt: new Date('2024-01-15')
-    },
-    {
-      id: '2',
-      title: 'Afrobeats Groove',
-      description: 'Smooth afrobeats rhythm',
-      producerId: 'producer-2',
-      audioUrl: '/audio/sample2.mp3',
-      coverImageUrl: 'https://via.placeholder.com/300x300/764ba2/ffffff?text=Afrobeats+Groove',
-      price: 249.99,
-      genre: 'afrobeats',
-      bpm: 102,
-      key: 'C',
-      tags: ['afrobeats', 'smooth', 'groove'],
-      isNFT: false,
-      createdAt: new Date('2024-01-20'),
-      updatedAt: new Date('2024-01-20')
-    },
-    {
-      id: '3',
-      title: 'Trap Banger',
-      description: 'Hard hitting trap beat',
-      producerId: 'producer-3',
-      audioUrl: '/audio/sample3.mp3',
-      coverImageUrl: 'https://via.placeholder.com/300x300/1a1a1a/ffffff?text=Trap+Banger',
-      price: 399.99,
-      genre: 'trap',
-      bpm: 140,
-      key: 'Gm',
-      tags: ['trap', 'hard', 'banger'],
-      isNFT: false,
-      createdAt: new Date('2024-01-25'),
-      updatedAt: new Date('2024-01-25')
-    }
-  ]
-  
-  // Apply filters
-  let filteredBeats = mockBeats
-  if (filters?.genre) {
-    filteredBeats = mockBeats.filter(beat => beat.genre === filters.genre)
-  }
-  if (filters?.producerId) {
-    filteredBeats = mockBeats.filter(beat => beat.producerId === filters.producerId)
-  }
-  
-  return filteredBeats
-}

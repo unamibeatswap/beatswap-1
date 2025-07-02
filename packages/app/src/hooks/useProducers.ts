@@ -48,55 +48,10 @@ export function useProducers() {
       const querySnapshot = await getDocs(q)
       
       if (querySnapshot.empty && !isLoadMore) {
-        // No producers in Firestore, use mock data
-        const mockProducers: Producer[] = [
-          {
-            id: '1',
-            name: 'Beat Master Pro',
-            email: 'beatmaster@example.com',
-            avatar: '🎵',
-            genre: 'Trap, Hip Hop',
-            totalBeats: 45,
-            totalSales: 234,
-            rating: 4.8,
-            verified: true,
-            location: 'Atlanta, GA',
-            bio: 'Professional trap producer with 5+ years experience',
-            createdAt: new Date('2020-01-01')
-          },
-          {
-            id: '2',
-            name: 'Synth Wave',
-            email: 'synthwave@example.com',
-            avatar: '🎹',
-            genre: 'Electronic, Future Bass',
-            totalBeats: 32,
-            totalSales: 156,
-            rating: 4.6,
-            verified: true,
-            location: 'Los Angeles, CA',
-            bio: 'Electronic music specialist creating future sounds',
-            createdAt: new Date('2019-06-15')
-          },
-          {
-            id: '3',
-            name: 'Melody Maker',
-            email: 'melody@example.com',
-            avatar: '🎼',
-            genre: 'R&B, Soul',
-            totalBeats: 28,
-            totalSales: 89,
-            rating: 4.9,
-            verified: false,
-            location: 'Nashville, TN',
-            bio: 'Soulful melodies and R&B vibes',
-            createdAt: new Date('2021-03-10')
-          }
-        ]
-        
-        setProducers(isLoadMore ? [...producers, ...mockProducers] : mockProducers)
+        // No producers in Firestore - new platform
+        setProducers([])
         setHasMore(false)
-        return mockProducers
+        return []
       }
 
       const firestoreProducers: Producer[] = []
@@ -122,27 +77,11 @@ export function useProducers() {
     } catch (err: any) {
       console.warn('Firestore error, using mock data:', err)
       
-      // Fallback to mock data
-      const mockProducers: Producer[] = [
-        {
-          id: '1',
-          name: 'Beat Master Pro',
-          email: 'beatmaster@example.com',
-          avatar: '🎵',
-          genre: 'Trap, Hip Hop',
-          totalBeats: 45,
-          totalSales: 234,
-          rating: 4.8,
-          verified: true,
-          location: 'Atlanta, GA',
-          createdAt: new Date()
-        }
-      ]
-      
-      setProducers(isLoadMore ? [...producers, ...mockProducers] : mockProducers)
-      setError('Using demo data - Firestore unavailable')
+      // Return empty array for new platform
+      setProducers([])
+      setError(null)
       setHasMore(false)
-      return mockProducers
+      return []
     } finally {
       setLoading(false)
     }

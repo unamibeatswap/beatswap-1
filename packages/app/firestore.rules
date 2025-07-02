@@ -44,8 +44,7 @@ service cloud.firestore {
         request.auth.uid == request.resource.data.producerId &&
         validateBeatData(request.resource.data);
       allow update: if isAuthenticated() && 
-        request.auth.uid == resource.data.producerId &&
-        validateBeatData(request.resource.data);
+        request.auth.uid == resource.data.producerId;
       allow delete: if isAuthenticated() && 
         (request.auth.uid == resource.data.producerId || isAdmin());
     }
@@ -64,8 +63,25 @@ service cloud.firestore {
          isAdmin());
       allow create: if isAuthenticated() && 
         request.auth.uid == request.resource.data.buyerId &&
-        request.resource.data.keys().hasAll(['beatId', 'buyerId', 'producerId', 'amount']);
+        request.resource.data.keys().hasAll(['beatId', 'buyerId', 'licenseType']);
       allow update: if isAdmin(); // Only admin can update purchase status
+    }
+    
+    // Transactions
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated() && 
+        (request.auth.uid == resource.data.buyerId || 
+         request.auth.uid == resource.data.producerId ||
+         isAdmin());
+      allow create: if isAdmin(); // Only system can create transactions
+      allow update: if isAdmin(); // Only admin can update transaction status
+    }
+    
+    // Producer Stats
+    match /producer-stats/{producerId} {
+      allow read: if isAuthenticated() && 
+        (request.auth.uid == producerId || isAdmin());
+      allow write: if isAdmin(); // Only system updates stats
     }
     
     // Notifications

@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "dev": "sanity dev",
+    "dev": "echo 'Sanity dev disabled - use yarn dev:sanity to start manually'",
+    "dev:sanity": "sanity dev",
     "start": "sanity start",
     "build": "echo 'Sanity build skipped for production deployment'",
     "build:sanity": "sanity build",

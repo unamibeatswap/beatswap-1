@@ -28,7 +28,7 @@ export function useProducerStats(producerId: string) {
             lastUpdated: data.lastUpdated?.toDate() || new Date()
           } as ProducerStats)
         } else {
-          // Initialize stats for new producer
+          // Return empty stats for new producer without creating document
           const initialStats: ProducerStats = {
             profileViews: 0,
             totalPlays: 0,
@@ -36,18 +36,16 @@ export function useProducerStats(producerId: string) {
             totalEarnings: 0,
             lastUpdated: new Date()
           }
-          
-          await setDoc(doc(db, 'producer-stats', producerId), initialStats)
           setStats(initialStats)
         }
       } catch (error) {
         console.warn('Failed to fetch producer stats:', error)
-        // Fallback to mock data
+        // Return zeros for new platform
         setStats({
-          profileViews: 1234,
-          totalPlays: 2847,
-          totalSales: 15,
-          totalEarnings: 1247,
+          profileViews: 0,
+          totalPlays: 0,
+          totalSales: 0,
+          totalEarnings: 0,
           lastUpdated: new Date()
         })
       } finally {
@@ -61,22 +59,8 @@ export function useProducerStats(producerId: string) {
   }, [producerId])
 
   const incrementProfileView = async () => {
-    if (!producerId) return
-    
-    try {
-      await updateDoc(doc(db, 'producer-stats', producerId), {
-        profileViews: increment(1),
-        lastUpdated: new Date()
-      })
-      
-      setStats(prev => prev ? {
-        ...prev,
-        profileViews: prev.profileViews + 1,
-        lastUpdated: new Date()
-      } : null)
-    } catch (error) {
-      console.warn('Failed to increment profile view:', error)
-    }
+    // Disabled for new platform to prevent saving loops
+    return
   }
 
   const updateStats = async (updates: Partial<ProducerStats>) => {

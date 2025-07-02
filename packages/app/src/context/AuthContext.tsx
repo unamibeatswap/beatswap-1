@@ -13,25 +13,7 @@ import {
 import { doc, setDoc, getDoc, connectFirestoreEmulator } from 'firebase/firestore'
 import { auth, db } from '@/lib/firebase'
 
-// Firebase connection health check
-let firebaseHealthy = true
-let lastHealthCheck = 0
 
-const checkFirebaseHealth = async () => {
-  const now = Date.now()
-  if (now - lastHealthCheck < 30000) return firebaseHealthy // Cache for 30s
-  
-  try {
-    await getDoc(doc(db, '_health', 'check'))
-    firebaseHealthy = true
-  } catch (error: any) {
-    console.warn('Firebase health check failed:', error.code)
-    firebaseHealthy = false
-  }
-  
-  lastHealthCheck = now
-  return firebaseHealthy
-}
 
 interface UserProfile {
   uid: string
@@ -67,42 +49,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(user)
       
       if (user) {
-        const isHealthy = await checkFirebaseHealth()
-        
-        if (isHealthy) {
-          try {
-            // Fetch user profile from Firestore
-            const profileDoc = await getDoc(doc(db, 'users', user.uid))
-            if (profileDoc.exists()) {
-              setUserProfile(profileDoc.data() as UserProfile)
-            } else {
-              // Create fallback profile if none exists
-              const fallbackProfile: UserProfile = {
-                uid: user.uid,
-                email: user.email || '',
-                displayName: user.displayName || user.email?.split('@')[0] || 'User',
-                role: 'user',
-                isVerified: false,
-                createdAt: new Date()
+        try {
+          const profileDoc = await getDoc(doc(db, 'users', user.uid))
+          if (profileDoc.exists()) {
+            const profileData = profileDoc.data() as UserProfile
+            
+            // Force admin role for owner email even if profile exists
+            if (user.email === 'info@unamifoundation.org' && profileData.role !== 'admin') {
+              const updatedProfile = {
+                ...profileData,
+                role: 'admin' as const,
+                isVerified: true,
+                updatedAt: new Date()
               }
-              setUserProfile(fallbackProfile)
+              await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true })
+              setUserProfile({
+                ...updatedProfile,
+                createdAt: profileData.createdAt?.toDate?.() || new Date()
+              })
+            } else {
+              setUserProfile({
+                ...profileData,
+                createdAt: profileData.createdAt?.toDate?.() || new Date()
+              })
             }
-          } catch (err) {
-            console.warn('Firebase error, using fallback profile:', err)
-            firebaseHealthy = false
-            // Create offline fallback profile
-            const fallbackProfile: UserProfile = {
+          } else {
+            // Check if this is an admin email and force admin role
+            const isAdmin = user.email === 'info@unamifoundation.org'
+            
+            const newProfile: UserProfile = {
               uid: user.uid,
               email: user.email || '',
               displayName: user.displayName || user.email?.split('@')[0] || 'User',
-              role: 'user',
-              isVerified: false,
+              role: isAdmin ? 'admin' : 'user',
+              isVerified: isAdmin,
               createdAt: new Date()
             }
-            setUserProfile(fallbackProfile)
+            await setDoc(doc(db, 'users', user.uid), newProfile)
+            setUserProfile(newProfile)
           }
-        } else {
-          // Firebase is unhealthy, use fallback immediately
+        } catch (err) {
+          console.warn('Firebase error, using fallback profile:', err)
           const fallbackProfile: UserProfile = {
             uid: user.uid,
             email: user.email || '',
@@ -124,66 +111,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signIn = async (email: string, password: string) => {
-    // Hardcoded admin login
-    if (email === 'info@unamifoundation.org' && password === 'Proof321#') {
-      // Create mock admin user
-      const mockAdminProfile: UserProfile = {
-        uid: 'admin-mock-123',
-        email: 'info@unamifoundation.org',
-        displayName: 'Admin User',
-        role: 'admin',
-        isVerified: true,
-        createdAt: new Date()
-      }
-      setUserProfile(mockAdminProfile)
-      // Create mock Firebase user
-      const mockUser = {
-        uid: 'admin-mock-123',
-        email: 'info@unamifoundation.org',
-        displayName: 'Admin User'
-      } as User
-      setUser(mockUser)
-      return
-    }
     await signInWithEmailAndPassword(auth, email, password)
   }
 
   const signUp = async (email: string, password: string, displayName: string, role: 'user' | 'producer' = 'user') => {
-    const { user } = await createUserWithEmailAndPassword(auth, email, password)
-    
-    // Create user profile in Firestore
-    const profile: UserProfile = {
-      uid: user.uid,
-      email: user.email!,
-      displayName,
-      role,
-      isVerified: false,
-      createdAt: new Date()
-    }
-    
-    await setDoc(doc(db, 'users', user.uid), profile)
-    setUserProfile(profile)
-  }
-
-  const signInWithGoogle = async () => {
-    const provider = new GoogleAuthProvider()
-    const { user } = await signInWithPopup(auth, provider)
-    
-    // Check if profile exists, create if not
-    const profileDoc = await getDoc(doc(db, 'users', user.uid))
-    if (!profileDoc.exists()) {
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, email, password)
+      
+      // Create user profile in Firestore
       const profile: UserProfile = {
         uid: user.uid,
         email: user.email!,
-        displayName: user.displayName || 'User',
-        role: 'user',
-        profileImage: user.photoURL || undefined,
+        displayName,
+        role,
         isVerified: false,
         createdAt: new Date()
       }
       
+      console.log('Creating profile in Firestore:', profile)
       await setDoc(doc(db, 'users', user.uid), profile)
+      console.log('Profile created successfully')
       setUserProfile(profile)
+      
+      return user
+    } catch (error) {
+      console.error('SignUp error:', error)
+      throw error
+    }
+  }
+
+  const signInWithGoogle = async () => {
+    try {
+      const provider = new GoogleAuthProvider()
+      const { user } = await signInWithPopup(auth, provider)
+      
+      // Check if profile exists, create if not
+      const profileDoc = await getDoc(doc(db, 'users', user.uid))
+      if (!profileDoc.exists()) {
+        // Check if this is an admin email
+        const isAdmin = user.email === 'info@unamifoundation.org'
+        
+        const profile: UserProfile = {
+          uid: user.uid,
+          email: user.email!,
+          displayName: user.displayName || 'User',
+          role: isAdmin ? 'admin' : 'user',
+          profileImage: user.photoURL || undefined,
+          isVerified: isAdmin,
+          createdAt: new Date()
+        }
+        
+        console.log('Creating Google profile in Firestore:', profile)
+        await setDoc(doc(db, 'users', user.uid), profile)
+        console.log('Google profile created successfully')
+        setUserProfile(profile)
+      }
+      
+      return user
+    } catch (error) {
+      console.error('Google SignIn error:', error)
+      throw error
     }
   }
 
@@ -208,43 +195,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   const updateProfile = async (data: Partial<UserProfile>) => {
-    if (!user || !userProfile) {
-      throw new Error('User not authenticated or profile not loaded')
+    if (!user) {
+      throw new Error('User not authenticated')
+    }
+    
+    // Create userProfile if it doesn't exist
+    const currentProfile = userProfile || {
+      uid: user.uid,
+      email: user.email || '',
+      displayName: user.displayName || 'User',
+      role: 'user' as const,
+      isVerified: false,
+      createdAt: new Date()
     }
     
     const updatedProfile = { 
-      ...userProfile, 
-      ...data,
-      updatedAt: new Date()
+      ...currentProfile, 
+      ...data
     }
     
-    const isHealthy = await checkFirebaseHealth()
-    
-    if (isHealthy) {
-      try {
-        console.log('Updating profile in Firestore:', updatedProfile)
-        await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true })
-        setUserProfile(updatedProfile as UserProfile)
-        console.log('Profile updated successfully')
-      } catch (err: any) {
-        console.error('Failed to update profile in Firestore:', err)
-        firebaseHealthy = false
-        
-        // Always update locally as fallback
-        setUserProfile(updatedProfile as UserProfile)
-        
-        // Check if it's a network/permission error
-        if (err.code === 'permission-denied') {
-          throw new Error('Permission denied. Profile updated locally.')
-        } else {
-          throw new Error('Network error. Profile updated locally but may not sync until online.')
-        }
-      }
-    } else {
-      // Firebase is unhealthy, update locally only
-      console.warn('Firebase unhealthy, updating profile locally only')
+    try {
+      await setDoc(doc(db, 'users', user.uid), updatedProfile, { merge: true })
       setUserProfile(updatedProfile as UserProfile)
-      // Don't throw error, just update locally
+    } catch (err: any) {
+      console.error('Failed to update profile:', err)
+      throw err
     }
   }
 

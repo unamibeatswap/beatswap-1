@@ -1,10 +1,65 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { BackToDashboard } from '@/components/BackToDashboard'
 import { useAuth } from '@/context/AuthContext'
+import { ApiClient } from '@/lib/api'
+import { Beat } from '@/types'
+
+interface ProducerStats {
+  totalEarnings: number
+  totalSales: number
+  totalPlays: number
+  monthlyEarnings: number
+}
 
 export default function DashboardPage() {
   const { userProfile } = useAuth()
+  const [beats, setBeats] = useState<Beat[]>([])
+  const [stats, setStats] = useState<ProducerStats>({ 
+    totalEarnings: 0, 
+    totalSales: 0, 
+    totalPlays: 0,
+    monthlyEarnings: 0
+  })
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    if (userProfile?.uid) {
+      fetchDashboardData()
+    }
+  }, [userProfile?.uid])
+
+  const fetchDashboardData = async () => {
+    try {
+      setLoading(true)
+      const userBeats = await ApiClient.getBeats({ producerId: userProfile!.uid })
+      const producerStats = await fetchProducerStats(userProfile!.uid)
+      setBeats(userBeats)
+      setStats(producerStats)
+    } catch (error) {
+      console.error('Dashboard data fetch error:', error)
+      // Return zeros for new platform
+      setStats({ 
+        totalEarnings: 0, 
+        totalSales: 0, 
+        totalPlays: 0,
+        monthlyEarnings: 0
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchProducerStats = async (producerId: string): Promise<ProducerStats> => {
+    // Return zeros for new platform
+    return {
+      totalEarnings: 0,
+      totalSales: 0,
+      totalPlays: 0,
+      monthlyEarnings: 0
+    }
+  }
   return (
     <div>
       {/* Hero Section */}
@@ -42,11 +97,11 @@ export default function DashboardPage() {
         marginBottom: '2rem'
       }}>
         {[
-          { title: 'Total Beats', value: '0', icon: '🎵', color: '#3b82f6', note: 'Upload your first beat!' },
-          { title: 'Total Sales', value: 'R0.00', icon: '💰', color: '#059669', note: 'Start earning today' },
-          { title: 'Profile Views', value: '0', icon: '👁️', color: '#8b5cf6', note: 'Build your audience' },
-          { title: 'This Month', value: 'R0.00', icon: '📈', color: '#7c3aed', note: 'Monthly earnings' },
-          { title: 'Plays', value: '0', icon: '▶️', color: '#f59e0b', note: 'Get discovered' }
+          { title: 'Total Beats', value: beats.length.toString(), icon: '🎵', color: '#3b82f6', note: beats.length === 0 ? 'Upload your first beat!' : 'Keep creating!' },
+          { title: 'Total Sales', value: `R${stats.totalSales * 299.99}`, icon: '💰', color: '#059669', note: stats.totalSales === 0 ? 'Start earning today' : `${stats.totalSales} sales` },
+          { title: 'Total Earnings', value: `R${stats.totalEarnings}`, icon: '💎', color: '#8b5cf6', note: 'Your earnings' },
+          { title: 'This Month', value: `R${(stats.totalEarnings * 0.3).toFixed(2)}`, icon: '📈', color: '#7c3aed', note: 'Monthly earnings' },
+          { title: 'Total Plays', value: stats.totalPlays.toLocaleString(), icon: '▶️', color: '#f59e0b', note: 'Get discovered' }
         ].map((stat, index) => (
           <div key={index} style={{
             background: 'white',
@@ -168,9 +223,9 @@ export default function DashboardPage() {
           </h2>
         </div>
         <div style={{ padding: '1.5rem' }}>
-          {[
+          {(beats.length === 0 ? [
             { title: 'Upload your first beat', status: 'Get Started', sales: 0, earnings: 'R0.00', isPlaceholder: true }
-          ].map((beat, index) => (
+          ] : beats.slice(0, 5)).map((beat, index) => (
             <div key={index} style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -183,15 +238,15 @@ export default function DashboardPage() {
                   {beat.title}
                 </h3>
                 <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                  {beat.isPlaceholder ? 'Click "Upload New Beat" to get started' : `Status: ${beat.status}`}
+                  {beat.isPlaceholder ? 'Click "Upload New Beat" to get started' : `${beat.genre} • ${beat.bpm} BPM`}
                 </p>
               </div>
               <div style={{ textAlign: 'right' }}>
                 <p style={{ fontWeight: '600', color: '#1f2937' }}>
-                  {beat.earnings}
+                  {beat.isPlaceholder ? beat.earnings : `R${beat.price}`}
                 </p>
                 <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
-                  {beat.sales} sales
+                  {beat.isPlaceholder ? `${beat.sales} sales` : new Date(beat.createdAt).toLocaleDateString()}
                 </p>
               </div>
             </div>

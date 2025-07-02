@@ -15,16 +15,27 @@ export function Layout(props: PropsWithChildren) {
       
       <ToastContainer
         position="top-center"
-        autoClose={3000}
+        autoClose={4000}
         hideProgressBar={false}
-        newestOnTop={false}
+        newestOnTop
         closeOnClick
         rtl={false}
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
-        style={{ zIndex: 9999 }}
+        theme="colored"
+        style={{ 
+          zIndex: 9999,
+          fontSize: '14px',
+          fontWeight: '500'
+        }}
+        toastStyle={{
+          backgroundColor: '#1f2937',
+          color: '#ffffff',
+          border: '1px solid #374151',
+          borderRadius: '8px',
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)'
+        }}
       />
     </div>
   )

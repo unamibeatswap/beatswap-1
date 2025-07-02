@@ -25,43 +25,45 @@ export function usePurchase() {
     setError(null)
 
     try {
-      if (options.paymentMethod === 'crypto') {
-        // Web3 purchase flow
-        const licenseMultiplier = {
-          basic: 1,
-          premium: 3,
-          exclusive: 10
-        }[options.licenseType]
+      const licenseMultiplier = {
+        basic: 0.8,
+        premium: 1,
+        exclusive: 8
+      }[options.licenseType]
 
-        const totalPrice = beat.price * licenseMultiplier
-        const priceInEth = totalPrice / 1000 // Convert USD to ETH (mock rate)
-
-        if (beat.isNFT && beat.tokenId) {
-          // Purchase existing NFT
-          await buyBeat(beat.tokenId, priceInEth)
-        } else {
-          // For non-NFT beats, simulate purchase
-          console.log('Purchasing non-NFT beat:', {
-            beatId: beat.id,
-            price: totalPrice,
-            license: options.licenseType
-          })
-        }
-      } else {
-        // Card payment flow (mock)
-        await new Promise(resolve => setTimeout(resolve, 2000))
-        console.log('Card payment processed:', {
+      const totalPrice = beat.price * licenseMultiplier
+      
+      // Process payment via API
+      const idToken = await user.getIdToken()
+      
+      const response = await fetch('/api/payments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({
           beatId: beat.id,
-          license: options.licenseType,
-          amount: beat.price
+          licenseType: options.licenseType,
+          paymentMethod: options.paymentMethod,
+          amount: totalPrice
         })
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || 'Payment failed')
       }
 
+      const result = await response.json()
+      
       return {
         success: true,
-        transactionHash: hash,
+        transactionHash: result.transactionHash,
+        transactionId: result.transactionId,
         beatId: beat.id,
-        licenseType: options.licenseType
+        licenseType: options.licenseType,
+        downloadUrl: result.downloadUrl
       }
     } catch (err: any) {
       setError(err.message || 'Purchase failed')
@@ -129,7 +131,7 @@ export function usePurchase() {
     mintAndSell,
     loading: loading || isPending || isConfirming,
     error,
-    isConfirmed,
+    isConfirmed: true, // Always confirmed for API payments
     transactionHash: hash
   }
 }

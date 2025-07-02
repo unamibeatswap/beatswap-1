@@ -4,12 +4,13 @@ import { getFirestore, enableNetwork, disableNetwork } from 'firebase/firestore'
 import { getStorage } from 'firebase/storage'
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'AIzaSyB5YAsAbKf3aeTegpXYZPBOzCqW2abCORg',
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'beatswap-36c32.firebaseapp.com',
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'beatswap-36c32',
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'beatswap-36c32.firebasestorage.app',
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || '750321012530',
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || '1:750321012530:web:1349ade6e8897015b0912b',
+  apiKey: 'AIzaSyB5YAsAbKf3aeTegpXYZPBOzCqW2abCORg',
+  authDomain: 'beatswap-36c32.firebaseapp.com',
+  projectId: 'beatswap-36c32',
+  storageBucket: 'beatswap-36c32.firebasestorage.app',
+  messagingSenderId: '750321012530',
+  appId: '1:750321012530:web:1349ade6e8897015b0912b',
+  measurementId: 'G-FV070RQR7K'
 }
 
 // Initialize Firebase

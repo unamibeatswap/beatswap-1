@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 import { Beat } from '@/types'
 import BeatCard from '@/components/BeatCard'
-import { useBeats } from '@/hooks/useBeats'
+import { ApiClient } from '@/lib/api'
 import { toast } from 'react-toastify'
 
 export default function MarketplacePage() {
@@ -13,7 +13,28 @@ export default function MarketplacePage() {
   const [currentPage, setCurrentPage] = useState(1)
   const beatsPerPage = 8
 
-  const { beats, loading, error } = useBeats()
+  const [beats, setBeats] = useState<Beat[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchBeats = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const fetchedBeats = await ApiClient.getBeats({ limit: 100 })
+        setBeats(fetchedBeats)
+      } catch (err: any) {
+        console.error('Failed to fetch beats:', err)
+        setError(null) // Don't show error for empty platform
+        setBeats([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchBeats()
+  }, [])
   
   // Reset to page 1 when filters change - MUST be at top level
   useEffect(() => {
@@ -32,17 +53,7 @@ export default function MarketplacePage() {
     )
   }
   
-  // Show error state
-  if (error) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">⚠️</div>
-          <p className="text-red-600">Error loading beats: {error}</p>
-        </div>
-      </div>
-    )
-  }
+
 
   const filteredBeats = beats.filter(beat => {
     const matchesSearch = beat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||

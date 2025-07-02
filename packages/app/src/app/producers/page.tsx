@@ -130,13 +130,20 @@ export default function ProducersPage() {
       </div>
 
       {/* Producers Grid */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
-        gap: '1.5rem',
-        marginBottom: '2rem'
-      }}>
-        {currentProducers.map((producer, index) => (
+      {currentProducers.length === 0 ? (
+        <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#6b7280' }}>
+          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎵</div>
+          <h3 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem', color: '#1f2937' }}>No producers yet</h3>
+          <p>Be the first producer to join our platform!</p>
+        </div>
+      ) : (
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+          gap: '1.5rem',
+          marginBottom: '2rem'
+        }}>
+          {currentProducers.map((producer, index) => (
           <div key={`${producer.id}-${index}`} style={{
             background: 'white',
             borderRadius: '0.5rem',
@@ -251,9 +258,10 @@ export default function ProducersPage() {
                 Follow
               </button>
             </div>
-          </div>
-        ))}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Pagination */}
       <div style={{

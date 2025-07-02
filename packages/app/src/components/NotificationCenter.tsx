@@ -1,258 +1,145 @@
 'use client'
 
-import { useState } from 'react'
-import { useWeb3Notifications } from '@/hooks/useWeb3Notifications'
+import { useState, useEffect } from 'react'
+import { useAuth } from '@/context/AuthContext'
+
+interface Notification {
+  id: string
+  type: 'sale' | 'purchase' | 'upload' | 'system'
+  title: string
+  message: string
+  read: boolean
+  createdAt: Date
+}
 
 export default function NotificationCenter() {
+  const { user } = useAuth()
+  const [notifications, setNotifications] = useState<Notification[]>([])
   const [isOpen, setIsOpen] = useState(false)
-  const { notifications, clearNotifications, markAsRead } = useWeb3Notifications()
-  
-  const unreadCount = notifications.filter(n => !n.read).length
+  const [unreadCount, setUnreadCount] = useState(0)
+
+  useEffect(() => {
+    if (user) {
+      // Mock notifications for demo
+      const mockNotifications: Notification[] = [
+        {
+          id: '1',
+          type: 'sale',
+          title: 'Beat Sold!',
+          message: 'Your beat "Dark Trap" was purchased for R299.99',
+          read: false,
+          createdAt: new Date(Date.now() - 1000 * 60 * 30) // 30 min ago
+        },
+        {
+          id: '2',
+          type: 'upload',
+          title: 'Upload Complete',
+          message: 'Your beat "Amapiano Vibes" has been uploaded successfully',
+          read: true,
+          createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2) // 2 hours ago
+        }
+      ]
+      
+      setNotifications(mockNotifications)
+      setUnreadCount(mockNotifications.filter(n => !n.read).length)
+    }
+  }, [user])
+
+  const markAsRead = (id: string) => {
+    setNotifications(prev => prev.map(n => 
+      n.id === id ? { ...n, read: true } : n
+    ))
+    setUnreadCount(prev => Math.max(0, prev - 1))
+  }
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'sale': return '💰'
+      case 'purchase': return '🛒'
+      case 'upload': return '📤'
+      default: return '🔔'
+    }
+  }
 
   const formatTime = (date: Date) => {
     const now = new Date()
     const diff = now.getTime() - date.getTime()
-    const minutes = Math.floor(diff / 60000)
-    const hours = Math.floor(diff / 3600000)
-    const days = Math.floor(diff / 86400000)
+    const minutes = Math.floor(diff / (1000 * 60))
+    const hours = Math.floor(diff / (1000 * 60 * 60))
     
-    if (minutes < 1) return 'Just now'
     if (minutes < 60) return `${minutes}m ago`
     if (hours < 24) return `${hours}h ago`
-    return `${days}d ago`
-  }
-
-  const getNotificationIcon = (type: string) => {
-    switch (type) {
-      case 'purchase': return '🎵'
-      case 'sale': return '💰'
-      case 'mint': return '✨'
-      case 'transfer': return '🔄'
-      default: return '📢'
-    }
+    return date.toLocaleDateString()
   }
 
   return (
-    <div style={{ position: 'relative' }}>
-      {/* Notification Bell */}
+    <div className="relative">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        style={{
-          position: 'relative',
-          background: 'none',
-          border: 'none',
-          cursor: 'pointer',
-          padding: '0.5rem',
-          borderRadius: '0.375rem',
-          color: '#6b7280',
-          fontSize: '1.25rem'
-        }}
+        className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none"
       >
-        🔔
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+        </svg>
         {unreadCount > 0 && (
-          <span style={{
-            position: 'absolute',
-            top: '0.25rem',
-            right: '0.25rem',
-            background: '#ef4444',
-            color: 'white',
-            borderRadius: '50%',
-            width: '1.25rem',
-            height: '1.25rem',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: '0.75rem',
-            fontWeight: 'bold'
-          }}>
-            {unreadCount > 9 ? '9+' : unreadCount}
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+            {unreadCount}
           </span>
         )}
       </button>
 
-      {/* Notification Dropdown */}
       {isOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              zIndex: 10
-            }}
-            onClick={() => setIsOpen(false)}
-          />
+        <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border z-50">
+          <div className="p-4 border-b">
+            <h3 className="font-semibold">Notifications</h3>
+          </div>
           
-          {/* Dropdown Panel */}
-          <div style={{
-            position: 'absolute',
-            top: '100%',
-            right: 0,
-            marginTop: '0.5rem',
-            width: '400px',
-            maxWidth: '90vw',
-            background: 'white',
-            borderRadius: '0.5rem',
-            boxShadow: '0 10px 25px rgba(0,0,0,0.15)',
-            border: '1px solid #e5e7eb',
-            zIndex: 20,
-            maxHeight: '500px',
-            overflow: 'hidden'
-          }}>
-            {/* Header */}
-            <div style={{
-              padding: '1rem',
-              borderBottom: '1px solid #e5e7eb',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}>
-              <h3 style={{
-                fontSize: '1.125rem',
-                fontWeight: '600',
-                color: '#1f2937',
-                margin: 0
-              }}>
-                Notifications
-              </h3>
-              {notifications.length > 0 && (
-                <button
-                  onClick={clearNotifications}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: '#6b7280',
-                    fontSize: '0.875rem',
-                    cursor: 'pointer'
-                  }}
+          <div className="max-h-96 overflow-y-auto">
+            {notifications.length === 0 ? (
+              <div className="p-4 text-center text-gray-500">
+                No notifications yet
+              </div>
+            ) : (
+              notifications.map((notification) => (
+                <div
+                  key={notification.id}
+                  className={`p-4 border-b hover:bg-gray-50 cursor-pointer ${
+                    !notification.read ? 'bg-blue-50' : ''
+                  }`}
+                  onClick={() => markAsRead(notification.id)}
                 >
-                  Clear all
-                </button>
-              )}
-            </div>
-
-            {/* Notifications List */}
-            <div style={{
-              maxHeight: '400px',
-              overflowY: 'auto'
-            }}>
-              {notifications.length === 0 ? (
-                <div style={{
-                  padding: '2rem',
-                  textAlign: 'center',
-                  color: '#6b7280'
-                }}>
-                  <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>🔕</div>
-                  <p style={{ margin: 0 }}>No notifications yet</p>
-                  <p style={{ margin: '0.25rem 0 0', fontSize: '0.875rem' }}>
-                    Web3 events will appear here
-                  </p>
-                </div>
-              ) : (
-                notifications.map((notification) => (
-                  <div
-                    key={notification.id}
-                    onClick={() => markAsRead(notification.id)}
-                    style={{
-                      padding: '1rem',
-                      borderBottom: '1px solid #f3f4f6',
-                      cursor: 'pointer',
-                      background: notification.read ? 'white' : '#f8fafc',
-                      transition: 'background-color 0.2s'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = '#f1f5f9'
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = notification.read ? 'white' : '#f8fafc'
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '0.75rem'
-                    }}>
-                      <div style={{
-                        fontSize: '1.25rem',
-                        flexShrink: 0
-                      }}>
-                        {getNotificationIcon(notification.type)}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'flex-start',
-                          marginBottom: '0.25rem'
-                        }}>
-                          <h4 style={{
-                            fontSize: '0.875rem',
-                            fontWeight: '600',
-                            color: '#1f2937',
-                            margin: 0
-                          }}>
-                            {notification.title}
-                          </h4>
-                          <span style={{
-                            fontSize: '0.75rem',
-                            color: '#6b7280',
-                            flexShrink: 0,
-                            marginLeft: '0.5rem'
-                          }}>
-                            {formatTime(notification.timestamp)}
-                          </span>
-                        </div>
-                        <p style={{
-                          fontSize: '0.875rem',
-                          color: '#6b7280',
-                          margin: '0 0 0.5rem 0',
-                          lineHeight: '1.4'
-                        }}>
-                          {notification.message}
-                        </p>
-                        {notification.txHash && (
-                          <a
-                            href={`https://etherscan.io/tx/${notification.txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              fontSize: '0.75rem',
-                              color: '#3b82f6',
-                              textDecoration: 'none'
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            View Transaction →
-                          </a>
+                  <div className="flex items-start gap-3">
+                    <span className="text-xl">{getIcon(notification.type)}</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-sm">{notification.title}</h4>
+                        {!notification.read && (
+                          <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
                         )}
                       </div>
+                      <p className="text-sm text-gray-600 mt-1">{notification.message}</p>
+                      <p className="text-xs text-gray-400 mt-2">{formatTime(notification.createdAt)}</p>
                     </div>
                   </div>
-                ))
-              )}
-            </div>
-
-            {/* Footer */}
-            {notifications.length > 0 && (
-              <div style={{
-                padding: '0.75rem 1rem',
-                borderTop: '1px solid #e5e7eb',
-                background: '#f9fafb',
-                textAlign: 'center'
-              }}>
-                <span style={{
-                  fontSize: '0.75rem',
-                  color: '#6b7280'
-                }}>
-                  🟢 Live Web3 notifications active
-                </span>
-              </div>
+                </div>
+              ))
             )}
           </div>
-        </>
+          
+          {notifications.length > 0 && (
+            <div className="p-3 border-t">
+              <button
+                onClick={() => {
+                  setNotifications(prev => prev.map(n => ({ ...n, read: true })))
+                  setUnreadCount(0)
+                }}
+                className="text-sm text-blue-600 hover:text-blue-800"
+              >
+                Mark all as read
+              </button>
+            </div>
+          )}
+        </div>
       )}
     </div>
   )
