@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useBeats } from './useBeats'
-import { useAuth } from '@/context/AuthContext'
+import { useWeb3Beats } from './useWeb3Beats'
+import { useSIWE } from '@/context/SIWEContext'
 
 interface PlatformStats {
   totalBeats: number

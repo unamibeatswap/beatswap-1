@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { IPFSClient } from '@/lib/ipfs'
+import { PinataSDK } from 'pinata-web3'
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,14 +31,19 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    // Upload to IPFS
-    const result = await IPFSClient.uploadFile(file, fileType)
-
+    // Upload to IPFS using Pinata
+    const pinata = new PinataSDK({
+      pinataJwt: process.env.PINATA_JWT!,
+      pinataGateway: process.env.NEXT_PUBLIC_IPFS_GATEWAY!
+    })
+    
+    const upload = await pinata.upload.file(file).group(fileType || 'beats')
+    
     return NextResponse.json({
       success: true,
-      url: result.url,
-      hash: result.hash,
-      size: result.size
+      url: `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}${upload.IpfsHash}`,
+      hash: upload.IpfsHash,
+      size: file.size
     })
 
   } catch (error: any) {
