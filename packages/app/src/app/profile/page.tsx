@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import { useWeb3Profile } from '@/hooks/useWeb3Profile'
 import { BackToDashboard } from '@/components/BackToDashboard'
 import { toast } from 'react-toastify'
@@ -64,10 +64,6 @@ export default function ProfilePage() {
         <p className="text-gray-600">Fetching your profile data...</p>
       </div>
     )
-  }
-
-  const handleSettingChange = (key: string, value: boolean) => {
-    setSettings(prev => ({ ...prev, [key]: value }))
   }
 
   const handleInputChange = (key: string, value: string) => {
