@@ -6,6 +6,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createAppKit } from '@reown/appkit/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { mainnet, sepolia } from '@reown/appkit/networks'
+import { SIWEProvider } from '@/context/SIWEContext'
+import { Web3DataProvider } from '@/context/Web3DataContext'
 
 // Setup queryClient
 const queryClient = new QueryClient()
@@ -60,7 +62,11 @@ export function Web3Provider({ children }: PropsWithChildren) {
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        {children}
+        <SIWEProvider>
+          <Web3DataProvider>
+            {children}
+          </Web3DataProvider>
+        </SIWEProvider>
       </QueryClientProvider>
     </WagmiProvider>
   )
