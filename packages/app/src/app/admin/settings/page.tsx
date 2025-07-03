@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useSiteSettings } from '@/hooks/useSiteSettings'
 import { useWeb3Profile } from '@/hooks/useWeb3Profile'
 import { LinkComponent } from '@/components/LinkComponent'
