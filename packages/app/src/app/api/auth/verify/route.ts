@@ -9,21 +9,11 @@ export async function POST(request: NextRequest) {
     const result = await siweMessage.verify({ signature })
     
     if (result.success) {
-      return NextResponse.json({ 
-        success: true,
-        address: siweMessage.address 
-      })
+      return NextResponse.json({ success: true, address: result.data.address })
     } else {
-      return NextResponse.json(
-        { error: 'Invalid signature' },
-        { status: 401 }
-      )
+      return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 400 })
     }
   } catch (error) {
-    console.error('SIWE verification failed:', error)
-    return NextResponse.json(
-      { error: 'Verification failed' },
-      { status: 401 }
-    )
+    return NextResponse.json({ success: false, error: 'Verification failed' }, { status: 500 })
   }
 }

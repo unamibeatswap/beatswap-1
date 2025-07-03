@@ -1,65 +1,57 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
-import { useAuth } from '@/context/AuthContext'
+import { useState, useRef } from 'react'
+import { useWeb3Profile } from '@/hooks/useWeb3Profile'
 import { BackToDashboard } from '@/components/BackToDashboard'
 import { toast } from 'react-toastify'
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage'
-import { storage } from '@/lib/firebase'
+import { useAccount } from 'wagmi'
 
 export default function ProfilePage() {
-  const { user, userProfile, updateProfile } = useAuth()
+  const { 
+    profile, 
+    settings, 
+    loading, 
+    saving, 
+    error,
+    updateProfile, 
+    updateSettings,
+    uploadProfileImage,
+    removeProfileImage,
+    isConnected
+  } = useWeb3Profile()
+  const { address } = useAccount()
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [profileImage, setProfileImage] = useState<string | null>(null)
-  const [settings, setSettings] = useState({
-    emailNotifications: true,
-    marketingEmails: false,
-    twoFactorAuth: false
-  })
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     email: '',
-    bio: '',
-    walletAddress: ''
+    bio: ''
   })
-  const [saving, setSaving] = useState(false)
-  const [loading, setLoading] = useState(true)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // Initialize form data when userProfile loads
-  useEffect(() => {
-    if (userProfile) {
-      const nameParts = userProfile.displayName?.split(' ') || ['', '']
+  // Initialize form data when profile loads
+  React.useEffect(() => {
+    if (profile) {
+      const nameParts = profile.displayName?.split(' ') || ['', '']
       setFormData({
         firstName: nameParts[0] || '',
         lastName: nameParts.slice(1).join(' ') || '',
-        email: userProfile.email || '',
-        bio: userProfile.bio || '',
-        walletAddress: userProfile.walletAddress || ''
+        email: profile.email || '',
+        bio: profile.bio || ''
       })
-      setProfileImage(userProfile.profileImage || null)
-      setLoading(false)
-    } else if (user) {
-      // Fallback if userProfile is not loaded yet
-      setFormData({
-        firstName: user.displayName?.split(' ')[0] || '',
-        lastName: user.displayName?.split(' ').slice(1).join(' ') || '',
-        email: user.email || '',
-        bio: '',
-        walletAddress: ''
-      })
-      setLoading(false)
     }
-  }, [userProfile, user])
+  }, [profile])
 
-  if (!user) {
+  if (!isConnected) {
     return (
       <div className="p-8 text-center">
-        <div className="text-6xl mb-4">🔒</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Please Sign In</h2>
-        <p className="text-gray-600">You need to be signed in to access your profile.</p>
+        <div className="text-6xl mb-4">🔗</div>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Connect Your Wallet</h2>
+        <p className="text-gray-600">Please connect your wallet to access your profile.</p>
+        <div className="mt-4">
+          <w3m-button />
+        </div>
       </div>
     )
   }
@@ -83,53 +75,42 @@ export default function ProfilePage() {
   }
 
   const handleImageUpload = async (file: File) => {
-    if (!user) return
-    
     setUploading(true)
     setUploadProgress(0)
     
     try {
-      const storageRef = ref(storage, `profile-images/${user.uid}/${file.name}`)
-      const uploadTask = uploadBytesResumable(storageRef, file)
-      
-      uploadTask.on('state_changed',
-        (snapshot) => {
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-          setUploadProgress(Math.round(progress))
-        },
-        (error) => {
-          console.error('Upload error:', error)
-          toast.error('Failed to upload image')
-          setUploading(false)
-        },
-        async () => {
-          try {
-            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref)
-            setProfileImage(downloadURL)
-            
-            // Update user profile with new image
-            await updateProfile({ 
-              profileImage: downloadURL,
-              updatedAt: new Date()
-            })
-            toast.success('Profile image updated successfully!')
-          } catch (error) {
-            console.error('Error getting download URL:', error)
-            toast.error('Failed to save profile image')
-          } finally {
-            setUploading(false)
+      // Simulate upload progress
+      const interval = setInterval(() => {
+        setUploadProgress(prev => {
+          if (prev >= 90) {
+            clearInterval(interval)
+            return 90
           }
-        }
-      )
+          return prev + 10
+        })
+      }, 200)
+      
+      const imageUrl = await uploadProfileImage(file)
+      
+      clearInterval(interval)
+      setUploadProgress(100)
+      
+      if (imageUrl) {
+        toast.success('Profile image updated successfully!')
+      } else {
+        toast.error('Failed to upload image')
+      }
     } catch (error) {
       console.error('Error uploading file:', error)
       toast.error('Failed to upload image')
+    } finally {
       setUploading(false)
+      setUploadProgress(0)
     }
   }
 
   const handleSave = async () => {
-    if (!user || saving) return
+    if (saving) return
     
     // Validate required fields
     if (!formData.firstName.trim()) {
@@ -137,43 +118,30 @@ export default function ProfilePage() {
       return
     }
     
-    setSaving(true)
     try {
       const displayName = `${formData.firstName.trim()} ${formData.lastName.trim()}`.trim()
       
-      const updateData = {
+      const success = await updateProfile({
         displayName,
         bio: formData.bio.trim(),
-        walletAddress: formData.walletAddress.trim(),
-        updatedAt: new Date()
-      }
-      
-      console.log('Updating profile with data:', updateData)
-      
-      await updateProfile(updateData)
-      
-      toast.success('Profile updated successfully!', {
-        position: 'top-center',
-        autoClose: 3000
+        email: formData.email.trim()
       })
+      
+      if (success) {
+        toast.success('Profile updated successfully!')
+      } else {
+        toast.error('Failed to update profile')
+      }
     } catch (error: any) {
       console.error('Error updating profile:', error)
-      
-      let errorMessage = 'Failed to update profile. Please try again.'
-      if (error.code === 'permission-denied') {
-        errorMessage = 'Permission denied. Please check your account permissions.'
-      } else if (error.code === 'network-request-failed') {
-        errorMessage = 'Network error. Please check your connection.'
-      } else if (error.message) {
-        errorMessage = error.message
-      }
-      
-      toast.error(errorMessage, {
-        position: 'top-center',
-        autoClose: 5000
-      })
-    } finally {
-      setSaving(false)
+      toast.error('Failed to update profile. Please try again.')
+    }
+  }
+
+  const handleSettingChange = async (key: keyof typeof settings, value: boolean) => {
+    const success = await updateSettings({ [key]: value })
+    if (!success) {
+      toast.error('Failed to update settings')
     }
   }
   return (
@@ -216,7 +184,7 @@ export default function ProfilePage() {
               width: '80px',
               height: '80px',
               borderRadius: '50%',
-              background: profileImage ? `url(${profileImage})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              background: profile?.profileImage ? `url(${profile.profileImage})` : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               display: 'flex',
@@ -228,7 +196,7 @@ export default function ProfilePage() {
               cursor: 'pointer',
               border: '3px solid #e5e7eb'
             }} onClick={() => fileInputRef.current?.click()}>
-              {!profileImage && (formData.firstName?.[0] || user?.displayName?.[0] || 'U')}
+              {!profile?.profileImage && (formData.firstName?.[0] || profile?.displayName?.[0] || 'U')}
               {uploading && (
                 <div style={{
                   position: 'absolute',
@@ -263,18 +231,13 @@ export default function ProfilePage() {
             >
               📷
             </button>
-            {profileImage && (
+            {profile?.profileImage && (
               <button
                 onClick={async () => {
-                  setProfileImage(null)
-                  try {
-                    await updateProfile({ 
-                      profileImage: null,
-                      updatedAt: new Date()
-                    })
+                  const success = await removeProfileImage()
+                  if (success) {
                     toast.success('Profile image removed!')
-                  } catch (error: any) {
-                    console.error('Error removing profile image:', error)
+                  } else {
                     toast.error('Failed to remove profile image')
                   }
                 }}
@@ -322,15 +285,15 @@ export default function ProfilePage() {
           </div>
           <div>
             <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
-              {formData.firstName && formData.lastName ? `${formData.firstName} ${formData.lastName}` : user?.displayName || 'User'}
+              {profile?.displayName || 'User'}
             </h2>
-            <p style={{ color: '#6b7280' }}>{formData.email || user?.email}</p>
-            {userProfile?.isVerified && (
+            <p style={{ color: '#6b7280' }}>{address}</p>
+            {profile?.isVerified && (
               <p style={{ color: '#059669', fontSize: '0.875rem', fontWeight: '500' }}>
-                ✓ Verified {userProfile.role === 'producer' ? 'Producer' : userProfile.role === 'admin' ? 'Admin' : 'User'}
+                ✓ Verified {profile.role === 'producer' ? 'Producer' : profile.role === 'admin' ? 'Admin' : 'User'}
               </p>
             )}
-            {!userProfile?.isVerified && (
+            {!profile?.isVerified && (
               <p style={{ color: '#f59e0b', fontSize: '0.875rem', fontWeight: '500' }}>
                 ⏳ Verification Pending
               </p>
@@ -421,7 +384,7 @@ export default function ProfilePage() {
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <input
                 type="text"
-                value={formData.walletAddress}
+                value={address || ''}
                 readOnly
                 style={{
                   flex: 1,
@@ -432,17 +395,18 @@ export default function ProfilePage() {
                   background: '#f9fafb'
                 }}
               />
-              <button style={{
-                background: '#3b82f6',
+              <div style={{
+                background: '#10b981',
                 color: 'white',
                 padding: '0.75rem 1rem',
-                border: 'none',
                 borderRadius: '0.375rem',
                 fontSize: '0.875rem',
-                cursor: 'pointer'
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem'
               }}>
-                Connect
-              </button>
+                ✓ Connected
+              </div>
             </div>
           </div>
         </div>
@@ -483,7 +447,7 @@ export default function ProfilePage() {
                 </p>
               </div>
               <button
-                onClick={() => handleSettingChange(setting.key, !settings[setting.key as keyof typeof settings])}
+                onClick={() => handleSettingChange(setting.key as keyof typeof settings, !settings[setting.key as keyof typeof settings])}
                 style={{
                   position: 'relative',
                   width: '44px',

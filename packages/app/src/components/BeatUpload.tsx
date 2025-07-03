@@ -75,13 +75,44 @@ export default function BeatUpload() {
         coverImageUrl = await uploadCoverImage(coverFile, beatId)
       }
 
-      // For now, just show success - in Phase 2 we'll mint the NFT
-      console.log('Beat uploaded to IPFS:', {
+      // Create NFT metadata
+      const metadata = {
+        name: formData.title,
+        description: formData.description,
+        image: coverImageUrl,
+        audio: audioUrl,
+        attributes: [
+          { trait_type: 'Genre', value: formData.genre },
+          { trait_type: 'BPM', value: formData.bpm },
+          { trait_type: 'Key', value: formData.key },
+          { trait_type: 'Producer', value: user.address },
+          { trait_type: 'Price', value: formData.price },
+          ...formData.tags.split(',').map(tag => ({ trait_type: 'Tag', value: tag.trim() }))
+        ]
+      }
+
+      // Add to test data for now (in production, this would mint NFT)
+      const { TestDataManager } = await import('@/utils/testData')
+      const newBeat = TestDataManager.addTestBeat({
         title: formData.title,
+        description: formData.description,
+        genre: formData.genre,
+        bpm: formData.bpm,
+        key: formData.key,
+        tags: formData.tags.split(',').map(t => t.trim()),
+        price: formData.price / 100, // Convert to ETH equivalent
         audioUrl,
         coverImageUrl,
-        producer: user.address
+        producerId: user.address,
+        producerName: user.address.slice(0, 6) + '...' + user.address.slice(-4),
+        status: 'active',
+        plays: 0,
+        likes: 0,
+        royaltyPercentage: 5,
+        isActive: true
       })
+      
+      console.log('Beat minted as NFT:', newBeat)
       
       // Refresh beats list
       await refreshBeats()

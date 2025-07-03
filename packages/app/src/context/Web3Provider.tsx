@@ -32,20 +32,25 @@ try {
     projectId,
     metadata: {
       name: 'BeatsChain',
-      description: 'Decentralized marketplace for music producers and artists',
-      url: 'https://www.beatschain.app',
-      icons: ['https://www.beatschain.app/favicon.ico']
+      description: 'Decentralized marketplace for beat creators and artists',
+      url: typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL || 'https://beatschain.vercel.app',
+      icons: [typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : `${process.env.NEXT_PUBLIC_APP_URL || 'https://beatschain.vercel.app'}/favicon.ico`]
     },
     features: {
-      analytics: true,
+      analytics: false, // Disable analytics to avoid COOP issues
       email: false,
-      socials: []
+      socials: [],
+      onramp: false // Disable onramp to avoid external redirects
     },
     themeMode: 'light',
     themeVariables: {
       '--w3m-color-mix': '#3b82f6',
       '--w3m-color-mix-strength': 20
-    }
+    },
+    enableWalletConnect: true,
+    enableInjected: true,
+    enableEIP6963: true,
+    enableCoinbase: true // Re-enable for production
   })
 } catch (error) {
   console.warn('Web3 wallet connection setup failed:', error)

@@ -3,12 +3,19 @@
 import { useState, useEffect } from 'react'
 import { Beat } from '@/types'
 import { useAuth } from '@/context/AuthContext'
+import { EventIndexer } from '@/lib/indexing'
+import { DecentralizedBeat } from '@/lib/metadata'
+import { useContract } from './useContract'
+
+// Feature flag for Web3 data source
+const USE_WEB3_DATA = process.env.NEXT_PUBLIC_USE_WEB3_DATA === 'true'
 
 export function useBeats(filters?: { genre?: string, producerId?: string }) {
   const [beats, setBeats] = useState<Beat[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuth()
+  const { contract } = useContract()
 
   useEffect(() => {
     const fetchBeats = async () => {
@@ -16,64 +23,133 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
         setLoading(true)
         setError(null)
         
-        // Build query parameters
-        const params = new URLSearchParams()
-        if (filters?.genre) params.append('genre', filters.genre)
-        if (filters?.producerId) params.append('producerId', filters.producerId)
-        params.append('limit', '50')
-        
-        const response = await fetch(`/api/beats?${params.toString()}`)
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`)
-        }
-        
-        const data = await response.json()
-        
-        if (data.beats && data.beats.length > 0) {
-          setBeats(data.beats.map((beat: any) => ({
-            ...beat,
-            createdAt: new Date(beat.createdAt),
-            updatedAt: new Date(beat.updatedAt)
-          })))
+        if (USE_WEB3_DATA) {
+          // Use Web3 data source
+          await fetchWeb3Beats()
         } else {
-          setBeats([])
+          // Use Firebase data source
+          await fetchFirebaseBeats()
         }
       } catch (err: any) {
         console.error('Error fetching beats:', err)
         setBeats([])
-        setError(`API connection issue: ${err.message}`)
+        setError(`Data fetch failed: ${err.message}`)
       } finally {
         setLoading(false)
       }
     }
     
     fetchBeats()
-  }, [filters?.genre, filters?.producerId])
+  }, [filters?.genre, filters?.producerId, contract])
+
+  const fetchWeb3Beats = async () => {
+    if (!contract) {
+      // Load from local index while contract loads
+      const indexedBeats = EventIndexer.getStoredBeatIndex()
+      if (indexedBeats.length === 0) {
+        // Load test data if no Web3 data available
+        const { TestDataManager } = await import('@/utils/testData')
+        const testBeats = TestDataManager.getTestBeats()
+        setBeats(testBeats.map(beat => ({
+          id: beat.id,
+          title: beat.title,
+          description: beat.description,
+          genre: beat.genre,
+          bpm: beat.bpm,
+          key: beat.key,
+          tags: beat.tags,
+          price: beat.price,
+          audioUrl: beat.audioUrl,
+          coverImageUrl: beat.coverImageUrl,
+          producerId: beat.producerId,
+          createdAt: beat.createdAt,
+          updatedAt: beat.updatedAt,
+          tokenId: beat.tokenId,
+          royaltyPercentage: beat.royaltyPercentage,
+          isActive: beat.isActive
+        })))
+        return
+      }
+      const filteredBeats = applyFilters(indexedBeats)
+      setBeats(convertToBeats(filteredBeats))
+      return
+    }
+
+    // Build fresh index from contract events
+    const contractAddress = contract.address
+    const decentralizedBeats = await EventIndexer.buildBeatIndex(contractAddress)
+    const filteredBeats = applyFilters(decentralizedBeats)
+    setBeats(convertToBeats(filteredBeats))
+  }
+
+  const fetchFirebaseBeats = async () => {
+    // Build query parameters
+    const params = new URLSearchParams()
+    if (filters?.genre) params.append('genre', filters.genre)
+    if (filters?.producerId) params.append('producerId', filters.producerId)
+    params.append('limit', '50')
+    
+    const response = await fetch(`/api/beats?${params.toString()}`)
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    if (data.beats && data.beats.length > 0) {
+      setBeats(data.beats.map((beat: any) => ({
+        ...beat,
+        createdAt: new Date(beat.createdAt),
+        updatedAt: new Date(beat.updatedAt)
+      })))
+    } else {
+      setBeats([])
+    }
+  }
+
+  const applyFilters = (beats: DecentralizedBeat[]): DecentralizedBeat[] => {
+    let filtered = beats
+    
+    if (filters?.genre) {
+      filtered = filtered.filter(beat => beat.genre === filters.genre)
+    }
+    
+    if (filters?.producerId) {
+      filtered = filtered.filter(beat => beat.producer === filters.producerId)
+    }
+    
+    return filtered
+  }
+
+  const convertToBeats = (decentralizedBeats: DecentralizedBeat[]): Beat[] => {
+    return decentralizedBeats.map(beat => ({
+      id: beat.tokenId,
+      title: beat.title,
+      description: beat.description,
+      genre: beat.genre,
+      bpm: beat.bpm,
+      key: beat.key,
+      tags: beat.tags,
+      price: parseFloat(beat.price),
+      audioUrl: beat.audioUrl,
+      coverImageUrl: beat.coverImageUrl,
+      producerId: beat.producer,
+      createdAt: beat.createdAt,
+      updatedAt: beat.updatedAt,
+      // Web3 specific fields
+      tokenId: parseInt(beat.tokenId),
+      royaltyPercentage: beat.royaltyPercentage,
+      isActive: beat.isActive
+    }))
+  }
 
   const refreshBeats = async () => {
     try {
-      const params = new URLSearchParams()
-      if (filters?.genre) params.append('genre', filters.genre)
-      if (filters?.producerId) params.append('producerId', filters.producerId)
-      params.append('limit', '50')
-      
-      const response = await fetch(`/api/beats?${params.toString()}`)
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-      
-      const data = await response.json()
-      
-      if (data.beats && data.beats.length > 0) {
-        setBeats(data.beats.map((beat: any) => ({
-          ...beat,
-          createdAt: new Date(beat.createdAt),
-          updatedAt: new Date(beat.updatedAt)
-        })))
+      if (USE_WEB3_DATA) {
+        await fetchWeb3Beats()
       } else {
-        setBeats([])
+        await fetchFirebaseBeats()
       }
     } catch (err: any) {
       console.error('Error refreshing beats:', err)
@@ -130,7 +206,8 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
     error,
     refreshBeats,
     getBeatsByProducer,
-    addBeat
+    addBeat,
+    isWeb3Mode: USE_WEB3_DATA
   }
 }
 

@@ -4,12 +4,14 @@ import dynamic from 'next/dynamic'
 import { useAuth } from '@/context/AuthContext'
 import { useBeats } from '@/hooks/useBeats'
 import { useAdminStats } from '@/hooks/useAdminStats'
+import { useAdminSetup } from '@/hooks/useAdminSetup'
 import { LinkComponent } from '@/components/LinkComponent'
 
 function AdminDashboard() {
   const { user, userProfile } = useAuth()
   const { beats } = useBeats()
   const { stats, loading: isLoading } = useAdminStats()
+  const { currentUserIsAdmin, needsSetup, loading: setupLoading } = useAdminSetup()
   
   const adminStats = stats ? {
     totalUsers: stats.overview.totalUsers,
@@ -27,7 +29,13 @@ function AdminDashboard() {
     monthlyGrowth: 15
   }
 
-  if (!user || userProfile?.role !== 'admin') {
+  // Redirect to setup if needed
+  if (needsSetup() && !setupLoading) {
+    window.location.href = '/admin/setup'
+    return null
+  }
+
+  if (!currentUserIsAdmin && !setupLoading) {
     return (
       <div>
         {/* Hero Section */}
@@ -57,9 +65,13 @@ function AdminDashboard() {
               <div className="text-6xl mb-4">🚫</div>
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Access Denied</h2>
               <p className="text-gray-600 mb-6">
-                You need administrator privileges to access this area. 
-                Please contact your system administrator if you believe this is an error.
+                You need administrator privileges to access this area.
               </p>
+              <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                <p className="text-blue-700 text-sm">
+                  If you're the platform owner, go to <a href="/admin/setup" className="underline">/admin/setup</a> to configure admin access.
+                </p>
+              </div>
               
               <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded-lg">

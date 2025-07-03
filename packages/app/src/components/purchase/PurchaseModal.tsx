@@ -36,7 +36,7 @@ export default function PurchaseModal({
   const { address, isConnected } = useAccount()
   const [selectedLicense, setSelectedLicense] = useState('premium')
   const [processing, setProcessing] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState('card')
+  const [paymentMethod, setPaymentMethod] = useState('crypto')
 
   const licenses: License[] = [
     {
@@ -90,9 +90,9 @@ export default function PurchaseModal({
       return
     }
 
-    // Check wallet connection only for crypto payments
-    if (paymentMethod === 'crypto' && !isConnected) {
-      toast.error('Please connect your wallet for crypto payments')
+    // Check wallet connection for crypto payments
+    if (!isConnected) {
+      toast.error('Please connect your wallet to purchase beats')
       return
     }
 
@@ -290,54 +290,43 @@ export default function PurchaseModal({
                   <div className="mb-6">
                     <h4 className="font-medium text-gray-900 mb-3">Payment Method</h4>
                     <div className="space-y-2">
-                      {[
-                        { id: 'card', name: 'Credit/Debit Card', icon: '💳' },
-                        { id: 'payfast', name: 'PayFast', icon: '🏦' },
-                        { id: 'crypto', name: 'Cryptocurrency', icon: '₿' }
-                      ].map((method) => (
-                        <label
-                          key={method.id}
-                          className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-colors ${
-                            paymentMethod === method.id
-                              ? 'border-blue-500 bg-blue-50'
-                              : 'border-gray-200 hover:border-gray-300'
-                          }`}
-                        >
-                          <input
-                            type="radio"
-                            name="paymentMethod"
-                            value={method.id}
-                            checked={paymentMethod === method.id}
-                            onChange={(e) => setPaymentMethod(e.target.value)}
-                            className="sr-only"
-                          />
-                          <span className="text-xl">{method.icon}</span>
-                          <span className="font-medium">{method.name}</span>
-                        </label>
-                      ))}
+                      <label className="flex items-center gap-3 p-4 border-2 border-yellow-400 bg-gradient-to-r from-yellow-50 to-amber-50 rounded-lg cursor-pointer transition-all shadow-md hover:shadow-lg">
+                        <input
+                          type="radio"
+                          name="paymentMethod"
+                          value="crypto"
+                          checked={paymentMethod === 'crypto'}
+                          onChange={(e) => setPaymentMethod(e.target.value)}
+                          className="sr-only"
+                        />
+                        <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-br from-yellow-400 to-amber-500 rounded-full text-white font-bold text-lg shadow-sm">
+                          ₿
+                        </div>
+                        <div>
+                          <span className="font-semibold text-gray-900">Cryptocurrency</span>
+                          <div className="text-sm text-amber-700 font-medium">✨ Recommended • Instant • Secure</div>
+                        </div>
+                        <div className="ml-auto">
+                          <div className="w-5 h-5 rounded-full border-2 border-yellow-500 bg-yellow-500 flex items-center justify-center">
+                            <div className="w-2 h-2 bg-white rounded-full"></div>
+                          </div>
+                        </div>
+                      </label>
                     </div>
                   </div>
 
                   {/* Crypto Wallet Connection Notice */}
-                  {paymentMethod === 'crypto' && !isConnected && (
-                    <div className="mb-4 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                  {!isConnected && (
+                    <div className="mb-4 bg-gradient-to-r from-amber-50 to-yellow-50 p-4 rounded-lg border border-yellow-300">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-blue-600">🔗</span>
-                        <span className="font-medium text-blue-900">Wallet Connection Required</span>
+                        <span className="text-yellow-600">🔗</span>
+                        <span className="font-medium text-yellow-900">Connect Wallet to Continue</span>
                       </div>
-                      <p className="text-blue-700 text-sm mb-3">
-                        Connect your wallet to pay with cryptocurrency
+                      <p className="text-yellow-700 text-sm mb-3">
+                        Connect your Web3 wallet to purchase beats with cryptocurrency
                       </p>
                       <div className="flex gap-2">
-                        <button className="bg-blue-600 text-white px-3 py-2 rounded-md text-sm hover:bg-blue-700 transition-colors">
-                          Connect Wallet
-                        </button>
-                        <button 
-                          onClick={() => setPaymentMethod('card')}
-                          className="bg-gray-100 text-gray-700 px-3 py-2 rounded-md text-sm hover:bg-gray-200 transition-colors"
-                        >
-                          Use Card Instead
-                        </button>
+                        <w3m-button size="sm" />
                       </div>
                     </div>
                   )}
@@ -345,7 +334,7 @@ export default function PurchaseModal({
                   {/* Purchase Button */}
                   <button
                     onClick={handlePurchase}
-                    disabled={processing || !user || (paymentMethod === 'crypto' && !isConnected)}
+                    disabled={processing || !user || !isConnected}
                     className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 px-6 rounded-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-semibold text-lg shadow-lg hover:shadow-xl"
                   >
                     {processing ? (
@@ -355,7 +344,7 @@ export default function PurchaseModal({
                       </div>
                     ) : !user ? (
                       'Sign In to Purchase'
-                    ) : paymentMethod === 'crypto' && !isConnected ? (
+                    ) : !isConnected ? (
                       'Connect Wallet to Continue'
                     ) : (
                       `Purchase for ${formatPrice(selectedLicenseData.price)}`

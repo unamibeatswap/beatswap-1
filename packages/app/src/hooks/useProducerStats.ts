@@ -1,87 +1,99 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { doc, getDoc, setDoc, updateDoc, increment } from 'firebase/firestore'
-import { db } from '@/lib/firebase'
+import { useAccount } from 'wagmi'
+import { useWeb3Events } from './useWeb3Events'
+import { useRoyalties } from './useRoyalties'
 
-interface ProducerStats {
-  profileViews: number
-  totalPlays: number
+export interface ProducerStats {
+  totalBeats: number
   totalSales: number
-  totalEarnings: number
-  lastUpdated: Date
+  totalEarnings: string
+  averagePrice: string
+  topBeat?: string
+  recentActivity: Array<{
+    type: 'mint' | 'sale' | 'royalty'
+    beatId: string
+    amount?: string
+    timestamp: Date
+  }>
 }
 
-export function useProducerStats(producerId: string) {
-  const [stats, setStats] = useState<ProducerStats | null>(null)
+export function useProducerStats() {
+  const [stats, setStats] = useState<ProducerStats>({
+    totalBeats: 0,
+    totalSales: 0,
+    totalEarnings: '0',
+    averagePrice: '0',
+    recentActivity: []
+  })
   const [loading, setLoading] = useState(true)
+  
+  const { address } = useAccount()
+  const { events } = useWeb3Events()
+  const { royalties, stats: royaltyStats } = useRoyalties()
 
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const statsDoc = await getDoc(doc(db, 'producer-stats', producerId))
-        
-        if (statsDoc.exists()) {
-          const data = statsDoc.data()
-          setStats({
-            ...data,
-            lastUpdated: data.lastUpdated?.toDate() || new Date()
-          } as ProducerStats)
-        } else {
-          // Return empty stats for new producer without creating document
-          const initialStats: ProducerStats = {
-            profileViews: 0,
-            totalPlays: 0,
-            totalSales: 0,
-            totalEarnings: 0,
-            lastUpdated: new Date()
-          }
-          setStats(initialStats)
-        }
-      } catch (error) {
-        console.warn('Failed to fetch producer stats:', error)
-        // Return zeros for new platform
-        setStats({
-          profileViews: 0,
-          totalPlays: 0,
-          totalSales: 0,
-          totalEarnings: 0,
-          lastUpdated: new Date()
-        })
-      } finally {
-        setLoading(false)
-      }
+    if (!address) {
+      setLoading(false)
+      return
     }
 
-    if (producerId) {
-      fetchStats()
-    }
-  }, [producerId])
+    // Filter events for current producer
+    const producerEvents = events.filter(event => 
+      event.data.producer?.toLowerCase() === address.toLowerCase() ||
+      event.data.seller?.toLowerCase() === address.toLowerCase()
+    )
 
-  const incrementProfileView = async () => {
-    // Disabled for new platform to prevent saving loops
-    return
-  }
-
-  const updateStats = async (updates: Partial<ProducerStats>) => {
-    if (!producerId) return
+    // Calculate stats from blockchain events
+    const mintEvents = producerEvents.filter(e => e.type === 'mint')
+    const saleEvents = producerEvents.filter(e => e.type === 'purchase')
     
-    try {
-      await updateDoc(doc(db, 'producer-stats', producerId), {
-        ...updates,
-        lastUpdated: new Date()
-      })
-      
-      setStats(prev => prev ? { ...prev, ...updates, lastUpdated: new Date() } : null)
-    } catch (error) {
-      console.warn('Failed to update producer stats:', error)
-    }
-  }
+    const totalBeats = mintEvents.length
+    const totalSales = saleEvents.length
+    
+    const salesRevenue = saleEvents.reduce((sum, event) => 
+      sum + parseFloat(event.data.price || '0'), 0
+    )
+    
+    const royaltyEarnings = parseFloat(royaltyStats.totalEarned)
+    const totalEarnings = (salesRevenue + royaltyEarnings).toString()
+    
+    const averagePrice = totalSales > 0 
+      ? (salesRevenue / totalSales).toString()
+      : '0'
 
-  return {
-    stats,
-    loading,
-    incrementProfileView,
-    updateStats
-  }
+    // Recent activity from all events
+    const recentActivity = producerEvents
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+      .slice(0, 10)
+      .map(event => ({
+        type: event.type,
+        beatId: event.tokenId,
+        amount: event.data.price || event.data.amount,
+        timestamp: event.timestamp
+      }))
+
+    // Find top performing beat
+    const beatSales = saleEvents.reduce((acc, event) => {
+      acc[event.tokenId] = (acc[event.tokenId] || 0) + parseFloat(event.data.price || '0')
+      return acc
+    }, {} as Record<string, number>)
+
+    const topBeat = Object.entries(beatSales)
+      .sort(([,a], [,b]) => b - a)[0]?.[0]
+
+    setStats({
+      totalBeats,
+      totalSales,
+      totalEarnings,
+      averagePrice,
+      topBeat: topBeat ? `Beat #${topBeat}` : undefined,
+      recentActivity
+    })
+
+    setLoading(false)
+  }, [address, events, royaltyStats])
+
+  return { stats, loading }
 }

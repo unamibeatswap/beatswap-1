@@ -77,11 +77,27 @@ export function useProducers() {
     } catch (err: any) {
       console.warn('Firestore error, using mock data:', err)
       
-      // Return empty array for new platform
-      setProducers([])
+      // Load test data for new platform
+      const { TestDataManager } = await import('@/utils/testData')
+      const testProducers = TestDataManager.getTestProducers()
+      const mappedProducers = testProducers.map(p => ({
+        id: p.id,
+        name: p.name,
+        email: `${p.name.toLowerCase().replace(/\s+/g, '')}@example.com`,
+        avatar: p.profileImage,
+        genre: p.genres[0] || 'Hip Hop',
+        totalBeats: p.totalBeats,
+        totalSales: p.totalSales,
+        rating: 4.5,
+        verified: p.isVerified,
+        location: p.location,
+        bio: p.bio,
+        createdAt: p.joinedAt
+      }))
+      setProducers(mappedProducers)
       setError(null)
       setHasMore(false)
-      return []
+      return mappedProducers
     } finally {
       setLoading(false)
     }

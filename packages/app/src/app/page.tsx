@@ -23,10 +23,10 @@ export default function Home() {
             <h1 style={{ fontSize: '4rem', fontWeight: 'bold', marginBottom: '1.5rem', lineHeight: '1.1' }}>
               The Future of Music
               <br />
-              <span style={{ color: '#fbbf24' }}>Beats & NFTs</span>
+              <span style={{ color: '#fbbf24' }}>Beats NFTs</span>
             </h1>
             <p style={{ fontSize: '1.5rem', marginBottom: '3rem', opacity: 0.9, maxWidth: '600px', margin: '0 auto 3rem' }}>
-              Discover, buy, and sell beats as NFTs. Own your music, earn royalties forever.
+              Discover, buy, and sell beats as NFTs. Own your beats, earn royalties forever.
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <a
@@ -76,7 +76,7 @@ export default function Home() {
             Why Choose BeatsChain?
           </h2>
           <p style={{ fontSize: '1.25rem', color: '#6b7280', maxWidth: '600px', margin: '0 auto' }}>
-            The first decentralized marketplace built specifically for music producers and artists
+            The first decentralized marketplace built specifically for beat creators and artists
           </p>
         </div>
         
@@ -204,10 +204,10 @@ export default function Home() {
       <div style={{ background: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)', padding: '4rem 2rem' }}>
         <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: '2.5rem', fontWeight: 'bold', color: '#1f2937', marginBottom: '1rem' }}>
-            Ready to Revolutionize Your Music?
+            Ready to Revolutionize Your Beats?
           </h2>
           <p style={{ fontSize: '1.25rem', color: '#1f2937', marginBottom: '2rem', opacity: 0.8 }}>
-            Join the future of music ownership and start earning today
+            Join the future of beat ownership and start earning today
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <a

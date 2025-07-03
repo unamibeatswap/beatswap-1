@@ -4,15 +4,18 @@ import { useState } from 'react'
 import { useContract } from './useContract'
 import { useAuth } from '@/context/AuthContext'
 import { Beat } from '@/types'
+import { PaymentManager, PaymentToken, SUPPORTED_TOKENS } from '@/lib/payments'
 
 interface PurchaseOptions {
   licenseType: 'basic' | 'premium' | 'exclusive'
   paymentMethod: 'crypto' | 'card'
+  paymentToken?: PaymentToken
 }
 
 export function usePurchase() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [selectedToken, setSelectedToken] = useState<PaymentToken>(SUPPORTED_TOKENS[0])
   const { user } = useAuth()
   const { buyBeat, isPending, isConfirming, isConfirmed, hash } = useContract()
 
@@ -32,23 +35,43 @@ export function usePurchase() {
       }[options.licenseType]
 
       const totalPrice = beat.price * licenseMultiplier
+      const paymentToken = options.paymentToken || selectedToken
       
-      // Process payment via API
-      const idToken = await user.getIdToken()
-      
-      const response = await fetch('/api/payments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${idToken}`
-        },
-        body: JSON.stringify({
-          beatId: beat.id,
-          licenseType: options.licenseType,
-          paymentMethod: options.paymentMethod,
-          amount: totalPrice
+      if (options.paymentMethod === 'crypto') {
+        // Web3 payment flow
+        if (paymentToken.address === '0x0000000000000000000000000000000000000000') {
+          // ETH payment - direct contract call
+          const result = await buyBeat(beat.tokenId || 0, totalPrice.toString())
+          return {
+            success: true,
+            transactionHash: result.hash,
+            beatId: beat.id,
+            licenseType: options.licenseType,
+            paymentToken: paymentToken.symbol
+          }
+        } else {
+          // ERC20 token payment
+          throw new Error('ERC20 payments not yet implemented')
+        }
+      } else {
+        // Traditional payment via API
+        const idToken = await user.getIdToken()
+        
+        const response = await fetch('/api/payments', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: JSON.stringify({
+            beatId: beat.id,
+            licenseType: options.licenseType,
+            paymentMethod: options.paymentMethod,
+            amount: totalPrice,
+            paymentToken: paymentToken.symbol
+          })
         })
-      })
+      }
 
       if (!response.ok) {
         const error = await response.json()
@@ -126,12 +149,42 @@ export function usePurchase() {
     }
   }
 
+  const approveToken = async (amount: string) => {
+    if (selectedToken.address === '0x0000000000000000000000000000000000000000') {
+      return true // ETH doesn't need approval
+    }
+
+    try {
+      setLoading(true)
+      setError(null)
+      
+      // This would need contract address to approve
+      const contractAddress = '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+      await PaymentManager.approveToken(
+        selectedToken.address,
+        contractAddress,
+        amount
+      )
+      
+      return true
+    } catch (err: any) {
+      setError(err.message || 'Approval failed')
+      return false
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return {
     purchaseBeat,
     mintAndSell,
+    approveToken,
+    selectedToken,
+    setSelectedToken,
+    supportedTokens: SUPPORTED_TOKENS,
     loading: loading || isPending || isConfirming,
     error,
-    isConfirmed: true, // Always confirmed for API payments
+    isConfirmed: true,
     transactionHash: hash
   }
 }

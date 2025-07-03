@@ -1,4 +1,5 @@
 import { PinataSDK } from 'pinata-web3'
+import { CacheManager } from './caching'
 
 let pinata: PinataSDK | null = null
 
@@ -61,5 +62,66 @@ export class IPFSClient {
 
   static async getFile(hash: string): Promise<Response> {
     return fetch(`${process.env.NEXT_PUBLIC_IPFS_GATEWAY}${hash}`)
+  }
+
+  static async getJSON<T>(hash: string): Promise<T> {
+    // Check cache first
+    const cached = CacheManager.getIPFSContent(hash)
+    if (cached) {
+      return cached
+    }
+
+    const response = await this.getFile(hash)
+    if (!response.ok) {
+      throw new Error(`Failed to fetch IPFS content: ${response.status}`)
+    }
+
+    const data = await response.json()
+    
+    // Cache the result
+    CacheManager.setIPFSContent(hash, data)
+    
+    return data
+  }
+
+  static async uploadBeatPackage(audioFile: File, coverImage?: File, metadata?: object): Promise<{
+    audioHash: string
+    imageHash?: string
+    metadataHash?: string
+    audioUrl: string
+    imageUrl?: string
+    metadataUrl?: string
+  }> {
+    const results: any = {}
+
+    // Upload audio file
+    const audioResult = await this.uploadFile(audioFile, 'beats/audio')
+    results.audioHash = audioResult.hash
+    results.audioUrl = audioResult.url
+
+    // Upload cover image if provided
+    if (coverImage) {
+      const imageResult = await this.uploadFile(coverImage, 'beats/images')
+      results.imageHash = imageResult.hash
+      results.imageUrl = imageResult.url
+    }
+
+    // Upload metadata if provided
+    if (metadata) {
+      const metadataResult = await this.uploadJSON(metadata, 'beat-metadata')
+      results.metadataHash = metadataResult.hash
+      results.metadataUrl = metadataResult.url
+    }
+
+    return results
+  }
+
+  static getGatewayUrl(hash: string): string {
+    return `${process.env.NEXT_PUBLIC_IPFS_GATEWAY}${hash}`
+  }
+
+  static extractHashFromUrl(url: string): string | null {
+    const match = url.match(/\/ipfs\/([a-zA-Z0-9]+)/)
+    return match ? match[1] : null
   }
 }
