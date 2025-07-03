@@ -33,3 +33,6 @@ yarn-error.log*
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+# Next.js build cache
+.next/
+packages/app/.next/
