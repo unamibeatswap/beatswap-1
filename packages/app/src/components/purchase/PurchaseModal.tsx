@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Beat } from '@/types'
-import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+import { useWeb3Auth } from '@/hooks/useWeb3Auth'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
 
@@ -32,7 +32,7 @@ export default function PurchaseModal({
   onClose, 
   onPurchaseComplete 
 }: PurchaseModalProps) {
-  const { user, isAuthenticated } = useUnifiedAuth()
+  const { user, isAuthenticated } = useWeb3Auth()
   const { address, isConnected } = useAccount()
   const [selectedLicense, setSelectedLicense] = useState('premium')
   const [processing, setProcessing] = useState(false)
@@ -75,13 +75,13 @@ export default function PurchaseModal({
 
   const selectedLicenseData = licenses.find(l => l.type === selectedLicense) || licenses[1]
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2
-    }).format(price)
+  const formatPrice = (ethPrice: number) => {
+    return `${ethPrice.toFixed(4)} ETH`
+  }
+  
+  const formatPriceWithZAR = (ethPrice: number) => {
+    const zarPrice = ethPrice * 18000 // 1 ETH ≈ R18,000
+    return `${ethPrice.toFixed(4)} ETH (~R${zarPrice.toLocaleString()})`
   }
 
   const handlePurchase = async () => {
@@ -198,8 +198,11 @@ export default function PurchaseModal({
                       </div>
                       
                       <div className="text-right ml-4">
-                        <div className="text-2xl font-bold text-gray-900">
+                        <div className="text-xl font-bold text-gray-900">
                           {formatPrice(license.price)}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          ~R{(license.price * 18000).toLocaleString()}
                         </div>
                         {license.originalPrice && license.originalPrice > license.price && (
                           <div className="text-sm text-gray-500 line-through">
@@ -276,12 +279,12 @@ export default function PurchaseModal({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-gray-600">Price:</span>
-                      <span className="font-medium">{formatPrice(selectedLicenseData.price)}</span>
+                      <span className="font-medium">{formatPriceWithZAR(selectedLicenseData.price)}</span>
                     </div>
                     <div className="border-t border-gray-200 pt-3">
                       <div className="flex justify-between text-lg font-semibold">
                         <span>Total:</span>
-                        <span className="text-green-600">{formatPrice(selectedLicenseData.price)}</span>
+                        <span className="text-green-600">{formatPriceWithZAR(selectedLicenseData.price)}</span>
                       </div>
                     </div>
                   </div>

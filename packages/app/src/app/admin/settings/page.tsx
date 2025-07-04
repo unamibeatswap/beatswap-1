@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react'
 import { useSiteSettings } from '@/hooks/useSiteSettings'
-import { useWeb3Profile } from '@/hooks/useWeb3Profile'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import { LinkComponent } from '@/components/LinkComponent'
 import { toast } from 'react-toastify'
 
-export default function AdminSettingsPage() {
-  const { profile, isConnected } = useWeb3Profile()
+function AdminSettingsContent() {
+  const { user, isAuthenticated, hasAnyRole } = useUnifiedAuth()
   const { 
     settings, 
     loading, 
@@ -26,22 +27,7 @@ export default function AdminSettingsPage() {
     setFormData(settings)
   }, [settings])
 
-  if (!isConnected) {
-    return (
-      <div className="p-8 text-center">
-        <div className="text-6xl mb-4">🔗</div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Connect Your Wallet</h2>
-        <p className="text-gray-600">Please connect your wallet to access admin settings.</p>
-        <div className="mt-4">
-          <w3m-button />
-        </div>
-      </div>
-    )
-  }
 
-  if (profile?.role !== 'admin') {
-    return <div className="p-8 text-center">Access Denied</div>
-  }
 
   const handleSave = async () => {
     const validationErrors = validateSettings(formData)
@@ -89,9 +75,9 @@ export default function AdminSettingsPage() {
                 value={formData.platformFee}
                 onChange={(e) => setFormData({...formData, platformFee: parseFloat(e.target.value)})}
                 className="w-full px-3 py-2 border rounded-md"
-                min="0" max="10" step="0.1"
+                min="0" max="15" step="0.1"
               />
-              <p className="text-sm text-gray-600 mt-1">Commission taken from each sale (0-10%)</p>
+              <p className="text-sm text-gray-600 mt-1">Commission taken from each sale (0-15%)</p>
             </div>
 
             <div>
@@ -209,5 +195,13 @@ export default function AdminSettingsPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AdminSettingsPage() {
+  return (
+    <ProtectedRoute anyRole={['admin', 'super_admin']} requireWallet={true}>
+      <AdminSettingsContent />
+    </ProtectedRoute>
   )
 }

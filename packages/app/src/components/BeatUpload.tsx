@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useFileUpload } from '@/hooks/useFileUpload'
 import { useWeb3Beats } from '@/hooks/useWeb3Beats'
-import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+import { useWeb3Auth } from '@/hooks/useWeb3Auth'
 import { useBeatNFT } from '@/hooks/useBeatNFT'
 import BuyBeatNFTModal from '@/components/BuyBeatNFTModal'
 import ProtectedRoute from '@/components/ProtectedRoute'
@@ -25,7 +25,7 @@ export default function BeatUpload() {
   const [submitting, setSubmitting] = useState(false)
   const [showBuyModal, setShowBuyModal] = useState(false)
 
-  const { user, isAuthenticated } = useUnifiedAuth()
+  const { user, isAuthenticated } = useWeb3Auth()
   const { uploadBeatAudio, uploadCoverImage, uploading, progress, error } = useFileUpload()
   const { refreshBeats } = useWeb3Beats()
   const { balance, canUpload, useCredits, isConnected } = useBeatNFT()

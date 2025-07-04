@@ -2,10 +2,31 @@
 
 import { useState } from 'react'
 import { useAccount } from 'wagmi'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+
+// Super admin wallets (same as UnifiedAuthContext)
+const SUPER_ADMIN_WALLETS = [
+  process.env.NEXT_PUBLIC_SUPER_ADMIN_WALLET?.toLowerCase(),
+  '0xc84799a904eeb5c57abbbc40176e7db8be202c10', // Your wallet address
+].filter(Boolean) as string[]
 
 export default function AdminSetupHelper() {
   const { address, isConnected } = useAccount()
+  const { user, hasRole } = useUnifiedAuth()
   const [showHelper, setShowHelper] = useState(false)
+  
+  // Only show helper if:
+  // 1. Wallet is connected
+  // 2. Address is in SUPER_ADMIN_WALLETS list
+  // 3. User doesn't already have super_admin role
+  const shouldShowHelper = isConnected && 
+    address && 
+    SUPER_ADMIN_WALLETS.includes(address.toLowerCase()) && 
+    !hasRole('super_admin')
+  
+  if (!shouldShowHelper) {
+    return null
+  }
 
   const setupSuperAdmin = () => {
     if (!address) return
@@ -31,17 +52,12 @@ export default function AdminSetupHelper() {
     localStorage.setItem(`web3_profile_${address.toLowerCase()}`, JSON.stringify(superAdminProfile))
 
     alert(`✅ Super admin setup complete for wallet: ${address}`)
-    window.location.reload()
+    // Force context refresh by dispatching a custom event
+    window.dispatchEvent(new CustomEvent('admin-setup-complete'))
+    setTimeout(() => window.location.reload(), 500)
   }
 
-  if (!isConnected) {
-    return (
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-        <h3 className="font-semibold text-yellow-800 mb-2">🔗 Sign Up First</h3>
-        <p className="text-yellow-700 text-sm">Please sign up by connecting your wallet to set up admin access.</p>
-      </div>
-    )
-  }
+
 
   return (
     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">

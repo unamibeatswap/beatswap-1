@@ -4,6 +4,7 @@ import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL, SOCIAL_TW
 import { Layout } from '@/components/Layout'
 import { AuthProvider } from '@/context/AuthContext'
 import { Web3Provider } from '@/context/Web3Provider'
+import { SIWEProvider } from '@/context/SIWEContext'
 import { UnifiedAuthProvider } from '@/context/UnifiedAuthContext'
 import { NotificationProvider } from '@/context/Notifications'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
@@ -72,7 +73,16 @@ export const viewport: Viewport = {
   themeColor: '#000000',
 }
 
-export default function RootLayout(props: PropsWithChildren) {
+export default async function RootLayout(props: PropsWithChildren) {
+  let cookies = null
+  
+  try {
+    const { headers } = await import('next/headers')
+    const headersList = await headers()
+    cookies = headersList.get('cookie')
+  } catch (error) {
+    console.warn('Could not get cookies:', error)
+  }
 
   return (
     <html lang='en'>
@@ -93,10 +103,18 @@ export default function RootLayout(props: PropsWithChildren) {
       </head>
 
       <body>
-        <AuthProvider>
-          <Layout>{props.children}</Layout>
-          <CookieConsentBanner />
-        </AuthProvider>
+        <Web3Provider cookies={cookies}>
+          <AuthProvider>
+            <SIWEProvider>
+              <UnifiedAuthProvider>
+                <NotificationProvider>
+                  <Layout>{props.children}</Layout>
+                  <CookieConsentBanner />
+                </NotificationProvider>
+              </UnifiedAuthProvider>
+            </SIWEProvider>
+          </AuthProvider>
+        </Web3Provider>
         
         {/* Google Tag Manager */}
         {process.env.NEXT_PUBLIC_GTM_ID && (

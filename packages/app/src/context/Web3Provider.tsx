@@ -5,8 +5,7 @@ import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createAppKit } from '@reown/appkit/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
-import { mainnet, sepolia } from '@reown/appkit/networks'
-import { SIWEProvider } from '@/context/SIWEContext'
+import { mainnet, sepolia, polygon } from '@reown/appkit/networks'
 import { Web3DataProvider } from '@/context/Web3DataContext'
 
 // Setup queryClient
@@ -21,29 +20,33 @@ if (!projectId) {
 
 // Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({
-  networks: [mainnet, sepolia],
+  networks: [mainnet, sepolia, polygon],
   projectId,
   ssr: true
 })
 
 // Create AppKit instance (client-side only)
-if (typeof window !== 'undefined') {
+let appKitInitialized = false
+
+if (typeof window !== 'undefined' && !appKitInitialized) {
   try {
     createAppKit({
       adapters: [wagmiAdapter],
-      networks: [mainnet, sepolia],
+      networks: [mainnet, sepolia, polygon],
       projectId,
       metadata: {
         name: 'BeatsChain',
         description: 'Decentralized marketplace for beat creators and artists',
-        url: window.location.origin,
-        icons: [`${window.location.origin}/favicon.ico`]
+        url: typeof window !== 'undefined' ? window.location.origin : 'https://beatschain.app',
+        icons: ['/favicon.ico']
       },
       features: {
         analytics: false,
         email: false,
         socials: [],
-        onramp: false
+        onramp: false,
+        swaps: false,
+        history: false
       },
       themeMode: 'light',
       themeVariables: {
@@ -53,22 +56,37 @@ if (typeof window !== 'undefined') {
       enableWalletConnect: true,
       enableInjected: true,
       enableEIP6963: true,
-      enableCoinbase: true
+      enableCoinbase: false // Disable Coinbase to prevent COOP issues
     })
+    appKitInitialized = true
   } catch (error) {
     console.warn('Web3 wallet connection setup failed:', error)
   }
 }
 
-export function Web3Provider({ children }: PropsWithChildren) {
+interface Props extends PropsWithChildren {
+  cookies?: string | null
+}
+
+export function Web3Provider({ children, cookies }: Props) {
+  // Add error boundary for Web3 initialization
+  if (typeof window === 'undefined') {
+    // Server-side rendering fallback
+    return (
+      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      </WagmiProvider>
+    )
+  }
+
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <SIWEProvider>
-          <Web3DataProvider>
-            {children}
-          </Web3DataProvider>
-        </SIWEProvider>
+        <Web3DataProvider>
+          {children}
+        </Web3DataProvider>
       </QueryClientProvider>
     </WagmiProvider>
   )

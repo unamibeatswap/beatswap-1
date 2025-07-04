@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 
 interface Notification {
   id: string
@@ -13,7 +13,7 @@ interface Notification {
 }
 
 export default function NotificationCenter() {
-  const { user } = useAuth()
+  const { user } = useUnifiedAuth()
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [isOpen, setIsOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
@@ -78,7 +78,7 @@ export default function NotificationCenter() {
         onClick={() => setIsOpen(!isOpen)}
         className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none"
       >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 2a7 7 0 00-7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 001 1h16a1 1 0 001-1v-2.26C18.19 13.47 17 11.38 17 9a7 7 0 00-7-7zM9 21h6" />
         </svg>
         {unreadCount > 0 && (

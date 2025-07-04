@@ -6,6 +6,7 @@ import BeatCard from '@/components/BeatCard'
 import { ApiClient } from '@/lib/api'
 import { useDebounce } from '@/hooks/useDebounce'
 import { toast } from 'react-toastify'
+import { Pagination } from '@/components/Pagination'
 
 export default function MarketplacePage() {
   const [searchTerm, setSearchTerm] = useState('')
@@ -79,8 +80,8 @@ export default function MarketplacePage() {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center py-12">
-          <div className="text-6xl mb-4">🎵</div>
-          <p className="text-gray-600">Loading beats...</p>
+          <div className="text-6xl mb-4">🎫</div>
+          <p className="text-gray-600">Loading BeatNFTs...</p>
         </div>
       </div>
     )
@@ -114,10 +115,10 @@ export default function MarketplacePage() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)' }}></div>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
           <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-            🎵 Beat Marketplace
+            🎫 BeatNFTs Marketplace
           </h1>
           <p style={{ fontSize: '1.25rem', marginBottom: '2rem', opacity: 0.9 }}>
-            Discover and purchase premium beats from talented South African producers
+            Discover and own premium beats as NFTs from talented South African producers
           </p>
           <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <div style={{ background: 'rgba(255,255,255,0.2)', padding: '0.75rem 1.5rem', borderRadius: '2rem', border: '1px solid rgba(255,255,255,0.3)' }}>
@@ -140,7 +141,7 @@ export default function MarketplacePage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <input
             type="text"
-            placeholder="Search beats..."
+            placeholder="Search BeatNFTs..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -176,7 +177,7 @@ export default function MarketplacePage() {
       {/* Results Count */}
       <div className="mb-6 flex justify-between items-center">
         <p className="text-gray-600">
-          Showing {startIndex + 1}-{Math.min(startIndex + beatsPerPage, filteredBeats.length)} of {filteredBeats.length} beat{filteredBeats.length !== 1 ? 's' : ''}
+          Showing {startIndex + 1}-{Math.min(startIndex + beatsPerPage, filteredBeats.length)} of {filteredBeats.length} BeatNFT{filteredBeats.length !== 1 ? 's' : ''}
         </p>
         <p className="text-sm text-gray-500">
           Page {currentPage} of {totalPages}
@@ -190,46 +191,18 @@ export default function MarketplacePage() {
         ))}
       </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-2 mb-8">
-          <button
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Previous
-          </button>
-          
-          {[...Array(totalPages)].map((_, i) => (
-            <button
-              key={i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-              className={`px-3 py-2 border rounded-md ${
-                currentPage === i + 1
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
-          
-          <button
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage === totalPages}
-            className="px-4 py-2 border border-gray-300 rounded-md bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            Next
-          </button>
-        </div>
-      )}
+      <Pagination
+        currentPage={currentPage}
+        totalItems={filteredBeats.length}
+        itemsPerPage={beatsPerPage}
+        onPageChange={setCurrentPage}
+      />
 
       {currentBeats.length === 0 && (
         <div className="text-center py-16">
-          <div className="text-8xl mb-6">🎵</div>
-          <h3 className="text-2xl font-semibold text-gray-900 mb-3">No beats found</h3>
-          <p className="text-gray-600 mb-6">Try adjusting your search terms or filters to discover more beats</p>
+          <div className="text-8xl mb-6">🎫</div>
+          <h3 className="text-2xl font-semibold text-gray-900 mb-3">No BeatNFTs found</h3>
+          <p className="text-gray-600 mb-6">Try adjusting your search terms or filters to discover more BeatNFTs</p>
           <div className="flex flex-wrap justify-center gap-2">
             {['amapiano', 'afrobeats', 'trap', 'hip hop'].map(genre => (
               <button

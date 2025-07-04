@@ -283,17 +283,24 @@ export default function ProfilePage() {
             <h2 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
               {profile?.displayName || 'User'}
             </h2>
-            <p style={{ color: '#6b7280' }}>{address}</p>
-            {profile?.isVerified && (
-              <p style={{ color: '#059669', fontSize: '0.875rem', fontWeight: '500' }}>
-                ✓ Verified {profile.role === 'producer' ? 'Producer' : profile.role === 'admin' ? 'Admin' : 'User'}
-              </p>
-            )}
-            {!profile?.isVerified && (
-              <p style={{ color: '#f59e0b', fontSize: '0.875rem', fontWeight: '500' }}>
-                ⏳ Verification Pending
-              </p>
-            )}
+            <p style={{ color: '#6b7280', fontSize: '0.875rem', fontFamily: 'monospace' }}>{address}</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: '0.5rem' }}>
+              <span style={{
+                background: profile?.role === 'producer' ? '#10b981' : profile?.role === 'admin' ? '#8b5cf6' : '#3b82f6',
+                color: 'white',
+                padding: '0.25rem 0.5rem',
+                borderRadius: '0.25rem',
+                fontSize: '0.75rem',
+                fontWeight: '500'
+              }}>
+                {profile?.role === 'producer' ? '🎤 Producer' : profile?.role === 'admin' ? '⚙️ Admin' : '🎧 Music Fan'}
+              </span>
+              {profile?.isVerified && (
+                <span style={{ color: '#059669', fontSize: '0.75rem', fontWeight: '500' }}>
+                  ✓ Verified
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -371,6 +378,79 @@ export default function ProfilePage() {
                 resize: 'vertical'
               }}
             />
+          </div>
+
+          <div>
+            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
+              Account Type
+            </label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '1rem',
+                border: profile?.role === 'user' ? '2px solid #3b82f6' : '1px solid #d1d5db',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                background: profile?.role === 'user' ? '#eff6ff' : 'white'
+              }}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="user"
+                  checked={profile?.role === 'user'}
+                  onChange={async (e) => {
+                    if (e.target.checked) {
+                      const success = await updateProfile({ role: 'user' })
+                      if (success) {
+                        toast.success('Switched to Music Fan account!')
+                        setTimeout(() => window.location.reload(), 1000)
+                      }
+                    }
+                  }}
+                  style={{ marginRight: '0.75rem' }}
+                />
+                <div>
+                  <div style={{ fontWeight: '500', color: '#1f2937' }}>🎧 Music Fan</div>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Browse and buy beats</div>
+                </div>
+              </label>
+              <label style={{
+                display: 'flex',
+                alignItems: 'center',
+                padding: '1rem',
+                border: profile?.role === 'producer' ? '2px solid #3b82f6' : '1px solid #d1d5db',
+                borderRadius: '0.375rem',
+                cursor: 'pointer',
+                background: profile?.role === 'producer' ? '#eff6ff' : 'white'
+              }}>
+                <input
+                  type="radio"
+                  name="role"
+                  value="producer"
+                  checked={profile?.role === 'producer'}
+                  onChange={async (e) => {
+                    if (e.target.checked) {
+                      const success = await updateProfile({ role: 'producer' })
+                      if (success) {
+                        toast.success('Switched to Producer account! You can now access the dashboard.')
+                        setTimeout(() => window.location.reload(), 1000)
+                      }
+                    }
+                  }}
+                  style={{ marginRight: '0.75rem' }}
+                />
+                <div>
+                  <div style={{ fontWeight: '500', color: '#1f2937' }}>🎤 Producer</div>
+                  <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>Upload and sell beats</div>
+                </div>
+              </label>
+            </div>
+            <div style={{ marginTop: '0.5rem', padding: '0.75rem', background: '#fef3c7', borderRadius: '0.375rem' }}>
+              <p style={{ fontSize: '0.75rem', color: '#92400e' }}>
+                💡 <strong>Note:</strong> You can switch between roles anytime. Producers get access to the dashboard and upload features.
+              </p>
+            </div>
           </div>
 
           <div>

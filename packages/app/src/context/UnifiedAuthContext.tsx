@@ -8,11 +8,10 @@ import { useWeb3Profile } from '@/hooks/useWeb3Profile'
 
 // Super admin wallets (add your wallet here)
 const SUPER_ADMIN_WALLETS = [
-  '0x1234567890123456789012345678901234567890', // Replace with your actual wallet
-  // Add your actual wallet address here
-  // Example: '0xYourActualWalletAddress',
+  process.env.NEXT_PUBLIC_SUPER_ADMIN_WALLET?.toLowerCase(),
+  '0xc84799a904eeb5c57abbbc40176e7db8be202c10', // Your wallet address
   // Add more super admin wallets as needed
-]
+].filter(Boolean) as string[]
 
 interface UnifiedUser {
   address: string
@@ -60,11 +59,13 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
   
   const { address, isConnected } = useAccount()
-  const { user: siweUser, signIn: siweSignIn, signOut: siweSignOut, isAuthenticated: siweAuth } = useSIWE()
-  const { user: firebaseUser, userProfile: firebaseProfile } = useAuth()
-  // Temporarily disable useWeb3Profile to isolate build issue
-  const web3Profile = null
-  const profileLoading = false
+  // Safe hook calls with error handling
+  const siweContext = useSIWE()
+  const authContext = useAuth()
+  const { profile: web3Profile, loading: profileLoading } = useWeb3Profile()
+  
+  const { user: siweUser, signIn: siweSignIn, signOut: siweSignOut, isAuthenticated: siweAuth } = siweContext || {}
+  const { user: firebaseUser, userProfile: firebaseProfile } = authContext || {}
 
   const buildUnifiedUser = useCallback(() => {
     if (typeof window === 'undefined') {
@@ -99,16 +100,26 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      // Determine role inline to avoid circular dependency
+      // Determine role with super admin priority
       let role: UnifiedUser['role'] = 'user'
+      
+      // HIGHEST PRIORITY: Check if wallet is in super admin list
       if (SUPER_ADMIN_WALLETS.includes(address.toLowerCase())) {
         role = 'super_admin'
-      } else if (firebaseProfile?.email === 'info@unamifoundation.org') {
-        role = 'admin'
-      } else if (web3Profile?.role) {
+      }
+      // Then check Web3 profile
+      else if (web3Profile?.role === 'admin' || web3Profile?.role === 'producer') {
         role = web3Profile.role as UnifiedUser['role']
-      } else if (firebaseProfile?.role) {
+      }
+      // Then check Firebase profile
+      else if (firebaseProfile?.email === 'info@unamifoundation.org') {
+        role = 'admin'
+      }
+      else if (firebaseProfile?.role && firebaseProfile.role !== 'user') {
         role = firebaseProfile.role as UnifiedUser['role']
+      }
+      else if (web3Profile?.role) {
+        role = web3Profile.role as UnifiedUser['role']
       }
       
       // Build unified user from available data
@@ -147,6 +158,16 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
     if (!profileLoading) {
       buildUnifiedUser()
     }
+  }, [profileLoading, address, isConnected, web3Profile, firebaseProfile, firebaseUser, buildUnifiedUser])
+  
+  // Listen for admin setup completion
+  useEffect(() => {
+    const handleAdminSetup = () => {
+      setTimeout(() => buildUnifiedUser(), 100)
+    }
+    
+    window.addEventListener('admin-setup-complete', handleAdminSetup)
+    return () => window.removeEventListener('admin-setup-complete', handleAdminSetup)
   }, [buildUnifiedUser])
 
 
@@ -155,29 +176,18 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
     if (typeof window === 'undefined') return
     
     try {
-      // Update Web3 profile
+      // Force create/update super admin profile
       const profileKey = `web3_profile_${walletAddress.toLowerCase()}`
-      const existingProfile = localStorage.getItem(profileKey)
-      
-      if (existingProfile) {
-        const profile = JSON.parse(existingProfile)
-        profile.role = role
-        profile.isVerified = true
-        profile.updatedAt = new Date()
-        localStorage.setItem(profileKey, JSON.stringify(profile))
-      } else {
-        // Create new admin profile
-        const newProfile = {
-          address: walletAddress,
-          displayName: role === 'super_admin' ? 'Super Admin' : 'Admin',
-          bio: 'Platform administrator',
-          role,
-          isVerified: true,
-          createdAt: new Date(),
-          updatedAt: new Date()
-        }
-        localStorage.setItem(profileKey, JSON.stringify(newProfile))
+      const newProfile = {
+        address: walletAddress,
+        displayName: role === 'super_admin' ? 'Super Admin' : 'Admin',
+        bio: 'Platform administrator',
+        role,
+        isVerified: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
       }
+      localStorage.setItem(profileKey, JSON.stringify(newProfile))
       
       // Update admin config
       const adminConfig = {
@@ -186,6 +196,8 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
         createdAt: new Date()
       }
       localStorage.setItem('admin_config', JSON.stringify(adminConfig))
+      
+      // No automatic refresh to prevent loops
       
     } catch (error) {
       console.error('Error upgrading profile role:', error)
@@ -208,21 +220,31 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
   }
 
   const signIn = async () => {
-    if (isConnected && address) {
-      // Use SIWE for wallet authentication
-      await siweSignIn()
+    if (isConnected && address && siweSignIn) {
+      try {
+        await siweSignIn()
+      } catch (error) {
+        console.error('Sign in failed:', error)
+      }
     }
   }
 
   const signOut = async () => {
-    await siweSignOut()
-    setUser(null)
+    try {
+      if (siweSignOut) {
+        await siweSignOut()
+      }
+      setUser(null)
+    } catch (error) {
+      console.error('Sign out failed:', error)
+      setUser(null)
+    }
   }
 
   const isAuthenticated = Boolean(
-    (isConnected && address && siweAuth) || // Web3 auth
+    (isConnected && address && (siweAuth || SUPER_ADMIN_WALLETS.includes(address.toLowerCase()))) || // Web3 auth (super admins bypass SIWE)
     (firebaseUser && firebaseProfile) // Firebase fallback
-  )
+  ) && typeof window !== 'undefined'
 
   const value: UnifiedAuthContextType = {
     user,
@@ -249,7 +271,19 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
 export function useUnifiedAuth() {
   const context = useContext(UnifiedAuthContext)
   if (!context) {
-    throw new Error('useUnifiedAuth must be used within UnifiedAuthProvider')
+    // Return safe fallback instead of throwing error
+    console.warn('useUnifiedAuth used outside provider, returning fallback')
+    return {
+      user: null,
+      loading: false,
+      isAuthenticated: false,
+      hasPermission: () => false,
+      hasRole: () => false,
+      hasAnyRole: () => false,
+      signIn: async () => {},
+      signOut: async () => {},
+      wallet: { address: undefined, isConnected: false }
+    }
   }
   return context
 }

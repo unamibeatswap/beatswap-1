@@ -5,16 +5,20 @@ import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { ApiClient } from '@/lib/api'
 import { UserProfile } from '@/types'
 import { LinkComponent } from '@/components/LinkComponent'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import { Pagination } from '@/components/Pagination'
 
-export default function AdminUsersPage() {
-  const { userProfile } = useUnifiedAuth()
+function AdminUsersContent() {
+  const { user } = useUnifiedAuth()
   const [users, setUsers] = useState<UserProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'user' | 'producer' | 'admin'>('all')
+  const [currentPage, setCurrentPage] = useState(1)
+  const [usersPerPage] = useState(10)
 
   useEffect(() => {
-    if (user?.role !== 'admin') return
+    if (user?.role !== 'admin' && user?.role !== 'super_admin') return
 
     const fetchUsers = async () => {
       try {
@@ -26,46 +30,16 @@ export default function AdminUsersPage() {
         setUsers(fetchedUsers)
       } catch (err: any) {
         setError(err.message)
-        // Mock data fallback
-        setUsers([
-          {
-            uid: '1',
-            email: 'producer1@example.com',
-            displayName: 'Beat Producer',
-            role: 'producer',
-            isVerified: true,
-            createdAt: new Date('2024-01-15')
-          },
-          {
-            uid: '2',
-            email: 'user1@example.com',
-            displayName: 'Music Fan',
-            role: 'user',
-            isVerified: false,
-            createdAt: new Date('2024-01-20')
-          }
-        ])
+        setUsers([])
       } finally {
         setLoading(false)
       }
     }
 
     fetchUsers()
-  }, [userProfile, filter])
+  }, [user, filter])
 
-  if (user?.role !== 'admin') {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-4">Access Denied</h1>
-          <p>Admin access required</p>
-          <LinkComponent href="/admin" className="text-blue-600 hover:underline">
-            Back to Admin
-          </LinkComponent>
-        </div>
-      </div>
-    )
-  }
+
 
   return (
     <div>
@@ -125,8 +99,15 @@ export default function AdminUsersPage() {
             </div>
           ) : error ? (
             <div className="p-8 text-center">
+              <div className="text-4xl mb-4">⚠️</div>
               <p className="text-red-600 mb-2">Error: {error}</p>
-              <p className="text-sm text-gray-600">Showing mock data</p>
+              <p className="text-sm text-gray-600">No users to display</p>
+            </div>
+          ) : users.length === 0 ? (
+            <div className="p-8 text-center">
+              <div className="text-4xl mb-4">👥</div>
+              <p className="text-gray-600 mb-2">No users found</p>
+              <p className="text-sm text-gray-500">Users will appear here as they join the platform</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
@@ -151,7 +132,7 @@ export default function AdminUsersPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((user) => (
+                  {users.slice((currentPage - 1) * usersPerPage, currentPage * usersPerPage).map((user) => (
                     <tr key={user.uid} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -207,8 +188,23 @@ export default function AdminUsersPage() {
               </table>
             </div>
           )}
+          
+          <Pagination
+            currentPage={currentPage}
+            totalItems={users.length}
+            itemsPerPage={usersPerPage}
+            onPageChange={setCurrentPage}
+          />
         </div>
       </div>
     </div>
+  )
+}
+
+export default function AdminUsersPage() {
+  return (
+    <ProtectedRoute anyRole={['admin', 'super_admin']} requireWallet={true}>
+      <AdminUsersContent />
+    </ProtectedRoute>
   )
 }

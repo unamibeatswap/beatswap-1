@@ -4,14 +4,15 @@ import { useState, useEffect } from 'react'
 import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { ApiClient } from '@/lib/api'
 import { LinkComponent } from '@/components/LinkComponent'
+import ProtectedRoute from '@/components/ProtectedRoute'
 
-export default function AdminAnalyticsPage() {
-  const { userProfile } = useUnifiedAuth()
+function AdminAnalyticsContent() {
+  const { user } = useUnifiedAuth()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role === 'admin' || user?.role === 'super_admin') {
       ApiClient.getAdminStats()
         .then(setStats)
         .catch(() => setStats({
@@ -20,11 +21,9 @@ export default function AdminAnalyticsPage() {
         }))
         .finally(() => setLoading(false))
     }
-  }, [userProfile])
+  }, [user])
 
-  if (user?.role !== 'admin') {
-    return <div className="p-8 text-center">Access Denied</div>
-  }
+
 
   return (
     <div>
@@ -73,5 +72,13 @@ export default function AdminAnalyticsPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function AdminAnalyticsPage() {
+  return (
+    <ProtectedRoute anyRole={['admin', 'super_admin']} requireWallet={true}>
+      <AdminAnalyticsContent />
+    </ProtectedRoute>
   )
 }

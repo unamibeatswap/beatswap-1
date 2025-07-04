@@ -118,10 +118,10 @@ export function Web3DataProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && publicClient && CONTRACT_ADDRESS) {
       refreshBeats()
     }
-  }, [publicClient, CONTRACT_ADDRESS])
+  }, [publicClient, CONTRACT_ADDRESS, address])
 
   return (
     <Web3DataContext.Provider value={{

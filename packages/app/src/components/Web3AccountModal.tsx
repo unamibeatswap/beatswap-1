@@ -51,6 +51,14 @@ export default function Web3AccountModal({ isOpen, onClose }: Web3AccountModalPr
       
       localStorage.setItem(`web3_profile_${address.toLowerCase()}`, JSON.stringify(newProfile))
       
+      // Allocate 10 free BeatNFT credits for new users
+      const beatNFTBalance = {
+        credits: 10,
+        hasProNFT: false,
+        totalUsed: 0
+      }
+      localStorage.setItem(`beatnft_balance_${address.toLowerCase()}`, JSON.stringify(beatNFTBalance))
+      
       // Sign in with wallet
       await signIn()
       

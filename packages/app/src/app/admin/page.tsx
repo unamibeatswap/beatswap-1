@@ -6,26 +6,22 @@ import ProtectedRoute from '@/components/ProtectedRoute'
 import { useBeats } from '@/hooks/useBeats'
 import { useAdminStats } from '@/hooks/useAdminStats'
 import { LinkComponent } from '@/components/LinkComponent'
+import { Pagination } from '@/components/Pagination'
 
 function AdminDashboard() {
   const { user } = useUnifiedAuth()
   const { beats } = useBeats()
   const { stats, loading: isLoading } = useAdminStats()
+  const [activityPage, setActivityPage] = useState(1)
+  const [activityPerPage] = useState(5)
   
-  const adminStats = stats ? {
-    totalUsers: stats.overview.totalUsers,
-    totalBeats: stats.overview.totalBeats,
-    totalRevenue: stats.overview.totalRevenue,
-    pendingReviews: beats.filter(beat => beat.status === 'pending').length || 3,
-    activeProducers: stats.overview.activeProducers,
-    monthlyGrowth: stats.revenue.monthlyGrowth || 15
-  } : {
-    totalUsers: 25,
-    totalBeats: 47,
-    totalRevenue: 12450,
-    pendingReviews: 3,
-    activeProducers: 8,
-    monthlyGrowth: 15
+  const adminStats = {
+    totalUsers: stats?.overview?.totalUsers || 0,
+    totalBeats: beats.length || 0,
+    totalRevenue: stats?.overview?.totalRevenue || 0,
+    pendingReviews: beats.filter(beat => beat.status === 'pending').length || 0,
+    activeProducers: stats?.overview?.activeProducers || 0,
+    monthlyGrowth: stats?.revenue?.monthlyGrowth || 0
   }
 
   // Admin stats with fallback data
@@ -211,46 +207,43 @@ function AdminDashboard() {
           <h2 className="text-lg font-semibold">Recent Activity</h2>
         </div>
         <div className="p-6">
-          <div className="space-y-4">
-            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-              <div className="bg-green-100 p-2 rounded-full">
-                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <p className="font-medium">New beat uploaded</p>
-                <p className="text-sm text-gray-600">"Dark Trap Beat" by Producer123</p>
-              </div>
-              <span className="text-sm text-gray-500">2 hours ago</span>
+          {beats.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-4xl mb-4">📊</div>
+              <p className="text-gray-600">No recent activity</p>
+              <p className="text-sm text-gray-500 mt-2">Activity will appear here as users interact with the platform</p>
             </div>
-
-            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-              <div className="bg-blue-100 p-2 rounded-full">
-                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <p className="font-medium">New user registered</p>
-                <p className="text-sm text-gray-600">user@example.com joined as Producer</p>
-              </div>
-              <span className="text-sm text-gray-500">4 hours ago</span>
+          ) : (
+            <div className="space-y-4">
+              {beats.slice((activityPage - 1) * activityPerPage, activityPage * activityPerPage).map((beat, index) => (
+                <div key={beat.id || index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
+                  <div className="bg-green-100 p-2 rounded-full">
+                    <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium">Beat uploaded</p>
+                    <p className="text-sm text-gray-600">"{beat.title}" by {beat.producer || 'Producer'}</p>
+                  </div>
+                  <span className="text-sm text-gray-500">
+                    {beat.createdAt ? new Date(beat.createdAt).toLocaleDateString() : 'Recently'}
+                  </span>
+                </div>
+              ))}
+              {beats.length === 0 && (
+                <div className="text-center py-4">
+                  <p className="text-gray-500 text-sm">No beats uploaded yet</p>
+                </div>
+              )}
             </div>
-
-            <div className="flex items-center gap-4 p-3 bg-gray-50 rounded-lg">
-              <div className="bg-purple-100 p-2 rounded-full">
-                <svg className="w-4 h-4 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <p className="font-medium">Beat purchased</p>
-                <p className="text-sm text-gray-600">Premium license for R899.99</p>
-              </div>
-              <span className="text-sm text-gray-500">6 hours ago</span>
-            </div>
-          </div>
+          )}
+          <Pagination
+            currentPage={activityPage}
+            totalItems={beats.length}
+            itemsPerPage={activityPerPage}
+            onPageChange={setActivityPage}
+          />
         </div>
       </div>
 
@@ -260,14 +253,10 @@ function AdminDashboard() {
   )
 }
 
-function ProtectedAdminDashboard() {
+export default function AdminPage() {
   return (
     <ProtectedRoute anyRole={['admin', 'super_admin']} requireWallet={true}>
       <AdminDashboard />
     </ProtectedRoute>
   )
 }
-
-export default dynamic(() => Promise.resolve(ProtectedAdminDashboard), {
-  ssr: false
-})

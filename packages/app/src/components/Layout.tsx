@@ -14,7 +14,7 @@ export function Layout(props: PropsWithChildren) {
       <Footer />
       
       <ToastContainer
-        position="top-center"
+        position="top-right"
         autoClose={4000}
         hideProgressBar={false}
         newestOnTop
@@ -27,14 +27,16 @@ export function Layout(props: PropsWithChildren) {
         style={{ 
           zIndex: 9999,
           fontSize: '14px',
-          fontWeight: '500'
+          fontWeight: '500',
+          top: '80px'
         }}
         toastStyle={{
-          backgroundColor: '#1f2937',
+          backgroundColor: '#059669',
           color: '#ffffff',
-          border: '1px solid #374151',
+          border: '1px solid #047857',
           borderRadius: '8px',
-          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)'
+          boxShadow: '0 10px 25px rgba(0, 0, 0, 0.3)',
+          minHeight: '60px'
         }}
       />
     </div>

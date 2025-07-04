@@ -284,7 +284,8 @@ const SUPER_ADMIN_WALLETS = [
 - Robust BeatNFT credit system
 - Seamless admin access
 - Mobile-optimized experience
-- Legal compliance and attribution
+- Legal
+un   compliance and attribution
 
 **Next Step**: Deploy to production! 🌟
 

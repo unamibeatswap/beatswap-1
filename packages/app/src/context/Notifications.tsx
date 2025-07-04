@@ -48,18 +48,22 @@ export function NotificationProvider(props: PropsWithChildren) {
   }, [])
 
   function Add(message: string, options?: NotificationOptions) {
-    const notification: Notification = {
-      message,
-      type: options?.type || 'info',
-      timestamp: options?.timestamp || dayjs().valueOf(),
-      from: options?.from || address,
-      ...options,
+    try {
+      const notification: Notification = {
+        message,
+        type: options?.type || 'info',
+        timestamp: options?.timestamp || dayjs().valueOf(),
+        from: options?.from || address,
+        ...options,
+      }
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('notifications', JSON.stringify([...notifications, notification]))
+      }
+      setNotifications([...notifications, notification])
+      toast(message, { type: notification.type, icon: <StatusIcon type={notification.type} /> })
+    } catch (error) {
+      console.warn('Notification error:', error)
     }
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('notifications', JSON.stringify([...notifications, notification]))
-    }
-    setNotifications([...notifications, notification])
-    toast(message, { type: notification.type, icon: <StatusIcon type={notification.type} /> })
   }
 
   function Clear() {

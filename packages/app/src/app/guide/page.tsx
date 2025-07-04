@@ -27,7 +27,7 @@ export default function HowItWorksPage() {
         <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.3)' }}></div>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '4rem 2rem', position: 'relative', zIndex: 1, textAlign: 'center' }}>
           <h1 style={{ fontSize: '3.5rem', fontWeight: 'bold', marginBottom: '1.5rem' }}>
-            🎓 How BeatsChain Works
+            📖 BeatsChain Guide
           </h1>
           <p style={{ fontSize: '1.25rem', marginBottom: '2rem', opacity: 0.9 }}>
             Your complete guide to the world's first Web3 music marketplace
@@ -69,7 +69,7 @@ export default function HowItWorksPage() {
           {activeTab === 'overview' && (
             <div className="space-y-8">
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-4">🎯 Welcome to BeatsChain</h2>
+                <h2 className="text-3xl font-bold mb-4">📖 Welcome to BeatsChain Guide</h2>
                 <p className="text-lg text-gray-600">The world's first Web3-native music marketplace connecting South African producers with global artists</p>
               </div>
 
@@ -299,8 +299,8 @@ export default function HowItWorksPage() {
             <a href="/" className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100">
               Connect Wallet
             </a>
-            <a href="/marketplace" className="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600">
-              Browse Beats
+            <a href="/beatnfts" className="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600">
+              Browse BeatNFTs
             </a>
           </div>
         </div>

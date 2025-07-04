@@ -4,14 +4,18 @@ import { useState, useEffect } from 'react'
 import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { ApiClient } from '@/lib/api'
 import { LinkComponent } from '@/components/LinkComponent'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import { Pagination } from '@/components/Pagination'
 
-export default function AdminContentPage() {
-  const { userProfile } = useUnifiedAuth()
+function AdminContentContent() {
+  const { user } = useUnifiedAuth()
   const [beats, setBeats] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [currentPage, setCurrentPage] = useState(1)
+  const [beatsPerPage] = useState(10)
 
   useEffect(() => {
-    if (user?.role === 'admin') {
+    if (user?.role === 'admin' || user?.role === 'super_admin') {
       ApiClient.getBeats({ limit: 50 })
         .then(setBeats)
         .catch(() => setBeats([
@@ -19,7 +23,7 @@ export default function AdminContentPage() {
         ]))
         .finally(() => setLoading(false))
     }
-  }, [userProfile])
+  }, [user])
 
   const handleApprove = async (id: string) => {
     try {
@@ -39,9 +43,7 @@ export default function AdminContentPage() {
     }
   }
 
-  if (user?.role !== 'admin') {
-    return <div className="p-8 text-center">Access Denied</div>
-  }
+
 
   return (
     <div>
@@ -61,7 +63,7 @@ export default function AdminContentPage() {
               <h2 className="text-lg font-semibold">Beats Awaiting Review ({beats.length})</h2>
             </div>
             <div className="divide-y">
-              {beats.map((beat) => (
+              {beats.slice((currentPage - 1) * beatsPerPage, currentPage * beatsPerPage).map((beat) => (
                 <div key={beat.id} className="p-6 flex items-center justify-between">
                   <div>
                     <h3 className="font-medium">{beat.title}</h3>
@@ -91,9 +93,23 @@ export default function AdminContentPage() {
                 </div>
               ))}
             </div>
+            <Pagination
+              currentPage={currentPage}
+              totalItems={beats.length}
+              itemsPerPage={beatsPerPage}
+              onPageChange={setCurrentPage}
+            />
           </div>
         )}
       </div>
     </div>
+  )
+}
+
+export default function AdminContentPage() {
+  return (
+    <ProtectedRoute anyRole={['admin', 'super_admin']} requireWallet={true}>
+      <AdminContentContent />
+    </ProtectedRoute>
   )
 }

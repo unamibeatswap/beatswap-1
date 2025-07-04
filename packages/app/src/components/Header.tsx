@@ -34,8 +34,8 @@ export function Header() {
 
           {/* Desktop Navigation - Public Links Only */}
           <nav className="hidden md:flex items-center space-x-6">
-            <LinkComponent href="/how-it-works" className="text-gray-600 hover:text-gray-900 font-medium">How It Works</LinkComponent>
-            <LinkComponent href="/marketplace" className="text-gray-600 hover:text-gray-900">Marketplace</LinkComponent>
+            <LinkComponent href="/guide" className="text-gray-600 hover:text-gray-900 font-medium">Guide</LinkComponent>
+            <LinkComponent href="/beatnfts" className="text-gray-600 hover:text-gray-900">BeatNFTs</LinkComponent>
             <LinkComponent href="/producers" className="text-gray-600 hover:text-gray-900">Producers</LinkComponent>
             <LinkComponent href="/blog" className="text-gray-600 hover:text-gray-900">Blog</LinkComponent>
             <LinkComponent href="/contact" className="text-gray-600 hover:text-gray-900">Contact</LinkComponent>
@@ -65,7 +65,8 @@ export function Header() {
                       </span>
                     </div>
                   )}
-                  <span>{user?.displayName || 'User'}</span>
+                  <span className="hidden sm:inline">{user?.displayName || 'User'}</span>
+                  <span className="sm:hidden">{user?.displayName ? user.displayName.slice(0, 8) + '...' : 'User'}</span>
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
                   </svg>
@@ -122,8 +123,8 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden mt-4 pt-4 border-t border-gray-200">
             <div className="flex flex-col space-y-3">
-              <LinkComponent href="/how-it-works" className="text-gray-600 hover:text-gray-900 font-medium">❓ How It Works</LinkComponent>
-              <LinkComponent href="/marketplace" className="text-gray-600 hover:text-gray-900">🛒 Marketplace</LinkComponent>
+              <LinkComponent href="/guide" className="text-gray-600 hover:text-gray-900 font-medium">📖 Guide</LinkComponent>
+              <LinkComponent href="/beatnfts" className="text-gray-600 hover:text-gray-900">🎫 BeatNFTs</LinkComponent>
               <LinkComponent href="/producers" className="text-gray-600 hover:text-gray-900">👨‍🎤 Producers</LinkComponent>
               <LinkComponent href="/blog" className="text-gray-600 hover:text-gray-900">📝 Blog</LinkComponent>
               <LinkComponent href="/contact" className="text-gray-600 hover:text-gray-900">📞 Contact</LinkComponent>

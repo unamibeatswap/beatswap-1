@@ -28,12 +28,15 @@ export function SIWEProvider({ children }: { children: ReactNode }) {
   const { disconnect } = useDisconnect()
 
   const signIn = async () => {
-    if (!address || !chainId) return
+    if (!address || !chainId || typeof window === 'undefined') return
     
     setLoading(true)
     try {
       // Get nonce from server
       const nonceRes = await fetch('/api/auth/nonce')
+      if (!nonceRes.ok) {
+        throw new Error('Failed to get nonce')
+      }
       const { nonce } = await nonceRes.json()
 
       // Create SIWE message with dynamic import
@@ -67,9 +70,12 @@ export function SIWEProvider({ children }: { children: ReactNode }) {
           isVerified: true,
           nonce
         })
+      } else {
+        throw new Error('Signature verification failed')
       }
     } catch (error) {
       console.error('SIWE sign in failed:', error)
+      // Don't throw error to prevent app crash
     } finally {
       setLoading(false)
     }
@@ -102,7 +108,15 @@ export function SIWEProvider({ children }: { children: ReactNode }) {
 export function useSIWE() {
   const context = useContext(SIWEContext)
   if (!context) {
-    throw new Error('useSIWE must be used within SIWEProvider')
+    // Return safe fallback instead of throwing
+    console.warn('useSIWE used outside provider, returning fallback')
+    return {
+      user: null,
+      loading: false,
+      signIn: async () => {},
+      signOut: async () => {},
+      isAuthenticated: false
+    }
   }
   return context
 }

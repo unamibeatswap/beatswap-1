@@ -6,6 +6,7 @@ import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { ApiClient } from '@/lib/api'
 import { Beat } from '@/types'
+import { Pagination } from '@/components/Pagination'
 
 interface ProducerStats {
   totalEarnings: number
@@ -24,6 +25,8 @@ function DashboardContent() {
     monthlyEarnings: 0
   })
   const [loading, setLoading] = useState(true)
+  const [beatsPage, setBeatsPage] = useState(1)
+  const [beatsPerPage] = useState(5)
 
   useEffect(() => {
     if (user?.address) {
@@ -226,7 +229,7 @@ function DashboardContent() {
         <div style={{ padding: '1.5rem' }}>
           {(beats.length === 0 ? [
             { title: 'Upload your first beat', status: 'Get Started', sales: 0, earnings: 'R0.00', isPlaceholder: true }
-          ] : beats.slice(0, 5)).map((beat, index) => (
+          ] : beats.slice((beatsPage - 1) * beatsPerPage, beatsPage * beatsPerPage)).map((beat, index) => (
             <div key={index} style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -253,6 +256,14 @@ function DashboardContent() {
             </div>
           ))}
         </div>
+        {beats.length > 0 && (
+          <Pagination
+            currentPage={beatsPage}
+            totalItems={beats.length}
+            itemsPerPage={beatsPerPage}
+            onPageChange={setBeatsPage}
+          />
+        )}
       </div>
 
 
@@ -263,7 +274,37 @@ function DashboardContent() {
 
 export default function DashboardPage() {
   return (
-    <ProtectedRoute anyRole={['producer', 'admin', 'super_admin']} requireWallet={true}>
+    <ProtectedRoute 
+      anyRole={['producer', 'admin', 'super_admin']} 
+      requireWallet={true}
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-gray-50">
+          <div className="text-center p-8 max-w-md">
+            <div className="text-6xl mb-4">🎤</div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">Producer Dashboard</h2>
+            <p className="text-gray-600 mb-6">
+              This dashboard is for music producers. Switch to producer role to access.
+            </p>
+            <div className="bg-blue-50 p-4 rounded-lg mb-4">
+              <p className="text-blue-700 text-sm">
+                <strong>How to become a producer:</strong><br/>
+                1. Connect your wallet<br/>
+                2. Go to Profile settings<br/>
+                3. Change role to "Producer"
+              </p>
+            </div>
+            <div className="flex gap-3 justify-center">
+              <a href="/profile" className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">
+                Update Profile
+              </a>
+              <a href="/beatnfts" className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700">
+                Browse BeatNFTs
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+    >
       <DashboardContent />
     </ProtectedRoute>
   )

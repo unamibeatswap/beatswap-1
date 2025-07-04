@@ -1,15 +1,19 @@
 'use client'
 
+import React, { useState } from 'react'
 import dynamic from 'next/dynamic'
 import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AudioPlayer from '@/components/audio/AudioPlayer'
+import { Pagination } from '@/components/Pagination'
 
 // Mock purchased beats data - empty for new users
 const mockPurchasedBeats: any[] = []
 
 function LibraryContent() {
   const { user } = useUnifiedAuth()
+  const [currentPage, setCurrentPage] = useState(1)
+  const [beatsPerPage] = useState(10)
 
   return (
     <div>
@@ -98,15 +102,15 @@ function LibraryContent() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">No beats purchased yet</h3>
             <p className="text-gray-500 mb-4">Browse the marketplace to find beats you love</p>
             <a
-              href="/marketplace"
+              href="/beatnfts"
               className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700"
             >
-              Browse Marketplace
+              Browse BeatNFTs
             </a>
           </div>
         ) : (
           <div className="divide-y divide-gray-200">
-            {mockPurchasedBeats.map((beat) => (
+            {mockPurchasedBeats.slice((currentPage - 1) * beatsPerPage, currentPage * beatsPerPage).map((beat) => (
               <div key={beat.id} className="p-6">
                 <div className="flex justify-between items-start mb-4">
                   <div className="flex items-center gap-4">
@@ -142,6 +146,12 @@ function LibraryContent() {
               </div>
             ))}
           </div>
+          <Pagination
+            currentPage={currentPage}
+            totalItems={mockPurchasedBeats.length}
+            itemsPerPage={beatsPerPage}
+            onPageChange={setCurrentPage}
+          />
         )}
       </div>
 
@@ -180,7 +190,6 @@ function LibraryContent() {
           </div>
         </div>
       )}
-    </div>
     </div>
   )
 }

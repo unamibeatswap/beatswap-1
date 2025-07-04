@@ -2,11 +2,11 @@
 
 import { useState } from 'react'
 import { LinkComponent } from './LinkComponent'
-import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+import { useWeb3Auth } from '@/hooks/useWeb3Auth'
 import Web3AccountModal from './Web3AccountModal'
 
 export default function Navigation() {
-  const { user, isAuthenticated } = useUnifiedAuth()
+  const { user, isAuthenticated } = useWeb3Auth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [showAccountModal, setShowAccountModal] = useState(false)
 
