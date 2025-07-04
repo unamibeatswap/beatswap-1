@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { useAccount, useDisconnect } from 'wagmi'
 import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 
@@ -22,11 +22,16 @@ export default function Web3AccountModal({ isOpen, onClose }: Web3AccountModalPr
   const { disconnect } = useDisconnect()
   const { signIn, user } = useUnifiedAuth()
 
-  const handleWalletConnect = async () => {
+  // Handle wallet connection state
+  React.useEffect(() => {
     if (isConnected && address) {
+      // If wallet is connected, move to profile creation
       setStep('profile')
+    } else {
+      // If wallet disconnects, go back to connect step
+      setStep('connect')
     }
-  }
+  }, [isConnected, address])
 
   const handleCreateProfile = async () => {
     if (!address) return
@@ -77,7 +82,7 @@ export default function Web3AccountModal({ isOpen, onClose }: Web3AccountModalPr
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold">BeatsChain</h2>
-              <p className="text-blue-100 text-sm">Sign Up & Join Web3 Music</p>
+              <p className="text-blue-100 text-sm">Web3 Music Marketplace</p>
             </div>
             <button
               onClick={onClose}
@@ -92,46 +97,14 @@ export default function Web3AccountModal({ isOpen, onClose }: Web3AccountModalPr
           {step === 'connect' && (
             <div className="text-center">
               <div className="text-6xl mb-4">🔗</div>
-              <h3 className="text-xl font-bold mb-2">Sign Up with Your Wallet</h3>
+              <h3 className="text-xl font-bold mb-2">Connect Your Wallet</h3>
               <p className="text-gray-600 mb-6">
-                Create your BeatsChain account by connecting your crypto wallet - it's your secure digital identity
+                Your wallet is connecting... Please wait.
               </p>
               
-              <div className="space-y-4 mb-6">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-blue-800 mb-2">🌟 Why Web3?</h4>
-                  <ul className="text-blue-700 text-sm space-y-1">
-                    <li>• True ownership of your beats as NFTs</li>
-                    <li>• Automatic royalty payments forever</li>
-                    <li>• Global access without banking barriers</li>
-                    <li>• Transparent, blockchain-verified transactions</li>
-                  </ul>
-                </div>
+              <div className="flex items-center justify-center">
+                <div className="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
               </div>
-
-              {!isConnected ? (
-                <div className="space-y-3">
-                  <w3m-button />
-                  <p className="text-xs text-gray-500">
-                    Don't have a wallet? We recommend MetaMask or Rainbow
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="bg-green-50 p-4 rounded-lg">
-                    <p className="text-green-800 font-semibold">✅ Wallet Connected!</p>
-                    <p className="text-green-700 text-sm font-mono">
-                      {address?.slice(0, 6)}...{address?.slice(-4)}
-                    </p>
-                  </div>
-                  <button
-                    onClick={handleWalletConnect}
-                    className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 font-semibold"
-                  >
-                    Continue →
-                  </button>
-                </div>
-              )}
             </div>
           )}
 

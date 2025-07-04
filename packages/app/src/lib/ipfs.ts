@@ -1,5 +1,4 @@
 import { PinataSDK } from 'pinata-web3'
-import { CacheManager } from './caching'
 
 let pinata: PinataSDK | null = null
 
@@ -65,22 +64,12 @@ export class IPFSClient {
   }
 
   static async getJSON<T>(hash: string): Promise<T> {
-    // Check cache first
-    const cached = CacheManager.getIPFSContent(hash)
-    if (cached) {
-      return cached
-    }
-
     const response = await this.getFile(hash)
     if (!response.ok) {
       throw new Error(`Failed to fetch IPFS content: ${response.status}`)
     }
 
     const data = await response.json()
-    
-    // Cache the result
-    CacheManager.setIPFSContent(hash, data)
-    
     return data
   }
 

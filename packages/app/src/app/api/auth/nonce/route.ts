@@ -1,12 +1,24 @@
 import { NextResponse } from 'next/server'
-import { generateNonce } from 'siwe'
 
 export async function GET() {
-  const nonce = generateNonce()
-  return NextResponse.json({ nonce })
+  try {
+    // Dynamic import to prevent build issues
+    const { generateNonce } = await import('siwe')
+    const nonce = generateNonce()
+    return NextResponse.json({ nonce })
+  } catch (error) {
+    console.error('Nonce generation error:', error)
+    return NextResponse.json({ nonce: Math.random().toString(36) }, { status: 500 })
+  }
 }
 
 export async function POST() {
-  const nonce = generateNonce()
-  return NextResponse.json({ nonce })
+  try {
+    const { generateNonce } = await import('siwe')
+    const nonce = generateNonce()
+    return NextResponse.json({ nonce })
+  } catch (error) {
+    console.error('Nonce generation error:', error)
+    return NextResponse.json({ nonce: Math.random().toString(36) }, { status: 500 })
+  }
 }

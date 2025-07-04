@@ -23,9 +23,24 @@ export function Web3DataProvider({ children }: { children: ReactNode }) {
   const [error, setError] = useState<string | null>(null)
   const publicClient = usePublicClient()
   const { address } = useAccount()
+  
+  // Prevent execution during build
+  if (typeof window === 'undefined') {
+    return (
+      <Web3DataContext.Provider value={{
+        beats: [],
+        loading: false,
+        error: null,
+        refreshBeats: async () => {},
+        getBeatsByProducer: () => []
+      }}>
+        {children}
+      </Web3DataContext.Provider>
+    )
+  }
 
   const refreshBeats = async () => {
-    if (!publicClient || !CONTRACT_ADDRESS) return
+    if (!publicClient || !CONTRACT_ADDRESS || typeof window === 'undefined') return
     
     setLoading(true)
     setError(null)
@@ -103,7 +118,9 @@ export function Web3DataProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    refreshBeats()
+    if (typeof window !== 'undefined') {
+      refreshBeats()
+    }
   }, [publicClient, CONTRACT_ADDRESS])
 
   return (

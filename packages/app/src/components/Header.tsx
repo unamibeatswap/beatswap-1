@@ -4,11 +4,9 @@ import React, { useState } from 'react'
 import { LinkComponent } from './LinkComponent'
 import { Connect } from './Connect'
 import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
-import Web3AccountModal from './Web3AccountModal'
 import NotificationCenter from './NotificationCenter'
 
 export function Header() {
-  const [showAccountModal, setShowAccountModal] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
   
@@ -22,6 +20,7 @@ export function Header() {
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [userMenuOpen])
+  
   const { user, isAuthenticated, signOut } = useUnifiedAuth()
 
   return (
@@ -105,7 +104,9 @@ export function Header() {
                   </div>
                 )}
               </div>
-            ) : null}
+            ) : (
+              <w3m-button label="Sign Up / Connect" size="sm" />
+            )}
 
             {/* Mobile Menu Button - Always show on mobile */}
             <button
@@ -143,10 +144,7 @@ export function Header() {
         )}
       </header>
 
-      <Web3AccountModal 
-        isOpen={showAccountModal}
-        onClose={() => setShowAccountModal(false)}
-      />
+
     </>
   )
 }

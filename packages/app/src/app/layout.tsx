@@ -93,17 +93,10 @@ export default function RootLayout(props: PropsWithChildren) {
       </head>
 
       <body>
-        <Web3Provider>
-          <AuthProvider>
-            <UnifiedAuthProvider>
-              <NotificationProvider>
-                <Layout>{props.children}</Layout>
-                <CookieConsentBanner />
-                <CookieConsentBanner />
-              </NotificationProvider>
-            </UnifiedAuthProvider>
-          </AuthProvider>
-        </Web3Provider>
+        <AuthProvider>
+          <Layout>{props.children}</Layout>
+          <CookieConsentBanner />
+        </AuthProvider>
         
         {/* Google Tag Manager */}
         {process.env.NEXT_PUBLIC_GTM_ID && (

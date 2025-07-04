@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useAccount, useSignMessage, useDisconnect } from 'wagmi'
-import { SiweMessage } from 'siwe'
 
 interface SIWEUser {
   address: string
@@ -37,7 +36,8 @@ export function SIWEProvider({ children }: { children: ReactNode }) {
       const nonceRes = await fetch('/api/auth/nonce')
       const { nonce } = await nonceRes.json()
 
-      // Create SIWE message
+      // Create SIWE message with dynamic import
+      const { SiweMessage } = await import('siwe')
       const message = new SiweMessage({
         domain: window.location.host,
         address,

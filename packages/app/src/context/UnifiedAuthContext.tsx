@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import { useAccount } from 'wagmi'
 import { useSIWE } from './SIWEContext'
 import { useAuth } from './AuthContext'
@@ -62,15 +62,16 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
   const { address, isConnected } = useAccount()
   const { user: siweUser, signIn: siweSignIn, signOut: siweSignOut, isAuthenticated: siweAuth } = useSIWE()
   const { user: firebaseUser, userProfile: firebaseProfile } = useAuth()
-  const { profile: web3Profile, loading: profileLoading } = useWeb3Profile()
+  // Temporarily disable useWeb3Profile to isolate build issue
+  const web3Profile = null
+  const profileLoading = false
 
-  useEffect(() => {
-    if (!profileLoading) {
-      buildUnifiedUser()
+  const buildUnifiedUser = useCallback(() => {
+    if (typeof window === 'undefined') {
+      setLoading(false)
+      return
     }
-  }, [address, isConnected, siweUser, firebaseUser, firebaseProfile, web3Profile, profileLoading])
-
-  const buildUnifiedUser = () => {
+    
     setLoading(true)
     
     try {
@@ -98,8 +99,17 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      // Determine role based on wallet and existing data
-      const role = determineUserRole(address, firebaseProfile)
+      // Determine role inline to avoid circular dependency
+      let role: UnifiedUser['role'] = 'user'
+      if (SUPER_ADMIN_WALLETS.includes(address.toLowerCase())) {
+        role = 'super_admin'
+      } else if (firebaseProfile?.email === 'info@unamifoundation.org') {
+        role = 'admin'
+      } else if (web3Profile?.role) {
+        role = web3Profile.role as UnifiedUser['role']
+      } else if (firebaseProfile?.role) {
+        role = firebaseProfile.role as UnifiedUser['role']
+      }
       
       // Build unified user from available data
       const unifiedUser: UnifiedUser = {
@@ -126,34 +136,24 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false)
     }
-  }
+  }, [address, isConnected, web3Profile, firebaseProfile, firebaseUser])
 
-  const determineUserRole = (walletAddress: string, firebaseProfile?: any): UnifiedUser['role'] => {
-    // Super admin check (your wallet)
-    if (SUPER_ADMIN_WALLETS.includes(walletAddress.toLowerCase())) {
-      return 'super_admin'
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      setLoading(false)
+      return
     }
     
-    // Admin email check (Firebase fallback)
-    if (firebaseProfile?.email === 'info@unamifoundation.org') {
-      return 'admin'
+    if (!profileLoading) {
+      buildUnifiedUser()
     }
-    
-    // Check Web3 profile role
-    if (web3Profile?.role) {
-      return web3Profile.role as UnifiedUser['role']
-    }
-    
-    // Check Firebase profile role
-    if (firebaseProfile?.role) {
-      return firebaseProfile.role as UnifiedUser['role']
-    }
-    
-    // Default to user
-    return 'user'
-  }
+  }, [buildUnifiedUser])
+
+
 
   const upgradeProfileRole = async (walletAddress: string, role: string) => {
+    if (typeof window === 'undefined') return
+    
     try {
       // Update Web3 profile
       const profileKey = `web3_profile_${walletAddress.toLowerCase()}`

@@ -39,9 +39,11 @@ export function NotificationProvider(props: PropsWithChildren) {
   const { address } = useAccount()
 
   useEffect(() => {
-    const storedNotifications = localStorage?.getItem('notifications')
-    if (storedNotifications) {
-      setNotifications(JSON.parse(storedNotifications))
+    if (typeof window !== 'undefined') {
+      const storedNotifications = localStorage?.getItem('notifications')
+      if (storedNotifications) {
+        setNotifications(JSON.parse(storedNotifications))
+      }
     }
   }, [])
 
@@ -53,13 +55,17 @@ export function NotificationProvider(props: PropsWithChildren) {
       from: options?.from || address,
       ...options,
     }
-    localStorage.setItem('notifications', JSON.stringify([...notifications, notification]))
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('notifications', JSON.stringify([...notifications, notification]))
+    }
     setNotifications([...notifications, notification])
     toast(message, { type: notification.type, icon: <StatusIcon type={notification.type} /> })
   }
 
   function Clear() {
-    localStorage.removeItem('notifications')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('notifications')
+    }
     setNotifications([])
   }
 

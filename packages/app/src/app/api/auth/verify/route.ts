@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { SiweMessage } from 'siwe'
 
 export async function POST(request: NextRequest) {
   try {
     const { message, signature } = await request.json()
     
+    // Dynamic import to prevent build issues
+    const { SiweMessage } = await import('siwe')
     const siweMessage = new SiweMessage(message)
     const result = await siweMessage.verify({ signature })
     
@@ -14,6 +15,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 400 })
     }
   } catch (error) {
+    console.error('SIWE verification error:', error)
     return NextResponse.json({ success: false, error: 'Verification failed' }, { status: 500 })
   }
 }

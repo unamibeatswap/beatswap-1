@@ -45,6 +45,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Prevent Firebase calls during build
+    if (typeof window === 'undefined') {
+      setLoading(false)
+      return
+    }
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setUser(user)
       

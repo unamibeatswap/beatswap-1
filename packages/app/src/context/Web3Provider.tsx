@@ -26,36 +26,38 @@ const wagmiAdapter = new WagmiAdapter({
   ssr: true
 })
 
-// Create AppKit instance
-try {
-  createAppKit({
-    adapters: [wagmiAdapter],
-    networks: [mainnet, sepolia],
-    projectId,
-    metadata: {
-      name: 'BeatsChain',
-      description: 'Decentralized marketplace for beat creators and artists',
-      url: typeof window !== 'undefined' ? window.location.origin : process.env.NEXT_PUBLIC_APP_URL || 'https://beatschain.vercel.app',
-      icons: [typeof window !== 'undefined' ? `${window.location.origin}/favicon.ico` : `${process.env.NEXT_PUBLIC_APP_URL || 'https://beatschain.vercel.app'}/favicon.ico`]
-    },
-    features: {
-      analytics: false, // Disable analytics to avoid COOP issues
-      email: false,
-      socials: [],
-      onramp: false // Disable onramp to avoid external redirects
-    },
-    themeMode: 'light',
-    themeVariables: {
-      '--w3m-color-mix': '#3b82f6',
-      '--w3m-color-mix-strength': 20
-    },
-    enableWalletConnect: true,
-    enableInjected: true,
-    enableEIP6963: true,
-    enableCoinbase: true // Re-enable for production
-  })
-} catch (error) {
-  console.warn('Web3 wallet connection setup failed:', error)
+// Create AppKit instance (client-side only)
+if (typeof window !== 'undefined') {
+  try {
+    createAppKit({
+      adapters: [wagmiAdapter],
+      networks: [mainnet, sepolia],
+      projectId,
+      metadata: {
+        name: 'BeatsChain',
+        description: 'Decentralized marketplace for beat creators and artists',
+        url: window.location.origin,
+        icons: [`${window.location.origin}/favicon.ico`]
+      },
+      features: {
+        analytics: false,
+        email: false,
+        socials: [],
+        onramp: false
+      },
+      themeMode: 'light',
+      themeVariables: {
+        '--w3m-color-mix': '#3b82f6',
+        '--w3m-color-mix-strength': 20
+      },
+      enableWalletConnect: true,
+      enableInjected: true,
+      enableEIP6963: true,
+      enableCoinbase: true
+    })
+  } catch (error) {
+    console.warn('Web3 wallet connection setup failed:', error)
+  }
 }
 
 export function Web3Provider({ children }: PropsWithChildren) {

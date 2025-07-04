@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { useAccount } from 'wagmi'
-import { IPFSClient } from '@/lib/ipfs'
-import { CacheManager } from '@/lib/caching'
 
 export interface Web3Profile {
   address: string
@@ -44,6 +42,11 @@ export function useWeb3Profile() {
   const { address, isConnected } = useAccount()
 
   useEffect(() => {
+    if (typeof window === 'undefined') {
+      setLoading(false)
+      return
+    }
+    
     if (isConnected && address) {
       loadProfile()
     } else {
@@ -53,22 +56,13 @@ export function useWeb3Profile() {
   }, [address, isConnected])
 
   const loadProfile = async () => {
-    if (!address) return
+    if (!address || typeof window === 'undefined') return
 
     try {
       setLoading(true)
       setError(null)
 
-      // Check cache first
-      const cacheKey = `profile_${address}`
-      const cached = CacheManager.get<Web3Profile>(cacheKey)
-      if (cached) {
-        setProfile(cached)
-        setLoading(false)
-        return
-      }
-
-      // Try to load from localStorage (temporary storage)
+      // Try to load from localStorage
       const stored = localStorage.getItem(`web3_profile_${address}`)
       if (stored) {
         const profileData = JSON.parse(stored)
@@ -77,9 +71,6 @@ export function useWeb3Profile() {
           createdAt: new Date(profileData.createdAt),
           updatedAt: new Date(profileData.updatedAt)
         })
-        
-        // Cache the loaded profile
-        CacheManager.set(cacheKey, profileData, 10 * 60 * 1000) // 10 minutes
       } else {
         // Create default profile for new users
         const defaultProfile: Web3Profile = {
@@ -121,13 +112,8 @@ export function useWeb3Profile() {
         updatedAt: new Date()
       }
 
-      // Save to localStorage (temporary until IPFS integration)
+      // Save to localStorage
       localStorage.setItem(`web3_profile_${address}`, JSON.stringify(updatedProfile))
-      
-      // Update cache
-      const cacheKey = `profile_${address}`
-      CacheManager.set(cacheKey, updatedProfile, 10 * 60 * 1000)
-      
       setProfile(updatedProfile)
       return true
 
@@ -162,13 +148,11 @@ export function useWeb3Profile() {
       setSaving(true)
       setError(null)
 
-      // Upload to IPFS
-      const result = await IPFSClient.uploadFile(file, 'profile-images')
+      // Create temporary URL for now (IPFS integration can be added later)
+      const tempUrl = URL.createObjectURL(file)
+      await updateProfile({ profileImage: tempUrl })
       
-      // Update profile with new image URL
-      await updateProfile({ profileImage: result.url })
-      
-      return result.url
+      return tempUrl
     } catch (err: any) {
       console.error('Failed to upload profile image:', err)
       setError(err.message)
