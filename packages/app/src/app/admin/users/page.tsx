@@ -1,20 +1,20 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { ApiClient } from '@/lib/api'
 import { UserProfile } from '@/types'
 import { LinkComponent } from '@/components/LinkComponent'
 
 export default function AdminUsersPage() {
-  const { userProfile } = useAuth()
+  const { userProfile } = useUnifiedAuth()
   const [users, setUsers] = useState<UserProfile[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<'all' | 'user' | 'producer' | 'admin'>('all')
 
   useEffect(() => {
-    if (userProfile?.role !== 'admin') return
+    if (user?.role !== 'admin') return
 
     const fetchUsers = async () => {
       try {
@@ -53,7 +53,7 @@ export default function AdminUsersPage() {
     fetchUsers()
   }, [userProfile, filter])
 
-  if (userProfile?.role !== 'admin') {
+  if (user?.role !== 'admin') {
     return (
       <div className="container mx-auto px-4 py-8">
         <div className="text-center">

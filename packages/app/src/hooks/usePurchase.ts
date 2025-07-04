@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useContract } from './useContract'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { Beat } from '@/types'
 import { PaymentManager, PaymentToken, SUPPORTED_TOKENS } from '@/lib/payments'
 
@@ -16,7 +16,7 @@ export function usePurchase() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [selectedToken, setSelectedToken] = useState<PaymentToken>(SUPPORTED_TOKENS[0])
-  const { user } = useAuth()
+  const { user } = useUnifiedAuth()
   const { buyBeat, isPending, isConfirming, isConfirmed, hash } = useContract()
 
   const purchaseBeat = async (beat: Beat, options: PurchaseOptions) => {

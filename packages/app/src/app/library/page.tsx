@@ -1,28 +1,15 @@
 'use client'
 
 import dynamic from 'next/dynamic'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import AudioPlayer from '@/components/audio/AudioPlayer'
 
 // Mock purchased beats data - empty for new users
 const mockPurchasedBeats: any[] = []
 
-function LibraryPage() {
-  const { user, userProfile, loading } = useAuth()
-
-  if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Loading...</div>
-  }
-
-  if (!user) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please sign in to view your library</h1>
-        </div>
-      </div>
-    )
-  }
+function LibraryContent() {
+  const { user } = useUnifiedAuth()
 
   return (
     <div>
@@ -195,6 +182,14 @@ function LibraryPage() {
       )}
     </div>
     </div>
+  )
+}
+
+function LibraryPage() {
+  return (
+    <ProtectedRoute requireWallet={true}>
+      <LibraryContent />
+    </ProtectedRoute>
   )
 }
 

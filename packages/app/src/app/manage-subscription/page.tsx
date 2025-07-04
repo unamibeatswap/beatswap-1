@@ -1,24 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import { SUBSCRIPTION_PLANS } from '@/types/subscription'
 import { BackToDashboard } from '@/components/BackToDashboard'
 
-export default function ManageSubscriptionPage() {
-  const { user } = useAuth()
+function ManageSubscriptionContent() {
+  const { user } = useUnifiedAuth()
   const [currentPlan] = useState('free')
-
-  if (!user) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
-          <p className="text-gray-600">Please sign in to manage your subscription</p>
-        </div>
-      </div>
-    )
-  }
 
   const handleUpgrade = (planId: string) => {
     if (planId === 'free') {
@@ -183,5 +173,13 @@ export default function ManageSubscriptionPage() {
       </div>
       </div>
     </div>
+  )
+}
+
+export default function ManageSubscriptionPage() {
+  return (
+    <ProtectedRoute requireWallet={true}>
+      <ManageSubscriptionContent />
+    </ProtectedRoute>
   )
 }

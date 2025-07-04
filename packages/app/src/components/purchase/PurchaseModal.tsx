@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Beat } from '@/types'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { toast } from 'react-toastify'
 import { useAccount } from 'wagmi'
 
@@ -32,7 +32,7 @@ export default function PurchaseModal({
   onClose, 
   onPurchaseComplete 
 }: PurchaseModalProps) {
-  const { user, userProfile } = useAuth()
+  const { user, isAuthenticated } = useUnifiedAuth()
   const { address, isConnected } = useAccount()
   const [selectedLicense, setSelectedLicense] = useState('premium')
   const [processing, setProcessing] = useState(false)

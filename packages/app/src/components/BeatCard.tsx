@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Beat } from '@/types'
 import PurchaseModal from './purchase/PurchaseModal'
 import PriceDisplay from './PriceDisplay'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { toast } from 'react-toastify'
 
 interface BeatCardProps {
@@ -18,7 +18,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
-  const { user } = useAuth()
+  const { user } = useUnifiedAuth()
   const audioRef = useRef<HTMLAudioElement>(null)
   const progressRef = useRef<HTMLDivElement>(null)
 

@@ -46,6 +46,7 @@ export function Footer() {
               <a href="/privacy" className="text-gray-300 hover:text-white text-sm transition-colors">Privacy Policy</a>
               <a href="/disclaimer" className="text-gray-300 hover:text-white text-sm transition-colors">Risk Disclaimer</a>
               <span className="text-gray-400 text-xs">POPIA Compliant</span>
+              <span className="text-gray-400 text-xs">No Cookies Used*</span>
             </div>
           </div>
         </div>
@@ -71,12 +72,34 @@ export function Footer() {
           </div>
         </div>
         
+        {/* Foundation Attribution */}
+        <div className="mt-6 text-center">
+          <p className="text-sm text-gray-400 mb-2">
+            A product of{' '}
+            <a 
+              href="https://www.unamifoundation.org" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="text-blue-400 hover:text-blue-300 underline font-medium"
+            >
+              Unami Foundation NPC
+            </a>
+          </p>
+          <p className="text-xs text-gray-500">
+            Empowering communities through blockchain technology
+          </p>
+        </div>
+        
         {/* Compliance Notice */}
         <div className="mt-6 p-4 bg-gray-700 rounded-md">
-          <p className="text-xs text-gray-300 text-center">
+          <p className="text-xs text-gray-300 text-center mb-2">
             ⚠️ Cryptocurrency trading involves risk. BeatsChain is not a financial advisor. 
             Users must comply with local regulations including SARB and FICA requirements. 
             Only invest what you can afford to lose.
+          </p>
+          <p className="text-xs text-gray-400 text-center">
+            *Web3 apps use blockchain for data storage. We don't use traditional cookies for tracking. 
+            Your wallet connection and preferences are stored locally on your device.
           </p>
         </div>
       </div>

@@ -1,12 +1,21 @@
 'use client'
 
 import { usePlatformStats } from '@/hooks/usePlatformStats'
+import AdminSetupHelper from '@/components/AdminSetupHelper'
+import { useAccount } from 'wagmi'
 
 export default function Home() {
   const { totalBeats, totalUsers, totalRevenue, isLoading } = usePlatformStats()
+  const { isConnected } = useAccount()
   
   return (
     <div>
+      {/* Admin Setup Helper - Only show when wallet is connected */}
+      {isConnected && (
+        <div className="container mx-auto px-4 py-4">
+          <AdminSetupHelper />
+        </div>
+      )}
       {/* Hero Section */}
       <div style={{
         background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',

@@ -1,17 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { ApiClient } from '@/lib/api'
 import { LinkComponent } from '@/components/LinkComponent'
 
 export default function AdminRevenuePage() {
-  const { userProfile } = useAuth()
+  const { userProfile } = useUnifiedAuth()
   const [stats, setStats] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (userProfile?.role === 'admin') {
+    if (user?.role === 'admin') {
       ApiClient.getAdminStats()
         .then(setStats)
         .catch(() => setStats({
@@ -22,7 +22,7 @@ export default function AdminRevenuePage() {
     }
   }, [userProfile])
 
-  if (userProfile?.role !== 'admin') {
+  if (user?.role !== 'admin') {
     return <div className="p-8 text-center">Access Denied</div>
   }
 

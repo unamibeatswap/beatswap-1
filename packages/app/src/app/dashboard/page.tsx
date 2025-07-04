@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { BackToDashboard } from '@/components/BackToDashboard'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import { ApiClient } from '@/lib/api'
 import { Beat } from '@/types'
 
@@ -13,8 +14,8 @@ interface ProducerStats {
   monthlyEarnings: number
 }
 
-export default function DashboardPage() {
-  const { userProfile } = useAuth()
+function DashboardContent() {
+  const { user } = useUnifiedAuth()
   const [beats, setBeats] = useState<Beat[]>([])
   const [stats, setStats] = useState<ProducerStats>({ 
     totalEarnings: 0, 
@@ -25,16 +26,16 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (userProfile?.uid) {
+    if (user?.address) {
       fetchDashboardData()
     }
-  }, [userProfile?.uid])
+  }, [user?.address])
 
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
-      const userBeats = await ApiClient.getBeats({ producerId: userProfile!.uid })
-      const producerStats = await fetchProducerStats(userProfile!.uid)
+      const userBeats = await ApiClient.getBeats({ producerId: user!.address })
+      const producerStats = await fetchProducerStats(user!.address)
       setBeats(userBeats)
       setStats(producerStats)
     } catch (error) {
@@ -83,7 +84,7 @@ export default function DashboardPage() {
       </div>
 
       <div style={{ padding: '2rem', maxWidth: '1200px', margin: '0 auto' }}>
-        {userProfile?.role === 'admin' && (
+        {(user?.role === 'admin' || user?.role === 'super_admin') && (
           <div style={{ marginBottom: '1rem' }}>
             <BackToDashboard />
           </div>
@@ -257,5 +258,13 @@ export default function DashboardPage() {
 
     </div>
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <ProtectedRoute anyRole={['producer', 'admin', 'super_admin']} requireWallet={true}>
+      <DashboardContent />
+    </ProtectedRoute>
   )
 }

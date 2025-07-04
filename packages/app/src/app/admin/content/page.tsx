@@ -1,17 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { ApiClient } from '@/lib/api'
 import { LinkComponent } from '@/components/LinkComponent'
 
 export default function AdminContentPage() {
-  const { userProfile } = useAuth()
+  const { userProfile } = useUnifiedAuth()
   const [beats, setBeats] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (userProfile?.role === 'admin') {
+    if (user?.role === 'admin') {
       ApiClient.getBeats({ limit: 50 })
         .then(setBeats)
         .catch(() => setBeats([
@@ -39,7 +39,7 @@ export default function AdminContentPage() {
     }
   }
 
-  if (userProfile?.role !== 'admin') {
+  if (user?.role !== 'admin') {
     return <div className="p-8 text-center">Access Denied</div>
   }
 

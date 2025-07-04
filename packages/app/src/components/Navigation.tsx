@@ -2,13 +2,16 @@
 
 import { useState } from 'react'
 import { LinkComponent } from './LinkComponent'
-import { useAuth } from '@/context/AuthContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+import Web3AccountModal from './Web3AccountModal'
 
 export default function Navigation() {
-  const { user, userProfile } = useAuth()
+  const { user, isAuthenticated } = useUnifiedAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [showAccountModal, setShowAccountModal] = useState(false)
 
   const navigationItems = [
+    { name: 'How It Works', href: '/how-it-works', icon: '❓' },
     { name: 'Marketplace', href: '/marketplace', icon: '🛒' },
     { name: 'Browse', href: '/browse', icon: '🔍' },
     { name: 'Genres', href: '/genres', icon: '🎵' },
@@ -19,7 +22,7 @@ export default function Navigation() {
     { name: 'Dashboard', href: '/dashboard', icon: '📊' },
     { name: 'My Library', href: '/library', icon: '📚' },
     { name: 'Profile', href: '/profile', icon: '👤' },
-    ...(userProfile?.role === 'admin' ? [{ name: 'Admin', href: '/admin', icon: '⚙️' }] : [])
+    ...((user.role === 'admin' || user.role === 'super_admin') ? [{ name: 'Admin', href: '/admin', icon: '⚙️' }] : [])
   ] : []
 
   return (
@@ -103,6 +106,11 @@ export default function Navigation() {
           </div>
         )}
       </div>
+      
+      <Web3AccountModal 
+        isOpen={showAccountModal}
+        onClose={() => setShowAccountModal(false)}
+      />
     </nav>
   )
 }

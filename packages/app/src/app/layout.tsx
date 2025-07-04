@@ -4,6 +4,7 @@ import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL, SOCIAL_TW
 import { Layout } from '@/components/Layout'
 import { AuthProvider } from '@/context/AuthContext'
 import { Web3Provider } from '@/context/Web3Provider'
+import { UnifiedAuthProvider } from '@/context/UnifiedAuthContext'
 import { NotificationProvider } from '@/context/Notifications'
 import '../assets/globals.css'
 
@@ -93,9 +94,11 @@ export default function RootLayout(props: PropsWithChildren) {
       <body>
         <Web3Provider>
           <AuthProvider>
-            <NotificationProvider>
-              <Layout>{props.children}</Layout>
-            </NotificationProvider>
+            <UnifiedAuthProvider>
+              <NotificationProvider>
+                <Layout>{props.children}</Layout>
+              </NotificationProvider>
+            </UnifiedAuthProvider>
           </AuthProvider>
         </Web3Provider>
         

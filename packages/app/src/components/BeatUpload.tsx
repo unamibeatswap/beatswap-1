@@ -4,9 +4,10 @@ import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { useFileUpload } from '@/hooks/useFileUpload'
 import { useWeb3Beats } from '@/hooks/useWeb3Beats'
-import { useSIWE } from '@/context/SIWEContext'
+import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import { useBeatNFT } from '@/hooks/useBeatNFT'
 import BuyBeatNFTModal from '@/components/BuyBeatNFTModal'
+import ProtectedRoute from '@/components/ProtectedRoute'
 import { toast } from 'react-toastify'
 
 export default function BeatUpload() {
@@ -24,7 +25,7 @@ export default function BeatUpload() {
   const [submitting, setSubmitting] = useState(false)
   const [showBuyModal, setShowBuyModal] = useState(false)
 
-  const { user, isAuthenticated } = useSIWE()
+  const { user, isAuthenticated } = useUnifiedAuth()
   const { uploadBeatAudio, uploadCoverImage, uploading, progress, error } = useFileUpload()
   const { refreshBeats } = useWeb3Beats()
   const { balance, canUpload, useCredits, isConnected } = useBeatNFT()
@@ -118,7 +119,7 @@ export default function BeatUpload() {
         audioUrl,
         coverImageUrl,
         producerId: user.address,
-        producerName: user.address.slice(0, 6) + '...' + user.address.slice(-4),
+        producerName: user.displayName || user.address.slice(0, 6) + '...' + user.address.slice(-4),
         status: 'active',
         plays: 0,
         likes: 0,
@@ -164,24 +165,6 @@ export default function BeatUpload() {
     } finally {
       setSubmitting(false)
     }
-  }
-
-  if (!isAuthenticated || !user) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center p-8">
-          <div className="text-6xl mb-4">🔒</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Wallet Connection Required</h2>
-          <p className="text-gray-600 mb-6">Please connect your wallet and sign in to upload your beats to the marketplace</p>
-          <button 
-            onClick={() => window.location.href = '/'}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            Go to Sign In
-          </button>
-        </div>
-      </div>
-    )
   }
 
   return (
