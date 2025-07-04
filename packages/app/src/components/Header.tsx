@@ -105,14 +105,7 @@ export function Header() {
                   </div>
                 )}
               </div>
-            ) : (
-              <button 
-                onClick={() => setShowAccountModal(true)}
-                className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-md text-sm hover:from-blue-700 hover:to-purple-700 font-medium"
-              >
-                Connect Wallet
-              </button>
-            )}
+            ) : null}
 
             {/* Mobile Menu Button - Always show on mobile */}
             <button

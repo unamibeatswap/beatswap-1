@@ -8,12 +8,12 @@ export function Connect() {
     <div className="flex items-center">
       {/* Desktop */}
       <div className="hidden sm:block">
-        <w3m-button label='🔗 Wallet' balance='hide' size='sm' />
+        <w3m-button label='Sign Up / Connect' balance='hide' size='sm' />
       </div>
       
       {/* Mobile */}
       <div className="sm:hidden">
-        <w3m-button label='💳' balance='hide' size='sm' />
+        <w3m-button label='Sign Up' balance='hide' size='sm' />
       </div>
     </div>
   )

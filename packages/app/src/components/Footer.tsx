@@ -46,7 +46,6 @@ export function Footer() {
               <a href="/privacy" className="text-gray-300 hover:text-white text-sm transition-colors">Privacy Policy</a>
               <a href="/disclaimer" className="text-gray-300 hover:text-white text-sm transition-colors">Risk Disclaimer</a>
               <span className="text-gray-400 text-xs">POPIA Compliant</span>
-              <span className="text-gray-400 text-xs">No Cookies Used*</span>
             </div>
           </div>
         </div>
@@ -98,8 +97,8 @@ export function Footer() {
             Only invest what you can afford to lose.
           </p>
           <p className="text-xs text-gray-400 text-center">
-            *Web3 apps use blockchain for data storage. We don't use traditional cookies for tracking. 
-            Your wallet connection and preferences are stored locally on your device.
+            We use Google Analytics for marketing insights. Your Web3 data stays private on the blockchain. 
+            Wallet connections and preferences are stored locally on your device.
           </p>
         </div>
       </div>

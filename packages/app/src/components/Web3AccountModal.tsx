@@ -77,7 +77,7 @@ export default function Web3AccountModal({ isOpen, onClose }: Web3AccountModalPr
           <div className="flex justify-between items-center">
             <div>
               <h2 className="text-2xl font-bold">BeatsChain</h2>
-              <p className="text-blue-100 text-sm">Web3 Music Marketplace</p>
+              <p className="text-blue-100 text-sm">Sign Up & Join Web3 Music</p>
             </div>
             <button
               onClick={onClose}
@@ -92,9 +92,9 @@ export default function Web3AccountModal({ isOpen, onClose }: Web3AccountModalPr
           {step === 'connect' && (
             <div className="text-center">
               <div className="text-6xl mb-4">🔗</div>
-              <h3 className="text-xl font-bold mb-2">Connect Your Wallet</h3>
+              <h3 className="text-xl font-bold mb-2">Sign Up with Your Wallet</h3>
               <p className="text-gray-600 mb-6">
-                Connect your crypto wallet to start using BeatsChain
+                Create your BeatsChain account by connecting your crypto wallet - it's your secure digital identity
               </p>
               
               <div className="space-y-4 mb-6">

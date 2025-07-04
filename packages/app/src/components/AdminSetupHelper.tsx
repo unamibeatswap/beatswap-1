@@ -37,8 +37,8 @@ export default function AdminSetupHelper() {
   if (!isConnected) {
     return (
       <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
-        <h3 className="font-semibold text-yellow-800 mb-2">🔗 Connect Wallet First</h3>
-        <p className="text-yellow-700 text-sm">Please connect your wallet to set up admin access.</p>
+        <h3 className="font-semibold text-yellow-800 mb-2">🔗 Sign Up First</h3>
+        <p className="text-yellow-700 text-sm">Please sign up by connecting your wallet to set up admin access.</p>
       </div>
     )
   }

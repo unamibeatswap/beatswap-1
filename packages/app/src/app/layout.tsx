@@ -6,6 +6,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import { Web3Provider } from '@/context/Web3Provider'
 import { UnifiedAuthProvider } from '@/context/UnifiedAuthContext'
 import { NotificationProvider } from '@/context/Notifications'
+import CookieConsentBanner from '@/components/CookieConsentBanner'
 import '../assets/globals.css'
 
 export const metadata: Metadata = {
@@ -97,6 +98,8 @@ export default function RootLayout(props: PropsWithChildren) {
             <UnifiedAuthProvider>
               <NotificationProvider>
                 <Layout>{props.children}</Layout>
+                <CookieConsentBanner />
+                <CookieConsentBanner />
               </NotificationProvider>
             </UnifiedAuthProvider>
           </AuthProvider>
