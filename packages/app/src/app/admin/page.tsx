@@ -35,7 +35,12 @@ function AdminDashboard() {
     return null
   }
 
-  if (!currentUserIsAdmin && !setupLoading) {
+  // Check if user is admin by email OR wallet
+  const isAdminByEmail = user?.email === 'info@unamifoundation.org'
+  const isAdminByWallet = currentUserIsAdmin
+  const hasAdminAccess = isAdminByEmail || isAdminByWallet
+  
+  if (!hasAdminAccess && !setupLoading) {
     return (
       <div>
         {/* Hero Section */}

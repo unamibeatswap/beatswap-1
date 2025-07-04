@@ -79,7 +79,7 @@ export default function NotificationCenter() {
         className="relative p-2 text-gray-600 hover:text-gray-900 focus:outline-none"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM12 2a7 7 0 00-7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 001 1h16a1 1 0 001-1v-2.26C18.19 13.47 17 11.38 17 9a7 7 0 00-7-7zM9 21h6" />
         </svg>
         {unreadCount > 0 && (
           <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">

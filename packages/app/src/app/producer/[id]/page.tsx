@@ -12,130 +12,81 @@ export default function ProducerPage() {
   const [loading, setLoading] = useState(true)
   
   useEffect(() => {
+    let isMounted = true
+    
     const loadProducerData = async () => {
-      // Immediate safe defaults to prevent any crashes
-      const safeProducer = {
-        id: producerId || 'unknown',
-        name: 'Beat Creator',
-        displayName: 'Beat Creator',
-        bio: 'Beat creator on BeatsChain platform.',
-        location: 'Unknown',
-        genres: ['Hip Hop'],
-        totalBeats: 0,
-        totalSales: 0,
-        isVerified: false
+      if (!producerId || typeof producerId !== 'string') {
+        console.warn('Invalid producer ID:', producerId)
+        setLoading(false)
+        return
       }
       
-      const safeBeats: any[] = []
-      
       try {
-        setLoading(true)
-        setProducer(safeProducer) // Set immediately
-        setBeats(safeBeats)
+        const { TestDataManager } = await import('@/utils/testData')
+        const testProducers = TestDataManager.getTestProducers() || []
+        const testBeats = TestDataManager.getTestBeats() || []
         
-        // Only proceed if we have a valid producer ID
-        if (!producerId || typeof producerId !== 'string') {
-          console.warn('Invalid producer ID:', producerId)
-          return
-        }
+        const foundProducer = testProducers.find(p => p?.id === producerId)
         
-        // Try to enhance with test data
-        try {
-          const { TestDataManager } = await import('@/utils/testData')
-          
-          // Safely get test data
-          let testProducers: any[] = []
-          let testBeats: any[] = []
-          
-          try {
-            testProducers = TestDataManager.getTestProducers() || []
-            testBeats = TestDataManager.getTestBeats() || []
-          } catch (dataError) {
-            console.warn('Error getting test data:', dataError)
-            testProducers = []
-            testBeats = []
-          }
-          
-          // Find producer by ID with safe checks
-          let foundProducer = null
-          if (Array.isArray(testProducers)) {
-            try {
-              foundProducer = testProducers.find(p => p && p.id === producerId)
-            } catch (findError) {
-              console.warn('Error finding producer:', findError)
-            }
-          }
-          
+        if (isMounted) {
           if (foundProducer) {
-            try {
-              const enhancedProducer = {
-                id: foundProducer.id || producerId,
-                name: foundProducer.name || 'Beat Creator',
-                displayName: foundProducer.displayName || foundProducer.name || 'Beat Creator',
-                bio: foundProducer.bio || 'Beat creator on BeatsChain.',
-                location: foundProducer.location || 'Unknown',
-                genres: foundProducer.genres || ['Hip Hop'],
-                totalBeats: foundProducer.totalBeats || 0,
-                totalSales: foundProducer.totalSales || 0,
-                isVerified: foundProducer.isVerified || false
-              }
-              setProducer(enhancedProducer)
-              
-              // Get beats by this producer with safe filtering
-              if (Array.isArray(testBeats)) {
-                try {
-                  const producerBeats = testBeats.filter(b => b && b.producerId === producerId) || []
-                  setBeats(producerBeats)
-                } catch (filterError) {
-                  console.warn('Error filtering beats:', filterError)
-                  setBeats([])
-                }
-              }
-            } catch (enhanceError) {
-              console.warn('Error enhancing producer data:', enhanceError)
-              // Keep safe defaults
-            }
+            setProducer({
+              id: foundProducer.id,
+              name: foundProducer.name || 'Beat Creator',
+              displayName: foundProducer.displayName || foundProducer.name || 'Beat Creator',
+              bio: foundProducer.bio || 'Beat creator on BeatsChain.',
+              location: foundProducer.location || 'Unknown',
+              genres: foundProducer.genres || ['Hip Hop'],
+              totalBeats: foundProducer.totalBeats || 0,
+              totalSales: foundProducer.totalSales || 0,
+              isVerified: foundProducer.isVerified || false
+            })
+            
+            const producerBeats = testBeats.filter(b => b?.producerId === producerId)
+            setBeats(producerBeats)
+          } else {
+            // Default producer if not found
+            setProducer({
+              id: producerId,
+              name: 'Beat Creator',
+              displayName: 'Beat Creator',
+              bio: 'Beat creator on BeatsChain platform.',
+              location: 'Unknown',
+              genres: ['Hip Hop'],
+              totalBeats: 0,
+              totalSales: 0,
+              isVerified: false
+            })
+            setBeats([])
           }
-          
-        } catch (testDataError) {
-          console.warn('Test data module loading failed:', testDataError)
-          // Keep safe defaults
+          setLoading(false)
         }
-        
       } catch (error) {
-        console.error('Critical error in loadProducerData:', error)
-        // Ensure we always have safe data
-        setProducer(safeProducer)
-        setBeats(safeBeats)
-      } finally {
-        setLoading(false)
+        console.error('Error loading producer data:', error)
+        if (isMounted) {
+          setProducer({
+            id: producerId,
+            name: 'Beat Creator',
+            displayName: 'Beat Creator',
+            bio: 'Beat creator on BeatsChain platform.',
+            location: 'Unknown',
+            genres: ['Hip Hop'],
+            totalBeats: 0,
+            totalSales: 0,
+            isVerified: false
+          })
+          setBeats([])
+          setLoading(false)
+        }
       }
     }
     
-    // Add timeout protection
-    const timeoutId = setTimeout(() => {
-      if (loading) {
-        console.warn('Producer loading timeout, using safe defaults')
-        setLoading(false)
-        setProducer({
-          id: producerId || 'timeout',
-          name: 'Beat Creator',
-          displayName: 'Beat Creator',
-          bio: 'Beat creator on BeatsChain.',
-          location: 'Unknown',
-          genres: ['Hip Hop'],
-          totalBeats: 0,
-          totalSales: 0,
-          isVerified: false
-        })
-        setBeats([])
-      }
-    }, 3000)
-    
     loadProducerData()
     
-    return () => clearTimeout(timeoutId)
-  }, [producerId, loading])
+    return () => {
+      isMounted = false
+    }
+  }, [producerId])
 
   const genres = [
     'all', 'amapiano', 'afrobeats', 'house', 'deep-house', 'tech-house', 'trap', 
@@ -215,7 +166,7 @@ export default function ProducerPage() {
           
           {loading ? (
             <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#6b7280' }}>
-              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>⏳</div>
+              <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🎵</div>
               <p>Loading beats...</p>
             </div>
           ) : !beats || beats.length === 0 ? (
@@ -259,9 +210,14 @@ export default function ProducerPage() {
                       {beat.genre} • {beat.bpm} BPM • {beat.key}
                     </p>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span style={{ fontSize: '1.25rem', fontWeight: '600', color: '#059669' }}>
-                        {beat.price} ETH
-                      </span>
+                      <div>
+                        <div style={{ fontSize: '1.1rem', fontWeight: '600', color: '#059669' }}>
+                          {beat.price.toFixed(3)} ETH
+                        </div>
+                        <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>
+                          ~R{Math.round(beat.price * 18000).toLocaleString()}
+                        </div>
+                      </div>
                       <button style={{
                         background: '#3b82f6',
                         color: 'white',

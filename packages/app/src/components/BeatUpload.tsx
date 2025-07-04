@@ -5,6 +5,8 @@ import { useDropzone } from 'react-dropzone'
 import { useFileUpload } from '@/hooks/useFileUpload'
 import { useWeb3Beats } from '@/hooks/useWeb3Beats'
 import { useSIWE } from '@/context/SIWEContext'
+import { useBeatNFT } from '@/hooks/useBeatNFT'
+import BuyBeatNFTModal from '@/components/BuyBeatNFTModal'
 import { toast } from 'react-toastify'
 
 export default function BeatUpload() {
@@ -14,16 +16,18 @@ export default function BeatUpload() {
     genre: 'hip-hop',
     bpm: 120,
     key: 'C',
-    price: 299.99,
+    price: 0.05,
     tags: ''
   })
   const [audioFile, setAudioFile] = useState<File | null>(null)
   const [coverFile, setCoverFile] = useState<File | null>(null)
   const [submitting, setSubmitting] = useState(false)
+  const [showBuyModal, setShowBuyModal] = useState(false)
 
   const { user, isAuthenticated } = useSIWE()
   const { uploadBeatAudio, uploadCoverImage, uploading, progress, error } = useFileUpload()
   const { refreshBeats } = useWeb3Beats()
+  const { balance, canUpload, useCredits, isConnected } = useBeatNFT()
 
   const { getRootProps: getAudioProps, getInputProps: getAudioInputProps } = useDropzone({
     accept: { 'audio/*': ['.mp3', '.wav', '.m4a'] },
@@ -58,6 +62,16 @@ export default function BeatUpload() {
     
     if (formData.price <= 0) {
       toast.error('Please enter a valid price')
+      return
+    }
+
+    // Check BeatNFT credits
+    const fileType = audioFile.name.split('.').pop()?.toLowerCase() || 'mp3'
+    const uploadCheck = canUpload(fileType)
+    
+    if (!uploadCheck.allowed) {
+      toast.error(uploadCheck.reason || 'Insufficient credits')
+      setShowBuyModal(true)
       return
     }
 
@@ -100,7 +114,7 @@ export default function BeatUpload() {
         bpm: formData.bpm,
         key: formData.key,
         tags: formData.tags.split(',').map(t => t.trim()),
-        price: formData.price / 100, // Convert to ETH equivalent
+        price: formData.price, // Already in ETH
         audioUrl,
         coverImageUrl,
         producerId: user.address,
@@ -114,6 +128,14 @@ export default function BeatUpload() {
       
       console.log('Beat minted as NFT:', newBeat)
       
+      // Use BeatNFT credits
+      const fileType = audioFile.name.split('.').pop()?.toLowerCase() || 'mp3'
+      const uploadCheck = canUpload(fileType)
+      if (uploadCheck.cost > 0) {
+        await useCredits(uploadCheck.cost)
+        toast.success(`✅ Used ${uploadCheck.cost} BeatNFT credit${uploadCheck.cost > 1 ? 's' : ''}!`)
+      }
+      
       // Refresh beats list
       await refreshBeats()
 
@@ -124,7 +146,7 @@ export default function BeatUpload() {
         genre: 'hip-hop',
         bpm: 120,
         key: 'C',
-        price: 299.99,
+        price: 0.05,
         tags: ''
       })
       setAudioFile(null)
@@ -185,6 +207,45 @@ export default function BeatUpload() {
       </div>
 
       <div style={{ maxWidth: '600px', margin: '0 auto', padding: '2rem' }}>
+        
+        {/* BeatNFT Credits Display */}
+        {isConnected && (
+          <div style={{
+            background: balance.hasProNFT ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : '#f0f9ff',
+            border: balance.hasProNFT ? 'none' : '1px solid #bfdbfe',
+            borderRadius: '0.5rem',
+            padding: '1rem',
+            marginBottom: '2rem',
+            color: balance.hasProNFT ? 'white' : '#1e40af'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <h3 style={{ fontWeight: '600', marginBottom: '0.25rem' }}>
+                  {balance.hasProNFT ? '♾️ Pro NFT - Unlimited Uploads' : `🎫 ${balance.credits} BeatNFT Credits`}
+                </h3>
+                <p style={{ fontSize: '0.875rem', opacity: 0.8, margin: 0 }}>
+                  {balance.hasProNFT ? 'Upload any format, any size' : 'MP3: 1 credit • WAV: 2 credits • ZIP: 3-5 credits'}
+                </p>
+              </div>
+              {!balance.hasProNFT && balance.credits < 3 && (
+                <button
+                  onClick={() => setShowBuyModal(true)}
+                  style={{
+                    background: '#3b82f6',
+                    color: 'white',
+                    padding: '0.5rem 1rem',
+                    border: 'none',
+                    borderRadius: '0.375rem',
+                    fontSize: '0.875rem',
+                    cursor: 'pointer'
+                  }}
+                >
+                  Buy More
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
       <form onSubmit={handleSubmit} style={{ display: 'grid', gap: '1.5rem' }}>
         {/* Audio Upload */}
@@ -258,13 +319,16 @@ export default function BeatUpload() {
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-              Price (R)
+              Price (ETH)
             </label>
             <input
               type="number"
               value={formData.price}
               onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-              step="0.01"
+              step="0.001"
+              min="0.001"
+              max="10"
+              placeholder="0.050"
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -272,6 +336,9 @@ export default function BeatUpload() {
                 borderRadius: '0.375rem'
               }}
             />
+            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+              ~R{Math.round(formData.price * 18000).toLocaleString()} ZAR
+            </p>
           </div>
         </div>
 
@@ -411,6 +478,13 @@ export default function BeatUpload() {
           {submitting ? 'Uploading Beat...' : 'Upload Beat'}
         </button>
       </form>
+      
+      <BuyBeatNFTModal 
+        isOpen={showBuyModal}
+        onClose={() => setShowBuyModal(false)}
+        requiredCredits={audioFile ? canUpload(audioFile.name.split('.').pop()?.toLowerCase() || 'mp3').cost : 1}
+      />
+      
       </div>
     </div>
   )

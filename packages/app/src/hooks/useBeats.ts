@@ -18,28 +18,41 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
   const { contract } = useContract()
 
   useEffect(() => {
-    const fetchBeats = async () => {
+    let retryCount = 0
+    const maxRetries = 3
+    
+    const fetchBeatsWithRetry = async () => {
       try {
         setLoading(true)
         setError(null)
         
         if (USE_WEB3_DATA) {
-          // Use Web3 data source
           await fetchWeb3Beats()
         } else {
-          // Use Firebase data source
           await fetchFirebaseBeats()
         }
+        retryCount = 0 // Reset on success
       } catch (err: any) {
-        console.error('Error fetching beats:', err)
+        console.error(`Error fetching beats (attempt ${retryCount + 1}):`, err)
+        
+        if (retryCount < maxRetries) {
+          retryCount++
+          const delay = Math.pow(2, retryCount) * 1000 // Exponential backoff
+          setTimeout(fetchBeatsWithRetry, delay)
+          return
+        }
+        
+        // Final failure - show error and fallback
         setBeats([])
-        setError(`Data fetch failed: ${err.message}`)
+        setError(`Failed to load beats after ${maxRetries + 1} attempts. Please check your connection.`)
       } finally {
-        setLoading(false)
+        if (retryCount === 0 || retryCount >= maxRetries) {
+          setLoading(false)
+        }
       }
     }
     
-    fetchBeats()
+    fetchBeatsWithRetry()
   }, [filters?.genre, filters?.producerId, contract])
 
   const fetchWeb3Beats = async () => {
@@ -163,9 +176,19 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
   }
 
   const addBeat = async (beatData: Omit<Beat, 'id' | 'createdAt' | 'updatedAt'>) => {
+    if (!user) throw new Error('User not authenticated')
+    
+    // Optimistic update - add beat immediately
+    const optimisticBeat: Beat = {
+      ...beatData,
+      id: `temp-${Date.now()}`,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    }
+    
+    setBeats(prev => [optimisticBeat, ...prev])
+    
     try {
-      if (!user) throw new Error('User not authenticated')
-      
       const idToken = await user.getIdToken()
       
       const response = await fetch('/api/beats', {
@@ -189,12 +212,19 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
           createdAt: new Date(data.beat.createdAt),
           updatedAt: new Date(data.beat.updatedAt)
         }
-        setBeats(prev => [newBeat, ...prev])
+        
+        // Replace optimistic beat with real beat
+        setBeats(prev => prev.map(beat => 
+          beat.id === optimisticBeat.id ? newBeat : beat
+        ))
+        
         return newBeat
       } else {
         throw new Error(data.error || 'Failed to create beat')
       }
     } catch (err: any) {
+      // Remove optimistic beat on error
+      setBeats(prev => prev.filter(beat => beat.id !== optimisticBeat.id))
       console.error('Error adding beat:', err)
       throw err
     }

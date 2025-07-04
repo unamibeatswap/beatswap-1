@@ -21,6 +21,8 @@ export default function AudioPlayer({
   const [currentTime, setCurrentTime] = useState(0)
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(1)
+  const [error, setError] = useState<string | null>(null)
+  const [canPlay, setCanPlay] = useState(false)
 
   useEffect(() => {
     const audio = audioRef.current
@@ -29,10 +31,21 @@ export default function AudioPlayer({
     const updateTime = () => setCurrentTime(audio.currentTime)
     const updateDuration = () => setDuration(audio.duration)
     const handleEnded = () => setIsPlaying(false)
+    const handleCanPlay = () => {
+      setCanPlay(true)
+      setError(null)
+    }
+    const handleError = () => {
+      setError('Unable to play audio')
+      setCanPlay(false)
+      setIsPlaying(false)
+    }
 
     audio.addEventListener('timeupdate', updateTime)
     audio.addEventListener('loadedmetadata', updateDuration)
     audio.addEventListener('ended', handleEnded)
+    audio.addEventListener('canplay', handleCanPlay)
+    audio.addEventListener('error', handleError)
 
     // Preview mode: stop at 30 seconds
     if (previewMode) {
@@ -49,19 +62,27 @@ export default function AudioPlayer({
       audio.removeEventListener('timeupdate', updateTime)
       audio.removeEventListener('loadedmetadata', updateDuration)
       audio.removeEventListener('ended', handleEnded)
+      audio.removeEventListener('canplay', handleCanPlay)
+      audio.removeEventListener('error', handleError)
     }
   }, [previewMode])
 
-  const togglePlay = () => {
+  const togglePlay = async () => {
     const audio = audioRef.current
     if (!audio) return
 
-    if (isPlaying) {
-      audio.pause()
-    } else {
-      audio.play()
+    try {
+      if (isPlaying) {
+        audio.pause()
+        setIsPlaying(false)
+      } else {
+        await audio.play()
+        setIsPlaying(true)
+      }
+    } catch (err) {
+      setError('Unable to play audio')
+      setIsPlaying(false)
     }
-    setIsPlaying(!isPlaying)
   }
 
   const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,6 +157,13 @@ export default function AudioPlayer({
               />
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Error Message */}
+      {error && (
+        <div className="mb-3 p-2 bg-red-50 border border-red-200 rounded text-red-700 text-sm">
+          ⚠️ {error}
         </div>
       )}
 

@@ -21,7 +21,11 @@ export default function ManageSubscriptionPage() {
   }
 
   const handleUpgrade = (planId: string) => {
-    alert('Stripe integration required for subscription management')
+    if (planId === 'free') {
+      alert('You are already on the free tier with 10 BeatNFT credits!')
+    } else {
+      alert('BeatNFT Pro upgrade coming soon! Full Web3 subscription system.')
+    }
   }
 
   return (
@@ -35,17 +39,17 @@ export default function ManageSubscriptionPage() {
       }}>
         <div className="container mx-auto">
           <div className="text-center">
-            <h1 className="text-4xl font-bold mb-4">💳 Manage Subscription</h1>
-            <p className="text-xl opacity-90 mb-6">Choose the plan that works best for your music journey</p>
+            <h1 className="text-4xl font-bold mb-4">🎫 BeatNFT Credits</h1>
+            <p className="text-xl opacity-90 mb-6">Web3-native upload system using BeatNFT tokens</p>
             <div className="flex justify-center gap-4 text-sm">
               <div className="bg-white/10 px-4 py-2 rounded-full">
-                🎆 Current: Free Plan
+                🎁 10 Free Credits
               </div>
               <div className="bg-white/10 px-4 py-2 rounded-full">
-                📊 Upgrade for More Features
+                💰 Buy More Credits
               </div>
               <div className="bg-white/10 px-4 py-2 rounded-full">
-                🔒 Cancel Anytime
+                ⚡ Full Web3 System
               </div>
             </div>
           </div>
@@ -58,37 +62,48 @@ export default function ManageSubscriptionPage() {
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-blue-900">Current Plan: Free</h2>
-            <p className="text-blue-700">You're currently on the free plan</p>
+            <h2 className="text-xl font-semibold text-blue-900">Current Tier: Free (10 BeatNFTs)</h2>
+            <p className="text-blue-700">You have 8 upload credits remaining</p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-blue-900">R0</div>
-            <div className="text-sm text-blue-700">per month</div>
+            <div className="text-2xl font-bold text-blue-900">🎫 8</div>
+            <div className="text-sm text-blue-700">credits left</div>
           </div>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         {SUBSCRIPTION_PLANS.map((plan) => (
           <div 
             key={plan.id} 
             className={`bg-white rounded-lg shadow-lg p-6 ${
-              plan.id === 'producer' ? 'ring-2 ring-blue-500 relative' : ''
+              plan.id === 'pro-nft' ? 'ring-2 ring-purple-500 relative' : ''
             }`}
           >
-            {plan.id === 'producer' && (
+            {plan.id === 'pro-nft' && (
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-sm font-medium">
-                  Most Popular
+                <span className="bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-medium">
+                  ♾️ Web3 Native
                 </span>
               </div>
             )}
             
             <div className="text-center mb-6">
+              <div className="text-4xl mb-3">
+                {plan.id === 'free' ? '🎁' : '♾️'}
+              </div>
               <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
-              <div className="text-4xl font-bold text-gray-900 mb-2">
-                R{(plan.price * 18).toFixed(0)}
-                <span className="text-lg text-gray-500">/{plan.interval}</span>
+              <div className="text-3xl font-bold text-gray-900 mb-2">
+                {plan.id === 'free' ? (
+                  <span>Free</span>
+                ) : (
+                  <>
+                    {plan.price} ETH
+                    <div className="text-sm text-gray-500 font-normal">
+                      (~R{Math.round(plan.price * 180)} once-off)
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
@@ -109,46 +124,60 @@ export default function ManageSubscriptionPage() {
               className={`w-full py-3 px-4 rounded-lg font-medium transition-colors ${
                 plan.id === currentPlan
                   ? 'bg-gray-100 text-gray-500 cursor-not-allowed'
-                  : plan.id === 'producer'
-                  ? 'bg-blue-600 text-white hover:bg-blue-700'
+                  : plan.id === 'pro-nft'
+                  ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700'
                   : 'bg-gray-900 text-white hover:bg-gray-800'
               }`}
             >
-              {plan.id === currentPlan ? 'Current Plan' : `Upgrade to ${plan.name}`}
+              {plan.id === currentPlan ? 'Current Tier' : 
+               plan.id === 'free' ? 'Get Started' : 'Upgrade to Pro NFT'}
             </button>
           </div>
         ))}
       </div>
 
       <div className="bg-white rounded-lg shadow p-6">
-        <h2 className="text-xl font-semibold mb-4">Current Usage</h2>
+        <h2 className="text-xl font-semibold mb-4">BeatNFT Credit Usage</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">Beats Uploaded</span>
-              <span className="text-sm text-gray-500">2 / 5</span>
+              <span className="text-sm font-medium text-gray-700">Credits Remaining</span>
+              <span className="text-sm text-gray-500">8 / 10</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '40%' }}></div>
+              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '80%' }}></div>
             </div>
+            <p className="text-xs text-gray-500 mt-1">🎫 BeatNFT Credits</p>
           </div>
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">Storage Used</span>
-              <span className="text-sm text-gray-500">0.3 / 1 GB</span>
+              <span className="text-sm font-medium text-gray-700">Uploads This Month</span>
+              <span className="text-sm text-gray-500">2 uploads</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-green-600 h-2 rounded-full" style={{ width: '30%' }}></div>
+              <div className="bg-green-600 h-2 rounded-full" style={{ width: '20%' }}></div>
             </div>
+            <p className="text-xs text-gray-500 mt-1">MP3 files (1 credit each)</p>
           </div>
           <div>
             <div className="flex justify-between items-center mb-2">
-              <span className="text-sm font-medium text-gray-700">Analytics Period</span>
-              <span className="text-sm text-gray-500">30 days</span>
+              <span className="text-sm font-medium text-gray-700">Total Credits Used</span>
+              <span className="text-sm text-gray-500">2 credits</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-purple-600 h-2 rounded-full" style={{ width: '100%' }}></div>
+              <div className="bg-purple-600 h-2 rounded-full" style={{ width: '20%' }}></div>
             </div>
+            <p className="text-xs text-gray-500 mt-1">Since joining platform</p>
+          </div>
+        </div>
+        
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <h3 className="font-semibold text-blue-900 mb-2">💡 Credit System Guide:</h3>
+          <div className="text-sm text-blue-800 space-y-1">
+            <p>• MP3 uploads: 1 BeatNFT credit</p>
+            <p>• WAV uploads: 2 BeatNFT credits</p>
+            <p>• ZIP (stems): 3-5 BeatNFT credits</p>
+            <p>• Pro NFT: Unlimited uploads (all formats)</p>
           </div>
         </div>
       </div>

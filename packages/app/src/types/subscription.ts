@@ -24,59 +24,44 @@ export interface UserSubscription {
   updatedAt: Date
 }
 
-export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
+export const BEATNFT_PLANS: SubscriptionPlan[] = [
   {
     id: 'free',
-    name: 'Free',
+    name: 'Free Tier',
     price: 0,
     interval: 'month',
     features: [
-      'Upload up to 5 beats',
+      '10 Free BeatNFT Credits',
+      'MP3 uploads only (1 credit each)',
       'Basic analytics',
       'Community support'
     ],
     limits: {
-      beatsPerMonth: 5,
+      beatsPerMonth: 10,
       storageGB: 1,
       analyticsRetention: 30
     }
   },
   {
-    id: 'producer',
-    name: 'Producer',
-    price: 19.99,
+    id: 'pro-nft',
+    name: 'Pro NFT',
+    price: 0.1, // ETH price
     interval: 'month',
     features: [
-      'Upload unlimited beats',
+      'Unlimited uploads (all formats)',
+      'MP3, WAV, ZIP support',
       'Advanced analytics',
       'Priority support',
-      'Custom branding',
-      'Revenue insights'
+      'Revenue insights',
+      'No credit consumption'
     ],
     limits: {
       beatsPerMonth: -1, // unlimited
-      storageGB: 10,
-      analyticsRetention: 365
-    },
-    stripePriceId: 'price_producer_monthly'
-  },
-  {
-    id: 'pro',
-    name: 'Pro',
-    price: 49.99,
-    interval: 'month',
-    features: [
-      'Everything in Producer',
-      'API access',
-      'White-label options',
-      'Advanced revenue splits',
-      'Dedicated support'
-    ],
-    limits: {
-      beatsPerMonth: -1,
-      storageGB: 50,
+      storageGB: -1, // unlimited
       analyticsRetention: -1 // unlimited
-    },
-    stripePriceId: 'price_pro_monthly'
+    }
   }
 ]
+
+// Legacy plans for backward compatibility
+export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = BEATNFT_PLANS

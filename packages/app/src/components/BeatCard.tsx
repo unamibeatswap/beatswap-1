@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Beat } from '@/types'
 import PurchaseModal from './purchase/PurchaseModal'
+import PriceDisplay from './PriceDisplay'
 import { useAuth } from '@/context/AuthContext'
 import { toast } from 'react-toastify'
 
@@ -106,14 +107,7 @@ export default function BeatCard({ beat }: BeatCardProps) {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`
   }
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-ZA', {
-      style: 'currency',
-      currency: 'ZAR',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 2
-    }).format(price)
-  }
+
 
   return (
     <>
@@ -145,7 +139,12 @@ export default function BeatCard({ beat }: BeatCardProps) {
                 Producer
               </p>
             </div>
-            <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: '#059669' }}>{formatPrice(beat.price)}</p>
+            <PriceDisplay 
+              ethPrice={beat.price} 
+              showBoth={true} 
+              primary="ETH"
+              className="text-right"
+            />
           </div>
           
           {/* Enhanced Audio Player */}

@@ -64,7 +64,7 @@ export const TEST_BEATS: TestBeat[] = [
     bpm: 140,
     key: 'F# Minor',
     tags: ['dark', 'trap', 'hard', 'atmospheric'],
-    price: 0.05,
+    price: 0.05, // ETH
     audioUrl: '/audio/demo-beat-1.mp3',
     coverImageUrl: '/images/beat-covers/dark-trap.jpg',
     producerId: 'producer-1',
@@ -86,7 +86,7 @@ export const TEST_BEATS: TestBeat[] = [
     bpm: 112,
     key: 'C Major',
     tags: ['amapiano', 'smooth', 'groove', 'south african'],
-    price: 0.08,
+    price: 0.08, // ETH
     audioUrl: '/audio/demo-beat-2.mp3',
     coverImageUrl: '/images/beat-covers/amapiano-groove.jpg',
     producerId: 'producer-2',
@@ -108,7 +108,7 @@ export const TEST_BEATS: TestBeat[] = [
     bpm: 128,
     key: 'G Minor',
     tags: ['afrobeats', 'energetic', 'percussion', 'fire'],
-    price: 0.06,
+    price: 0.06, // ETH
     audioUrl: '/audio/demo-beat-3.mp3',
     coverImageUrl: '/images/beat-covers/afrobeats-fire.jpg',
     producerId: 'producer-3',
@@ -129,7 +129,7 @@ export const TEST_BEATS: TestBeat[] = [
     bpm: 95,
     key: 'A Minor',
     tags: ['hip hop', 'old school', 'boom bap', 'vinyl'],
-    price: 0.04,
+    price: 0.04, // ETH
     audioUrl: '/audio/demo-beat-4.mp3',
     coverImageUrl: '/images/beat-covers/hip-hop-classic.jpg',
     producerId: 'producer-1',
@@ -151,7 +151,7 @@ export const TEST_BEATS: TestBeat[] = [
     bpm: 124,
     key: 'D Major',
     tags: ['house', 'deep', 'soulful', 'piano'],
-    price: 0.07,
+    price: 0.07, // ETH
     audioUrl: '/audio/demo-beat-5.mp3',
     coverImageUrl: '/images/beat-covers/house-anthem.jpg',
     producerId: 'producer-4',

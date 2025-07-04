@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import { Beat } from '@/types'
 import BeatCard from '@/components/BeatCard'
 import { ApiClient } from '@/lib/api'
+import { useDebounce } from '@/hooks/useDebounce'
 import { toast } from 'react-toastify'
 
 export default function MarketplacePage() {
@@ -12,6 +13,8 @@ export default function MarketplacePage() {
   const [sortBy, setSortBy] = useState('newest')
   const [currentPage, setCurrentPage] = useState(1)
   const beatsPerPage = 8
+  
+  const debouncedSearchTerm = useDebounce(searchTerm, 300)
 
   const [beats, setBeats] = useState<Beat[]>([])
   const [loading, setLoading] = useState(true)
@@ -69,7 +72,7 @@ export default function MarketplacePage() {
   // Reset to page 1 when filters change - MUST be at top level
   useEffect(() => {
     setCurrentPage(1)
-  }, [searchTerm, selectedGenre, sortBy])
+  }, [debouncedSearchTerm, selectedGenre, sortBy])
   
   // Show loading state
   if (loading) {
@@ -86,8 +89,8 @@ export default function MarketplacePage() {
 
 
   const filteredBeats = beats.filter(beat => {
-    const matchesSearch = beat.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         beat.genre.toLowerCase().includes(searchTerm.toLowerCase())
+    const matchesSearch = beat.title.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
+                         beat.genre.toLowerCase().includes(debouncedSearchTerm.toLowerCase())
     const matchesGenre = selectedGenre === 'all' || beat.genre.toLowerCase() === selectedGenre.toLowerCase()
     return matchesSearch && matchesGenre
   })
