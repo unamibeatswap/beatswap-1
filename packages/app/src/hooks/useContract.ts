@@ -2,57 +2,14 @@
 
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { parseEther, formatEther } from 'viem'
+import { BeatNFTAbi, BeatNFTAddress } from '@/contracts/BeatNFT'
+import { useChainId } from 'wagmi'
 
-// BeatNFT Contract ABI (minimal for core functions)
-const BEAT_NFT_ABI = [
-  {
-    "inputs": [
-      {"name": "to", "type": "address"},
-      {"name": "uri", "type": "string"},
-      {"name": "royaltyRecipient", "type": "address"},
-      {"name": "royaltyValue", "type": "uint96"}
-    ],
-    "name": "mintBeat",
-    "outputs": [{"name": "", "type": "uint256"}],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {"name": "tokenId", "type": "uint256"},
-      {"name": "price", "type": "uint256"}
-    ],
-    "name": "listForSale",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"name": "tokenId", "type": "uint256"}],
-    "name": "buyBeat",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [{"name": "tokenId", "type": "uint256"}],
-    "name": "ownerOf",
-    "outputs": [{"name": "", "type": "address"}],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [{"name": "tokenId", "type": "uint256"}],
-    "name": "tokenURI",
-    "outputs": [{"name": "", "type": "string"}],
-    "stateMutability": "view",
-    "type": "function"
-  }
-] as const
-
-const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS as `0x${string}`
+type ChainId = keyof typeof BeatNFTAddress
 
 export function useContract() {
+  const chainId = useChainId() as ChainId
+  const contractAddress = BeatNFTAddress[chainId] as `0x${string}`
   const { writeContract, data: hash, isPending, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
     hash,
@@ -61,26 +18,29 @@ export function useContract() {
   const mintBeat = async (
     to: string,
     metadataUri: string,
-    royaltyRecipient: string,
-    royaltyPercentage: number
+    price: number,
+    royaltyPercentage: number,
+    genre: string,
+    bpm: number,
+    musicalKey: string
   ) => {
-    const royaltyValue = Math.floor(royaltyPercentage * 100) // Convert to basis points
+    const priceWei = parseEther(price.toString())
     
     return writeContract({
-      address: CONTRACT_ADDRESS,
-      abi: BEAT_NFT_ABI,
+      address: contractAddress,
+      abi: BeatNFTAbi,
       functionName: 'mintBeat',
-      args: [to as `0x${string}`, metadataUri, royaltyRecipient as `0x${string}`, royaltyValue],
+      args: [to as `0x${string}`, metadataUri, priceWei, BigInt(royaltyPercentage * 100), genre, BigInt(bpm), musicalKey],
     })
   }
 
-  const listForSale = async (tokenId: number, priceInEth: number) => {
+  const setBeatForSale = async (tokenId: number, priceInEth: number) => {
     const price = parseEther(priceInEth.toString())
     
     return writeContract({
-      address: CONTRACT_ADDRESS,
-      abi: BEAT_NFT_ABI,
-      functionName: 'listForSale',
+      address: contractAddress,
+      abi: BeatNFTAbi,
+      functionName: 'setBeatForSale',
       args: [BigInt(tokenId), price],
     })
   }
@@ -89,8 +49,8 @@ export function useContract() {
     const value = parseEther(priceInEth.toString())
     
     return writeContract({
-      address: CONTRACT_ADDRESS,
-      abi: BEAT_NFT_ABI,
+      address: contractAddress,
+      abi: BeatNFTAbi,
       functionName: 'buyBeat',
       args: [BigInt(tokenId)],
       value,
@@ -98,8 +58,9 @@ export function useContract() {
   }
 
   return {
+    contract: { address: contractAddress, abi: BeatNFTAbi },
     mintBeat,
-    listForSale,
+    setBeatForSale,
     buyBeat,
     hash,
     isPending,
@@ -110,26 +71,30 @@ export function useContract() {
 }
 
 export function useContractRead() {
-  const getOwner = (tokenId: number) => {
+  const chainId = useChainId() as ChainId
+  const contractAddress = BeatNFTAddress[chainId] as `0x${string}`
+
+  const getBeatInfo = (tokenId: number) => {
     return useReadContract({
-      address: CONTRACT_ADDRESS,
-      abi: BEAT_NFT_ABI,
-      functionName: 'ownerOf',
+      address: contractAddress,
+      abi: BeatNFTAbi,
+      functionName: 'beats',
       args: [BigInt(tokenId)],
     })
   }
 
-  const getTokenURI = (tokenId: number) => {
+  const getRoyaltyInfo = (tokenId: number, salePrice: number) => {
     return useReadContract({
-      address: CONTRACT_ADDRESS,
-      abi: BEAT_NFT_ABI,
-      functionName: 'tokenURI',
-      args: [BigInt(tokenId)],
+      address: contractAddress,
+      abi: BeatNFTAbi,
+      functionName: 'royaltyInfo',
+      args: [BigInt(tokenId), parseEther(salePrice.toString())],
     })
   }
 
   return {
-    getOwner,
-    getTokenURI,
+    getBeatInfo,
+    getRoyaltyInfo,
+    contractAddress
   }
 }

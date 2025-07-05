@@ -60,27 +60,8 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
       // Load from local index while contract loads
       const indexedBeats = EventIndexer.getStoredBeatIndex()
       if (indexedBeats.length === 0) {
-        // Load test data if no Web3 data available
-        const { TestDataManager } = await import('@/utils/testData')
-        const testBeats = TestDataManager.getTestBeats()
-        setBeats(testBeats.map(beat => ({
-          id: beat.id,
-          title: beat.title,
-          description: beat.description,
-          genre: beat.genre,
-          bpm: beat.bpm,
-          key: beat.key,
-          tags: beat.tags,
-          price: beat.price,
-          audioUrl: beat.audioUrl,
-          coverImageUrl: beat.coverImageUrl,
-          producerId: beat.producerId,
-          createdAt: beat.createdAt,
-          updatedAt: beat.updatedAt,
-          tokenId: beat.tokenId,
-          royaltyPercentage: beat.royaltyPercentage,
-          isActive: beat.isActive
-        })))
+        // No beats available yet - show empty state
+        setBeats([])
         return
       }
       const filteredBeats = applyFilters(indexedBeats)

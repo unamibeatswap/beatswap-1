@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useAccount } from 'wagmi'
+import { useAccount, useReadContract, useWriteContract } from 'wagmi'
+import { BeatNFTCreditSystemAbi, BeatNFTCreditSystemAddress } from '@/contracts/BeatNFTCreditSystem'
+import { parseEther } from 'viem'
 
 export interface BeatNFTBalance {
   credits: number
@@ -97,14 +99,31 @@ export function useBeatNFT() {
     }
   }
 
+  const { writeContract } = useWriteContract()
+  
   const buyCredits = async (amount: number): Promise<boolean> => {
-    // Mock purchase for now
+    if (!address) return false
+    
     try {
+      // Calculate cost: 10 credits = 0.01 ETH, 25 credits = 0.02 ETH, 50 credits = 0.035 ETH
+      let cost = 0.001 * amount // Base rate
+      if (amount >= 50) cost = 0.035
+      else if (amount >= 25) cost = 0.02
+      else if (amount >= 10) cost = 0.01
+      
+      await writeContract({
+        address: BeatNFTCreditSystemAddress[1] as `0x${string}`,
+        abi: BeatNFTCreditSystemAbi,
+        functionName: 'purchaseCredits',
+        args: [BigInt(amount)],
+        value: parseEther(cost.toString())
+      })
+      
+      // Update local storage for immediate UI feedback
       const newBalance = {
         ...balance,
         credits: balance.credits + amount
       }
-      
       localStorage.setItem(`beatnft_balance_${address}`, JSON.stringify(newBalance))
       setBalance(newBalance)
       return true
@@ -115,13 +134,22 @@ export function useBeatNFT() {
   }
 
   const upgradeToProNFT = async (): Promise<boolean> => {
-    // Mock upgrade for now
+    if (!address) return false
+    
     try {
+      await writeContract({
+        address: BeatNFTCreditSystemAddress[1] as `0x${string}`,
+        abi: BeatNFTCreditSystemAbi,
+        functionName: 'upgradeToProNFT',
+        args: [],
+        value: parseEther('0.1') // 0.1 ETH for Pro NFT
+      })
+      
+      // Update local storage for immediate UI feedback
       const newBalance = {
         ...balance,
         hasProNFT: true
       }
-      
       localStorage.setItem(`beatnft_balance_${address}`, JSON.stringify(newBalance))
       setBalance(newBalance)
       return true

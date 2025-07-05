@@ -1,20 +1,39 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
+import { useBeatNFT } from '@/hooks/useBeatNFT'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import { SUBSCRIPTION_PLANS } from '@/types/subscription'
 import { BackToDashboard } from '@/components/BackToDashboard'
+import BuyBeatNFTModal from '@/components/BuyBeatNFTModal'
 
 function ManageSubscriptionContent() {
   const { user } = useUnifiedAuth()
-  const [currentPlan] = useState('free')
+  const { balance, loading: balanceLoading } = useBeatNFT()
+  const [currentPlan, setCurrentPlan] = useState('free')
+  const [showBuyModal, setShowBuyModal] = useState(false)
+  const [uploadsThisMonth, setUploadsThisMonth] = useState(0)
+
+  useEffect(() => {
+    // Determine current plan based on balance
+    if (balance.hasProNFT) {
+      setCurrentPlan('pro-nft')
+    } else {
+      setCurrentPlan('free')
+    }
+    
+    // Calculate uploads this month (mock for now)
+    setUploadsThisMonth(balance.totalUsed)
+  }, [balance])
 
   const handleUpgrade = (planId: string) => {
     if (planId === 'free') {
-      alert('You are already on the free tier with 10 BeatNFT credits!')
+      alert('You are already on the free tier!')
+    } else if (planId === 'pro-nft') {
+      setShowBuyModal(true)
     } else {
-      alert('BeatNFT Pro upgrade coming soon! Full Web3 subscription system.')
+      setShowBuyModal(true)
     }
   }
 
@@ -49,15 +68,36 @@ function ManageSubscriptionContent() {
       <div className="container mx-auto px-4 py-8">
         <BackToDashboard />
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8">
+      <div className={`border rounded-lg p-6 mb-8 ${
+        balance.hasProNFT 
+          ? 'bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200' 
+          : 'bg-blue-50 border-blue-200'
+      }`}>
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-semibold text-blue-900">Current Tier: Free (10 BeatNFTs)</h2>
-            <p className="text-blue-700">You have 8 upload credits remaining</p>
+            <h2 className={`text-xl font-semibold ${
+              balance.hasProNFT ? 'text-purple-900' : 'text-blue-900'
+            }`}>
+              Current Tier: {balance.hasProNFT ? 'Pro NFT (Unlimited)' : `Free (${balance.credits + balance.totalUsed} BeatNFTs)`}
+            </h2>
+            <p className={balance.hasProNFT ? 'text-purple-700' : 'text-blue-700'}>
+              {balance.hasProNFT 
+                ? 'Unlimited uploads forever!' 
+                : `You have ${balance.credits} upload credits remaining`
+              }
+            </p>
           </div>
           <div className="text-right">
-            <div className="text-2xl font-bold text-blue-900">🎫 8</div>
-            <div className="text-sm text-blue-700">credits left</div>
+            <div className={`text-2xl font-bold ${
+              balance.hasProNFT ? 'text-purple-900' : 'text-blue-900'
+            }`}>
+              {balance.hasProNFT ? '♾️' : `🎫 ${balance.credits}`}
+            </div>
+            <div className={`text-sm ${
+              balance.hasProNFT ? 'text-purple-700' : 'text-blue-700'
+            }`}>
+              {balance.hasProNFT ? 'unlimited' : 'credits left'}
+            </div>
           </div>
         </div>
       </div>
@@ -132,30 +172,49 @@ function ManageSubscriptionContent() {
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700">Credits Remaining</span>
-              <span className="text-sm text-gray-500">8 / 10</span>
+              <span className="text-sm text-gray-500">
+                {balance.hasProNFT ? '∞' : `${balance.credits} / ${balance.credits + balance.totalUsed}`}
+              </span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-blue-600 h-2 rounded-full" style={{ width: '80%' }}></div>
+              <div 
+                className={balance.hasProNFT ? 'bg-purple-600' : 'bg-blue-600'} 
+                style={{ 
+                  width: balance.hasProNFT 
+                    ? '100%' 
+                    : `${Math.max(10, (balance.credits / (balance.credits + balance.totalUsed)) * 100)}%` 
+                }}
+              ></div>
             </div>
-            <p className="text-xs text-gray-500 mt-1">🎫 BeatNFT Credits</p>
+            <p className="text-xs text-gray-500 mt-1">
+              {balance.hasProNFT ? '♾️ Unlimited Credits' : '🎫 BeatNFT Credits'}
+            </p>
           </div>
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700">Uploads This Month</span>
-              <span className="text-sm text-gray-500">2 uploads</span>
+              <span className="text-sm text-gray-500">{uploadsThisMonth} uploads</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-green-600 h-2 rounded-full" style={{ width: '20%' }}></div>
+              <div 
+                className="bg-green-600 h-2 rounded-full" 
+                style={{ width: `${Math.min(100, (uploadsThisMonth / 10) * 100)}%` }}
+              ></div>
             </div>
-            <p className="text-xs text-gray-500 mt-1">MP3 files (1 credit each)</p>
+            <p className="text-xs text-gray-500 mt-1">Various file types</p>
           </div>
           <div>
             <div className="flex justify-between items-center mb-2">
               <span className="text-sm font-medium text-gray-700">Total Credits Used</span>
-              <span className="text-sm text-gray-500">2 credits</span>
+              <span className="text-sm text-gray-500">{balance.totalUsed} credits</span>
             </div>
             <div className="w-full bg-gray-200 rounded-full h-2">
-              <div className="bg-purple-600 h-2 rounded-full" style={{ width: '20%' }}></div>
+              <div 
+                className="bg-purple-600 h-2 rounded-full" 
+                style={{ 
+                  width: `${Math.min(100, (balance.totalUsed / (balance.credits + balance.totalUsed || 1)) * 100)}%` 
+                }}
+              ></div>
             </div>
             <p className="text-xs text-gray-500 mt-1">Since joining platform</p>
           </div>
@@ -172,6 +231,12 @@ function ManageSubscriptionContent() {
         </div>
       </div>
       </div>
+      
+      {/* Buy Credits Modal */}
+      <BuyBeatNFTModal 
+        isOpen={showBuyModal} 
+        onClose={() => setShowBuyModal(false)} 
+      />
     </div>
   )
 }

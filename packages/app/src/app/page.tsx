@@ -1,12 +1,60 @@
 'use client'
 
+import { useState, useEffect } from 'react'
 import { usePlatformStats } from '@/hooks/usePlatformStats'
-
 import { useAccount } from 'wagmi'
 
 export default function Home() {
   const { totalBeats, totalUsers, totalRevenue, isLoading } = usePlatformStats()
   const { isConnected } = useAccount()
+  const [beatNFTStats, setBeatNFTStats] = useState({
+    totalCreditsIssued: 0,
+    activeUsers: 0,
+    proNFTHolders: 0
+  })
+
+  useEffect(() => {
+    // Load real-time BeatNFT stats
+    const loadBeatNFTStats = () => {
+      try {
+        const allKeys = Object.keys(localStorage).filter(key => key.startsWith('beatnft_balance_'))
+        let totalIssued = 0
+        let activeUsers = 0
+        let proHolders = 0
+
+        allKeys.forEach(key => {
+          try {
+            const balance = JSON.parse(localStorage.getItem(key) || '{}')
+            if (balance.credits !== undefined) {
+              totalIssued += (balance.credits + balance.totalUsed)
+              activeUsers++
+              if (balance.hasProNFT) {
+                proHolders++
+              }
+            }
+          } catch (e) {
+            // Skip invalid entries
+          }
+        })
+
+        // Add marketing credits
+        const marketingIssued = parseInt(localStorage.getItem('marketing_credits_issued') || '0')
+        totalIssued += marketingIssued
+
+        setBeatNFTStats({
+          totalCreditsIssued: totalIssued,
+          activeUsers,
+          proNFTHolders: proHolders
+        })
+      } catch (error) {
+        console.error('Error loading BeatNFT stats:', error)
+      }
+    }
+
+    loadBeatNFTStats()
+    const interval = setInterval(loadBeatNFTStats, 30000) // Update every 30 seconds
+    return () => clearInterval(interval)
+  }, [])
   
   return (
     <div>
@@ -202,8 +250,10 @@ export default function Home() {
               <div style={{ fontSize: '1.125rem', opacity: 0.8 }}>Total Revenue</div>
             </div>
             <div>
-              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#fbbf24' }}>NEW</div>
-              <div style={{ fontSize: '1.125rem', opacity: 0.8 }}>Platform Launch</div>
+              <div style={{ fontSize: '3rem', fontWeight: 'bold', color: '#fbbf24' }}>
+                {beatNFTStats.totalCreditsIssued.toLocaleString()}
+              </div>
+              <div style={{ fontSize: '1.125rem', opacity: 0.8 }}>Free BeatNFTs Allocated</div>
             </div>
           </div>
         </div>

@@ -132,11 +132,13 @@ export default function BeatCard({ beat }: BeatCardProps) {
               <h3 style={{ fontSize: '1.25rem', fontWeight: '600', color: '#1f2937', marginBottom: '0.25rem' }}>
                 {beat.title}
               </h3>
+              {beat.stageName && (
+                <p style={{ color: '#6b7280', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
+                  by {beat.stageName}
+                </p>
+              )}
               <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>
                 {beat.bpm} BPM • {beat.key}
-              </p>
-              <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '0.25rem' }}>
-                Producer
               </p>
             </div>
             <PriceDisplay 

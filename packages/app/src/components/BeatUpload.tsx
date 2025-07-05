@@ -18,7 +18,8 @@ export default function BeatUpload() {
     bpm: 120,
     key: 'C',
     price: 0.05,
-    tags: ''
+    tags: '',
+    stageName: ''
   })
   const [audioFile, setAudioFile] = useState<File | null>(null)
   const [coverFile, setCoverFile] = useState<File | null>(null)
@@ -101,33 +102,42 @@ export default function BeatUpload() {
           { trait_type: 'BPM', value: formData.bpm },
           { trait_type: 'Key', value: formData.key },
           { trait_type: 'Producer', value: user.address },
+          { trait_type: 'Stage Name', value: formData.stageName || 'Unknown Artist' },
           { trait_type: 'Price', value: formData.price },
           ...formData.tags.split(',').map(tag => ({ trait_type: 'Tag', value: tag.trim() }))
         ]
       }
 
-      // Add to test data for now (in production, this would mint NFT)
-      const { TestDataManager } = await import('@/utils/testData')
-      const newBeat = TestDataManager.addTestBeat({
+      // Store beat data in user's profile (temporary until smart contract integration)
+      const beatData = {
+        id: beatId,
         title: formData.title,
         description: formData.description,
         genre: formData.genre,
         bpm: formData.bpm,
         key: formData.key,
         tags: formData.tags.split(',').map(t => t.trim()),
-        price: formData.price, // Already in ETH
+        price: formData.price,
         audioUrl,
         coverImageUrl,
         producerId: user.address,
-        producerName: user.displayName || user.address.slice(0, 6) + '...' + user.address.slice(-4),
+        stageName: formData.stageName || 'Unknown Artist',
+        createdAt: new Date(),
+        updatedAt: new Date(),
         status: 'active',
         plays: 0,
         likes: 0,
         royaltyPercentage: 5,
         isActive: true
-      })
+      }
       
-      console.log('Beat minted as NFT:', newBeat)
+      // Store in producer's beats list
+      const producerBeatsKey = `producer_beats_${user.address}`
+      const existingBeats = JSON.parse(localStorage.getItem(producerBeatsKey) || '[]')
+      existingBeats.unshift(beatData)
+      localStorage.setItem(producerBeatsKey, JSON.stringify(existingBeats))
+      
+      console.log('Beat uploaded:', beatData)
       
       // Use BeatNFT credits
       const fileType = audioFile.name.split('.').pop()?.toLowerCase() || 'mp3'
@@ -148,7 +158,8 @@ export default function BeatUpload() {
         bpm: 120,
         key: 'C',
         price: 0.05,
-        tags: ''
+        tags: '',
+        stageName: ''
       })
       setAudioFile(null)
       setCoverFile(null)
@@ -302,16 +313,13 @@ export default function BeatUpload() {
           </div>
           <div>
             <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
-              Price (ETH)
+              Stage Name
             </label>
             <input
-              type="number"
-              value={formData.price}
-              onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
-              step="0.001"
-              min="0.001"
-              max="10"
-              placeholder="0.050"
+              type="text"
+              value={formData.stageName}
+              onChange={(e) => setFormData({ ...formData, stageName: e.target.value })}
+              placeholder="Your artist/producer name"
               style={{
                 width: '100%',
                 padding: '0.75rem',
@@ -319,10 +327,31 @@ export default function BeatUpload() {
                 borderRadius: '0.375rem'
               }}
             />
-            <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
-              ~R{Math.round(formData.price * 18000).toLocaleString()} ZAR
-            </p>
           </div>
+        </div>
+
+        <div>
+          <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', color: '#374151', marginBottom: '0.5rem' }}>
+            Price (ETH)
+          </label>
+          <input
+            type="number"
+            value={formData.price}
+            onChange={(e) => setFormData({ ...formData, price: parseFloat(e.target.value) })}
+            step="0.001"
+            min="0.001"
+            max="10"
+            placeholder="0.050"
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem'
+            }}
+          />
+          <p style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '0.25rem' }}>
+            ~R{Math.round(formData.price * 18000).toLocaleString()} ZAR
+          </p>
         </div>
 
         <div>

@@ -27,36 +27,9 @@ export default function MarketplacePage() {
         setLoading(true)
         setError(null)
         
-        // Always load test data first to prevent 502 errors
-        const { TestDataManager } = await import('@/utils/testData')
-        const testBeats = TestDataManager.getTestBeats()
-        const mappedBeats = testBeats.map(beat => ({
-          id: beat.id,
-          title: beat.title,
-          description: beat.description,
-          genre: beat.genre,
-          bpm: beat.bpm,
-          key: beat.key,
-          tags: beat.tags,
-          price: beat.price,
-          audioUrl: beat.audioUrl,
-          coverImageUrl: beat.coverImageUrl,
-          producerId: beat.producerId,
-          createdAt: beat.createdAt,
-          updatedAt: beat.updatedAt
-        }))
-        
-        setBeats(mappedBeats)
-        
-        // Try to fetch API data in background
-        try {
-          const fetchedBeats = await ApiClient.getBeats({ limit: 100 })
-          if (fetchedBeats.length > 0) {
-            setBeats(fetchedBeats)
-          }
-        } catch (apiError) {
-          console.warn('API fetch failed, using test data:', apiError)
-        }
+        // Fetch real beats from API
+        const fetchedBeats = await ApiClient.getBeats({ limit: 100 })
+        setBeats(fetchedBeats)
         
       } catch (err: any) {
         console.error('Failed to load beats:', err)

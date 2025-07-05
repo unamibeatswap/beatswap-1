@@ -36,6 +36,13 @@ export const beat = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'stageName',
+      title: 'Stage Name / Artist Name',
+      type: 'string',
+      description: 'The artist/producer name that appears on the beat',
+      validation: (Rule) => Rule.max(50),
+    }),
+    defineField({
       name: 'genre',
       title: 'Genre',
       type: 'string',
@@ -90,6 +97,42 @@ export const beat = defineType({
         accept: 'audio/*',
       },
       validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'stemFiles',
+      title: 'Stem Files (Optional)',
+      type: 'object',
+      description: 'Individual track layers for enhanced previews',
+      fields: [
+        defineField({
+          name: 'drums',
+          title: 'Drums Track',
+          type: 'file',
+          options: { accept: 'audio/*' },
+        }),
+        defineField({
+          name: 'melody',
+          title: 'Melody Track',
+          type: 'file',
+          options: { accept: 'audio/*' },
+        }),
+        defineField({
+          name: 'bass',
+          title: 'Bass Track',
+          type: 'file',
+          options: { accept: 'audio/*' },
+        }),
+        defineField({
+          name: 'vocals',
+          title: 'Vocals Track',
+          type: 'file',
+          options: { accept: 'audio/*' },
+        }),
+      ],
+      options: {
+        collapsible: true,
+        collapsed: true,
+      },
     }),
     defineField({
       name: 'coverImage',
@@ -171,15 +214,17 @@ export const beat = defineType({
     select: {
       title: 'title',
       producer: 'producer.name',
+      stageName: 'stageName',
       genre: 'genre',
       status: 'status',
       media: 'coverImage',
     },
     prepare(selection) {
-      const { title, producer, genre, status } = selection
+      const { title, producer, stageName, genre, status } = selection
+      const artistName = stageName || producer
       return {
         title,
-        subtitle: `${producer} • ${genre} • ${status}`,
+        subtitle: `${artistName} • ${genre} • ${status}`,
         media: selection.media,
       }
     },

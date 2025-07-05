@@ -22,43 +22,49 @@ export default function ProducerPage() {
       }
       
       try {
-        const { TestDataManager } = await import('@/utils/testData')
-        const testProducers = TestDataManager.getTestProducers() || []
-        const testBeats = TestDataManager.getTestBeats() || []
+        // Load producer from Web3 profile or Sanity
+        const profileKey = `web3_profile_${producerId.toLowerCase()}`
+        const storedProfile = localStorage.getItem(profileKey)
         
-        const foundProducer = testProducers.find(p => p?.id === producerId)
-        
-        if (isMounted) {
-          if (foundProducer) {
-            setProducer({
-              id: foundProducer.id,
-              name: foundProducer.name || 'Beat Creator',
-              displayName: foundProducer.displayName || foundProducer.name || 'Beat Creator',
-              bio: foundProducer.bio || 'Beat creator on BeatsChain.',
-              location: foundProducer.location || 'Unknown',
-              genres: foundProducer.genres || ['Hip Hop'],
-              totalBeats: foundProducer.totalBeats || 0,
-              totalSales: foundProducer.totalSales || 0,
-              isVerified: foundProducer.isVerified || false
-            })
-            
-            const producerBeats = testBeats.filter(b => b?.producerId === producerId)
+        if (storedProfile && isMounted) {
+          const profile = JSON.parse(storedProfile)
+          setProducer({
+            id: producerId,
+            name: profile.displayName || 'Beat Creator',
+            displayName: profile.displayName || 'Beat Creator',
+            bio: profile.bio || 'Beat creator on BeatsChain platform.',
+            location: profile.location || 'South Africa',
+            genres: profile.genres || ['Hip Hop'],
+            totalBeats: 0,
+            totalSales: 0,
+            isVerified: profile.isVerified || false
+          })
+          
+          // Load producer's beats from API
+          try {
+            const { ApiClient } = await import('@/lib/api')
+            const producerBeats = await ApiClient.getBeats({ producerId })
             setBeats(producerBeats)
-          } else {
-            // Default producer if not found
-            setProducer({
-              id: producerId,
-              name: 'Beat Creator',
-              displayName: 'Beat Creator',
-              bio: 'Beat creator on BeatsChain platform.',
-              location: 'Unknown',
-              genres: ['Hip Hop'],
-              totalBeats: 0,
-              totalSales: 0,
-              isVerified: false
-            })
+          } catch (error) {
+            console.warn('Could not load producer beats:', error)
             setBeats([])
           }
+          
+          setLoading(false)
+        } else if (isMounted) {
+          // Default producer if not found
+          setProducer({
+            id: producerId,
+            name: 'Beat Creator',
+            displayName: 'Beat Creator',
+            bio: 'Beat creator on BeatsChain platform.',
+            location: 'South Africa',
+            genres: ['Hip Hop'],
+            totalBeats: 0,
+            totalSales: 0,
+            isVerified: false
+          })
+          setBeats([])
           setLoading(false)
         }
       } catch (error) {
@@ -69,7 +75,7 @@ export default function ProducerPage() {
             name: 'Beat Creator',
             displayName: 'Beat Creator',
             bio: 'Beat creator on BeatsChain platform.',
-            location: 'Unknown',
+            location: 'South Africa',
             genres: ['Hip Hop'],
             totalBeats: 0,
             totalSales: 0,
@@ -206,6 +212,9 @@ export default function ProducerPage() {
                     <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem', color: '#1f2937' }}>
                       {beat.title}
                     </h3>
+                    <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                      {beat.stageName && <span style={{ fontWeight: '500' }}>by {beat.stageName}</span>}
+                    </p>
                     <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '1rem' }}>
                       {beat.genre} • {beat.bpm} BPM • {beat.key}
                     </p>

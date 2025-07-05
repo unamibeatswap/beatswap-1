@@ -20,7 +20,7 @@ export default function TermsPage() {
             2. Platform Description
           </h2>
           <p>
-            BeatsChain is a blockchain-powered marketplace connecting South African music producers with global artists through cryptocurrency transactions and NFT ownership.
+            BeatsChain is a Web3-native marketplace connecting South African music producers with global artists through cryptocurrency transactions, NFT ownership, and the BeatNFT credit system. The platform operates on blockchain technology ensuring transparent, decentralized music commerce.
           </p>
         </section>
 
@@ -38,25 +38,34 @@ export default function TermsPage() {
 
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-            4. Intellectual Property
+            4. Intellectual Property & NFT Ownership
           </h2>
           <p>
-            Producers retain ownership of their original works. Buyers receive usage rights as specified in their license agreement. BeatsChain facilitates transactions but does not claim ownership of user content.
+            Producers retain copyright of their original works and stage name rights. NFT ownership grants specific usage rights as defined in license terms, not copyright ownership. Smart contracts automatically distribute royalties to original creators on resales. BeatsChain facilitates transactions but does not claim ownership of user content or stage names.
           </p>
         </section>
 
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-            5. Payment Terms
+            5. Payment Terms & BeatNFT Credits
           </h2>
           <p>
-            Platform commission: 15% of each transaction. Producers receive 85% of sale price. Cryptocurrency transactions are irreversible. All prices displayed in USD equivalent.
+            Platform commission: 2.5% of each transaction. BeatNFT Credit System: MP3 uploads (1 credit), WAV uploads (2 credits), ZIP packages (3-5 credits). New users receive 10 free credits. Pro NFT (0.1 ETH) provides unlimited uploads. All cryptocurrency transactions are irreversible.
           </p>
         </section>
 
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-            6. Prohibited Activities
+            6. Preview & Access Rights
+          </h2>
+          <p>
+            All beats include 30-second previews for discovery purposes. Full beat access requires purchase or valid listener credits. Stem packages include individual layer previews where available. Preview usage is limited to platform discovery and does not grant commercial usage rights.
+          </p>
+        </section>
+
+        <section style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+            7. Prohibited Activities
           </h2>
           <ul style={{ paddingLeft: '1.5rem' }}>
             <li>Uploading copyrighted material without permission</li>
@@ -68,7 +77,7 @@ export default function TermsPage() {
 
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-            7. Limitation of Liability
+            8. Limitation of Liability
           </h2>
           <p>
             BeatsChain is not liable for losses due to market volatility, technical issues, or user error. Use at your own risk.
@@ -77,15 +86,25 @@ export default function TermsPage() {
 
         <section style={{ marginBottom: '2rem' }}>
           <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
-            8. Governing Law
+            9. Web3 & Smart Contract Terms
           </h2>
           <p>
-            These terms are governed by the laws of South Africa. Disputes will be resolved in South African courts.
+            Smart contracts are immutable and execute automatically. Users are responsible for wallet security and transaction verification. Gas fees are user responsibility. Platform operates across multiple blockchain networks.
+          </p>
+        </section>
+
+        <section style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem', color: '#1f2937' }}>
+            10. Governing Law
+          </h2>
+          <p>
+            These terms are governed by the laws of South Africa. Disputes will be resolved in South African courts. Blockchain transactions are subject to network consensus rules.
           </p>
         </section>
 
         <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '2rem' }}>
-          Last updated: January 2025
+          Last updated: December 2024 - Web3 Enhanced Version<br/>
+          Operated by Unami Foundation NPC
         </p>
       </div>
     </div>

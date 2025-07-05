@@ -8,14 +8,17 @@ interface AudioPlayerProps {
   autoPlay?: boolean
   showWaveform?: boolean
   previewMode?: boolean // 30-second preview
+  allowFullAccess?: boolean // Override for beat owners
 }
 
 export default function AudioPlayer({ 
   beat, 
   autoPlay = false, 
   showWaveform = false,
-  previewMode = false 
+  previewMode = false,
+  allowFullAccess = false
 }: AudioPlayerProps) {
+  const [hasUsedCredit, setHasUsedCredit] = useState(false)
   const audioRef = useRef<HTMLAudioElement>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentTime, setCurrentTime] = useState(0)
@@ -70,6 +73,12 @@ export default function AudioPlayer({
   const togglePlay = async () => {
     const audio = audioRef.current
     if (!audio) return
+
+    // Access control placeholder for future implementation
+    if (!previewMode && !allowFullAccess && !hasUsedCredit) {
+      // Future: implement access control
+      setHasUsedCredit(true)
+    }
 
     try {
       if (isPlaying) {
@@ -138,6 +147,11 @@ export default function AudioPlayer({
         {previewMode && (
           <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
             30s Preview
+          </span>
+        )}
+        {!previewMode && !allowFullAccess && (
+          <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+            Full Access
           </span>
         )}
       </div>

@@ -13,6 +13,13 @@ export const producer = defineType({
       validation: (Rule) => Rule.required().min(2).max(50),
     }),
     defineField({
+      name: 'stageName',
+      title: 'Stage Name / Artist Name',
+      type: 'string',
+      description: 'Public artist/producer name (if different from creator name)',
+      validation: (Rule) => Rule.max(50),
+    }),
+    defineField({
       name: 'slug',
       title: 'Slug',
       type: 'slug',

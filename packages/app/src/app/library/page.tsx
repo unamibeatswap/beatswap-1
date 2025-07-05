@@ -1,18 +1,48 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useUnifiedAuth } from '@/context/UnifiedAuthContext'
 import ProtectedRoute from '@/components/ProtectedRoute'
 import AudioPlayer from '@/components/audio/AudioPlayer'
 import { Pagination } from '@/components/Pagination'
 
-// Mock purchased beats data - empty for new users
-const mockPurchasedBeats: any[] = []
+// Real purchased beats data from user's wallet/profile
 
 function LibraryContent() {
+  const { user } = useUnifiedAuth()
   const [currentPage, setCurrentPage] = useState(1)
   const [beatsPerPage] = useState(10)
+  const [purchasedBeats, setPurchasedBeats] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const loadPurchasedBeats = async () => {
+      if (!user?.address) {
+        setLoading(false)
+        return
+      }
+
+      try {
+        const purchaseKey = `purchases_${user.address}`
+        const stored = localStorage.getItem(purchaseKey)
+        
+        if (stored) {
+          const purchases = JSON.parse(stored)
+          setPurchasedBeats(purchases)
+        } else {
+          setPurchasedBeats([])
+        }
+      } catch (error) {
+        console.error('Error loading purchased beats:', error)
+        setPurchasedBeats([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    loadPurchasedBeats()
+  }, [user?.address])
 
   return (
     <div>
@@ -41,7 +71,7 @@ function LibraryContent() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-600">Total Beats</p>
-              <p className="text-2xl font-bold text-gray-900">{mockPurchasedBeats.length}</p>
+              <p className="text-2xl font-bold text-gray-900">{purchasedBeats.length}</p>
             </div>
             <div className="bg-blue-100 p-3 rounded-full">
               <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +86,7 @@ function LibraryContent() {
             <div>
               <p className="text-sm font-medium text-gray-600">Total Spent</p>
               <p className="text-2xl font-bold text-gray-900">
-                R{mockPurchasedBeats.reduce((sum, beat) => sum + beat.price, 0).toFixed(2)}
+                R{purchasedBeats.reduce((sum, beat) => sum + (beat.price || 0), 0).toFixed(2)}
               </p>
             </div>
             <div className="bg-green-100 p-3 rounded-full">
@@ -72,7 +102,7 @@ function LibraryContent() {
             <div>
               <p className="text-sm font-medium text-gray-600">Downloads</p>
               <p className="text-2xl font-bold text-gray-900">
-                {mockPurchasedBeats.reduce((sum, beat) => sum + beat.downloadCount, 0)}
+                {purchasedBeats.reduce((sum, beat) => sum + (beat.downloadCount || 0), 0)}
               </p>
             </div>
             <div className="bg-purple-100 p-3 rounded-full">
@@ -90,7 +120,12 @@ function LibraryContent() {
           <h2 className="text-lg font-semibold">Purchased Beats</h2>
         </div>
         
-        {mockPurchasedBeats.length === 0 ? (
+        {loading ? (
+          <div className="p-8 text-center">
+            <div className="text-4xl mb-4">🔄</div>
+            <p className="text-gray-600">Loading your library...</p>
+          </div>
+        ) : purchasedBeats.length === 0 ? (
           <div className="p-8 text-center">
             <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" />
@@ -107,7 +142,7 @@ function LibraryContent() {
         ) : (
           <>
             <div className="divide-y divide-gray-200">
-              {mockPurchasedBeats.slice((currentPage - 1) * beatsPerPage, currentPage * beatsPerPage).map((beat) => (
+              {purchasedBeats.slice((currentPage - 1) * beatsPerPage, currentPage * beatsPerPage).map((beat) => (
                 <div key={beat.id} className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex items-center gap-4">
@@ -145,7 +180,7 @@ function LibraryContent() {
             </div>
             <Pagination
               currentPage={currentPage}
-              totalItems={mockPurchasedBeats.length}
+              totalItems={purchasedBeats.length}
               itemsPerPage={beatsPerPage}
               onPageChange={setCurrentPage}
             />
@@ -154,7 +189,7 @@ function LibraryContent() {
       </div>
 
       {/* Getting Started Guide */}
-      {mockPurchasedBeats.length === 0 && (
+      {!loading && purchasedBeats.length === 0 && (
         <div className="mt-8 p-6 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
           <h3 className="text-lg font-semibold text-gray-900 mb-3">🚀 Get Started with BeatsChain</h3>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">

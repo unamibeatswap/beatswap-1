@@ -16,6 +16,7 @@ export interface Beat {
   title: string
   description: string
   producerId: string
+  stageName?: string // Producer's stage/artist name
   audioUrl: string
   coverImageUrl: string
   price: number
