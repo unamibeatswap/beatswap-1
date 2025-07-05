@@ -35,13 +35,7 @@ export async function GET(request: NextRequest) {
   } catch (error: any) {
     console.error('Error fetching beats:', error)
     
-    // Track error in Sentry if available
-    if (typeof window === 'undefined') {
-      try {
-        const Sentry = require('@sentry/nextjs')
-        Sentry.captureException(error)
-      } catch (e) {}
-    }
+
     
     // Return empty array for new platform
     return NextResponse.json({ beats: [], total: 0 })

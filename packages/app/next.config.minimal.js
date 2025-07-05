@@ -13,9 +13,7 @@ const nextConfig = {
   serverExternalPackages: [
     'pino-pretty', 
     'lokijs', 
-    'encoding', 
-    '@sentry/nextjs', 
-    '@sentry/node',
+    'encoding',
     '@reown/appkit',
     '@reown/appkit-adapter-wagmi',
     'wagmi',

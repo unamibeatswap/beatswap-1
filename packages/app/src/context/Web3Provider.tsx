@@ -1,6 +1,6 @@
 'use client'
 
-import { PropsWithChildren } from 'react'
+import { PropsWithChildren, useEffect, useState } from 'react'
 import { WagmiProvider } from 'wagmi'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createAppKit } from '@reown/appkit/react'
@@ -25,68 +25,66 @@ const wagmiAdapter = new WagmiAdapter({
   ssr: true
 })
 
-// Create AppKit instance (client-side only)
-let appKitInitialized = false
-
-if (typeof window !== 'undefined' && !appKitInitialized) {
-  try {
-    createAppKit({
-      adapters: [wagmiAdapter],
-      networks: [mainnet, sepolia, polygon],
-      projectId,
-      metadata: {
-        name: 'BeatsChain',
-        description: 'Decentralized marketplace for beat creators and artists',
-        url: typeof window !== 'undefined' ? window.location.origin : 'https://beatschain.app',
-        icons: ['/favicon.ico']
-      },
-      features: {
-        analytics: false,
-        email: false,
-        socials: [],
-        onramp: false,
-        swaps: false,
-        history: false
-      },
-      themeMode: 'light',
-      themeVariables: {
-        '--w3m-color-mix': '#3b82f6',
-        '--w3m-color-mix-strength': 20
-      },
-      enableWalletConnect: true,
-      enableInjected: true,
-      enableEIP6963: true,
-      enableCoinbase: false // Disable Coinbase to prevent COOP issues
-    })
-    appKitInitialized = true
-  } catch (error) {
-    console.warn('Web3 wallet connection setup failed:', error)
-  }
-}
-
 interface Props extends PropsWithChildren {
   cookies?: string | null
 }
 
 export function Web3Provider({ children, cookies }: Props) {
-  // Add error boundary for Web3 initialization
-  if (typeof window === 'undefined') {
-    // Server-side rendering fallback
-    return (
-      <WagmiProvider config={wagmiAdapter.wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      </WagmiProvider>
-    )
-  }
+  const [mounted, setMounted] = useState(false)
+  const [appKitInitialized, setAppKitInitialized] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
+    if (mounted && !appKitInitialized) {
+      try {
+        createAppKit({
+          adapters: [wagmiAdapter],
+          networks: [mainnet, sepolia, polygon],
+          projectId,
+          metadata: {
+            name: 'BeatsChain',
+            description: 'Decentralized marketplace for beat creators and artists',
+            url: window.location.origin,
+            icons: ['/favicon.ico']
+          },
+          features: {
+            analytics: false,
+            email: false,
+            socials: [],
+            onramp: false,
+            swaps: false,
+            history: false
+          },
+          themeMode: 'light',
+          themeVariables: {
+            '--w3m-color-mix': '#3b82f6',
+            '--w3m-color-mix-strength': 20
+          },
+          enableWalletConnect: true,
+          enableInjected: true,
+          enableEIP6963: true,
+          enableCoinbase: false
+        })
+        setAppKitInitialized(true)
+      } catch (error) {
+        console.warn('Web3 wallet connection setup failed:', error)
+      }
+    }
+  }, [mounted, appKitInitialized])
 
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        <Web3DataProvider>
-          {children}
-        </Web3DataProvider>
+        {mounted ? (
+          <Web3DataProvider>
+            {children}
+          </Web3DataProvider>
+        ) : (
+          children
+        )}
       </QueryClientProvider>
     </WagmiProvider>
   )
