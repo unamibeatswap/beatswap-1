@@ -19,19 +19,19 @@ const nextConfig = {
         tls: false,
       }
     }
-    config.optimization = {
-      ...config.optimization,
-      splitChunks: {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-        },
-      },
-    }
+    
+    // Fix for Web3 libraries
+    config.externals = config.externals || []
+    config.externals.push('pino-pretty', 'lokijs', 'encoding')
+    
+    // Define global for SSR
+    config.plugins = config.plugins || []
+    config.plugins.push(
+      new (require('webpack')).DefinePlugin({
+        'global.self': 'globalThis',
+      })
+    )
+    
     return config
   },
 }
