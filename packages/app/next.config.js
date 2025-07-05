@@ -52,13 +52,20 @@ const nextConfig = {
     config.externals = config.externals || []
     config.externals.push('pino-pretty', 'lokijs', 'encoding')
     
-    // Define global for SSR
+    // Define globals for SSR compatibility
     config.plugins = config.plugins || []
     config.plugins.push(
       new (require('webpack')).DefinePlugin({
         'global.self': 'globalThis',
+        'global.window': 'typeof window !== "undefined" ? window : {}',
       })
     )
+    
+    // Add global polyfills
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      'global': 'globalThis',
+    }
     
     return config
   },
