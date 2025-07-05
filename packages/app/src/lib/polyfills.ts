@@ -1,11 +1,14 @@
 // Global polyfills for SSR compatibility
-if (typeof global !== 'undefined' && typeof global.self === 'undefined') {
-  global.self = globalThis
+if (typeof globalThis === 'undefined') {
+  (global as any).globalThis = global
+}
+
+if (typeof self === 'undefined') {
+  (global as any).self = globalThis
 }
 
 if (typeof window === 'undefined') {
-  // @ts-ignore
-  global.window = {}
+  (global as any).window = {}
 }
 
 export {}

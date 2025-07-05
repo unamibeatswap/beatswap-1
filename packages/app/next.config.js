@@ -51,6 +51,8 @@ const nextConfig = {
     config.plugins.push(
       new (require('webpack')).DefinePlugin({
         'global.self': 'globalThis',
+        'global': 'globalThis',
+        'self': 'globalThis'
       })
     )
     

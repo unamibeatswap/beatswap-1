@@ -1,6 +1,7 @@
 import '@/lib/polyfills'
 import type { Metadata, Viewport } from 'next'
 import { PropsWithChildren } from 'react'
+import '@/lib/polyfills'
 import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL, SOCIAL_TWITTER, SOCIAL_INSTAGRAM, SOCIAL_LINKEDIN } from '@/utils/site'
 import { Layout } from '@/components/Layout'
 import { AuthProvider } from '@/context/AuthContext'
