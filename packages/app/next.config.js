@@ -13,7 +13,14 @@ const nextConfig = {
     optimizeCss: true,
     optimizePackageImports: ['@heroicons/react', 'react-icons', 'wagmi', 'viem']
   },
-  serverExternalPackages: ['firebase-admin'],
+  serverExternalPackages: [
+    'firebase-admin',
+    '@reown/appkit',
+    'wagmi',
+    'viem',
+    '@wagmi/core',
+    '@wagmi/connectors'
+  ],
   productionBrowserSourceMaps: false,
 
   poweredByHeader: false,
@@ -48,24 +55,29 @@ const nextConfig = {
       }
     }
     
-    // Fix for Web3 libraries
-    config.externals = config.externals || []
-    config.externals.push('pino-pretty', 'lokijs', 'encoding')
+    // Fix for Web3 libraries - exclude problematic packages from server bundle
+    if (isServer) {
+      config.externals = config.externals || []
+      config.externals.push(
+        'pino-pretty', 
+        'lokijs', 
+        'encoding',
+        '@reown/appkit',
+        'wagmi',
+        'viem',
+        '@wagmi/core',
+        '@wagmi/connectors'
+      )
+    }
     
     // Define globals for SSR compatibility
     config.plugins = config.plugins || []
     config.plugins.push(
       new (require('webpack')).DefinePlugin({
-        'global.self': 'globalThis',
-        'global.window': 'typeof window !== "undefined" ? window : {}',
+        'typeof self': '"undefined"',
+        'typeof window': isServer ? '"undefined"' : '"object"',
       })
     )
-    
-    // Add global polyfills
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      'global': 'globalThis',
-    }
     
     return config
   },

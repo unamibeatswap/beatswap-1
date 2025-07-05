@@ -8,6 +8,7 @@ import { Web3Provider } from '@/context/Web3Provider'
 import { SIWEProvider } from '@/context/SIWEContext'
 import { UnifiedAuthProvider } from '@/context/UnifiedAuthContext'
 import { NotificationProvider } from '@/context/Notifications'
+import { ClientOnly } from '@/components/ClientOnly'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
 import '../assets/globals.css'
 
@@ -104,18 +105,20 @@ export default async function RootLayout(props: PropsWithChildren) {
       </head>
 
       <body>
-        <Web3Provider cookies={cookies}>
-          <AuthProvider>
-            <SIWEProvider>
-              <UnifiedAuthProvider>
-                <NotificationProvider>
-                  <Layout>{props.children}</Layout>
-                  <CookieConsentBanner />
-                </NotificationProvider>
-              </UnifiedAuthProvider>
-            </SIWEProvider>
-          </AuthProvider>
-        </Web3Provider>
+        <ClientOnly>
+          <Web3Provider cookies={cookies}>
+            <AuthProvider>
+              <SIWEProvider>
+                <UnifiedAuthProvider>
+                  <NotificationProvider>
+                    <Layout>{props.children}</Layout>
+                    <CookieConsentBanner />
+                  </NotificationProvider>
+                </UnifiedAuthProvider>
+              </SIWEProvider>
+            </AuthProvider>
+          </Web3Provider>
+        </ClientOnly>
         
         {/* Google Tag Manager */}
         {process.env.NEXT_PUBLIC_GTM_ID && (
