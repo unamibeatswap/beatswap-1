@@ -11,13 +11,11 @@ import { Pagination } from '@/components/Pagination'
 const mockPurchasedBeats: any[] = []
 
 function LibraryContent() {
-  const { user } = useUnifiedAuth()
   const [currentPage, setCurrentPage] = useState(1)
   const [beatsPerPage] = useState(10)
 
   return (
     <div>
-      {/* Hero Section */}
       <div style={{
         background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
         minHeight: '40vh',
@@ -38,8 +36,6 @@ function LibraryContent() {
       </div>
 
       <div className="container mx-auto px-4 py-8">
-
-      {/* Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <div className="bg-white p-6 rounded-lg shadow">
           <div className="flex items-center justify-between">
@@ -109,49 +105,51 @@ function LibraryContent() {
             </a>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
-            {mockPurchasedBeats.slice((currentPage - 1) * beatsPerPage, currentPage * beatsPerPage).map((beat) => (
-              <div key={beat.id} className="p-6">
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex items-center gap-4">
-                    {beat.coverImageUrl && (
-                      <img
-                        src={beat.coverImageUrl}
-                        alt={beat.title}
-                        className="w-16 h-16 rounded object-cover"
-                      />
-                    )}
-                    <div>
-                      <h3 className="font-semibold text-lg">{beat.title}</h3>
-                      <p className="text-gray-600">{beat.genre} • {beat.bpm} BPM • {beat.key}</p>
-                      <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
-                        <span>Purchased: {beat.purchaseDate.toLocaleDateString()}</span>
-                        <span className="capitalize">{beat.licenseType} License</span>
-                        <span>{beat.downloadCount} downloads</span>
+          <>
+            <div className="divide-y divide-gray-200">
+              {mockPurchasedBeats.slice((currentPage - 1) * beatsPerPage, currentPage * beatsPerPage).map((beat) => (
+                <div key={beat.id} className="p-6">
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-4">
+                      {beat.coverImageUrl && (
+                        <img
+                          src={beat.coverImageUrl}
+                          alt={beat.title}
+                          className="w-16 h-16 rounded object-cover"
+                        />
+                      )}
+                      <div>
+                        <h3 className="font-semibold text-lg">{beat.title}</h3>
+                        <p className="text-gray-600">{beat.genre} • {beat.bpm} BPM • {beat.key}</p>
+                        <div className="flex items-center gap-4 mt-1 text-sm text-gray-500">
+                          <span>Purchased: {beat.purchaseDate.toLocaleDateString()}</span>
+                          <span className="capitalize">{beat.licenseType} License</span>
+                          <span>{beat.downloadCount} downloads</span>
+                        </div>
                       </div>
                     </div>
+                    
+                    <div className="flex gap-2">
+                      <button onClick={() => alert('Download started! File will be available in your downloads.')} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
+                        Download
+                      </button>
+                      <button onClick={() => alert('License agreement opened! View your usage rights.')} className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 text-sm">
+                        License
+                      </button>
+                    </div>
                   </div>
-                  
-                  <div className="flex gap-2">
-                    <button onClick={() => alert('Download started! File will be available in your downloads.')} className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
-                      Download
-                    </button>
-                    <button onClick={() => alert('License agreement opened! View your usage rights.')} className="border border-gray-300 px-4 py-2 rounded-md hover:bg-gray-50 text-sm">
-                      License
-                    </button>
-                  </div>
-                </div>
 
-                <AudioPlayer beat={beat} />
-              </div>
-            ))}
-          </div>
-          <Pagination
-            currentPage={currentPage}
-            totalItems={mockPurchasedBeats.length}
-            itemsPerPage={beatsPerPage}
-            onPageChange={setCurrentPage}
-          />
+                  <AudioPlayer beat={beat} />
+                </div>
+              ))}
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalItems={mockPurchasedBeats.length}
+              itemsPerPage={beatsPerPage}
+              onPageChange={setCurrentPage}
+            />
+          </>
         )}
       </div>
 
@@ -190,6 +188,7 @@ function LibraryContent() {
           </div>
         </div>
       )}
+      </div>
     </div>
   )
 }
