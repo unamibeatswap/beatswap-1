@@ -3,6 +3,7 @@
   "compilerOptions": {
     "target": "es6",
     "skipLibCheck": true,
+    "types": ["node"],
     "plugins": [
       {
         "name": "next"
@@ -16,5 +17,6 @@
     "require": ["tsconfig-paths/register"]
   },
   "include": ["next-env.d.ts", "src", ".next/types/**/*.ts"],
+  "typeRoots": ["node_modules/@types"],
   "exclude": ["node_modules"]
 }

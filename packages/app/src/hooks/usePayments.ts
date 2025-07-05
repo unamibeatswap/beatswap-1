@@ -53,49 +53,7 @@ export function usePayments() {
     }
   }
 
-  // Fiat payment for beats (PayFast for South Africa)
-  const purchaseWithFiat = async (purchaseData: PurchaseData) => {
-    if (!user) throw new Error('Must be logged in')
-    
-    setProcessing(true)
-    setError(null)
 
-    try {
-      // PayFast integration for South Africa
-      const paymentData = {
-        merchant_id: process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_ID,
-        merchant_key: process.env.NEXT_PUBLIC_PAYFAST_MERCHANT_KEY,
-        amount: purchaseData.price.toFixed(2),
-        item_name: `Beat License - ${purchaseData.licenseType}`,
-        return_url: `${window.location.origin}/purchase/success`,
-        cancel_url: `${window.location.origin}/purchase/cancel`,
-        notify_url: `${window.location.origin}/api/payfast/notify`
-      }
-
-      // Redirect to PayFast payment page
-      const form = document.createElement('form')
-      form.method = 'POST'
-      form.action = 'https://sandbox.payfast.co.za/eng/process' // Use www.payfast.co.za for production
-      
-      Object.entries(paymentData).forEach(([key, value]) => {
-        const input = document.createElement('input')
-        input.type = 'hidden'
-        input.name = key
-        input.value = value || ''
-        form.appendChild(input)
-      })
-      
-      document.body.appendChild(form)
-      form.submit()
-
-      return { success: true, paymentId: `payfast_${Date.now()}` }
-    } catch (err: any) {
-      setError(err.message)
-      throw err
-    } finally {
-      setProcessing(false)
-    }
-  }
 
   // Subscription payment (for premium features)
   const createSubscription = async (plan: 'basic' | 'pro' | 'enterprise') => {
@@ -131,7 +89,6 @@ export function usePayments() {
     processing: processing || isConfirming,
     error,
     purchaseWithCrypto,
-    purchaseWithFiat,
     createSubscription
   }
 }

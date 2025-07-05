@@ -8,6 +8,7 @@ export class CacheManager {
   private static readonly DEFAULT_TTL = 5 * 60 * 1000 // 5 minutes
   
   static set<T>(key: string, data: T, ttl: number = this.DEFAULT_TTL): void {
+    if (typeof window === 'undefined') return
     try {
       const entry: CacheEntry<T> = {
         data,
@@ -21,6 +22,7 @@ export class CacheManager {
   }
 
   static get<T>(key: string): T | null {
+    if (typeof window === 'undefined') return null
     try {
       const stored = localStorage.getItem(`cache_${key}`)
       if (!stored) return null
@@ -40,6 +42,7 @@ export class CacheManager {
   }
 
   static delete(key: string): void {
+    if (typeof window === 'undefined') return
     try {
       localStorage.removeItem(`cache_${key}`)
     } catch (error) {
@@ -48,6 +51,7 @@ export class CacheManager {
   }
 
   static clear(): void {
+    if (typeof window === 'undefined') return
     try {
       const keys = Object.keys(localStorage).filter(key => key.startsWith('cache_'))
       keys.forEach(key => localStorage.removeItem(key))
@@ -57,6 +61,7 @@ export class CacheManager {
   }
 
   static isExpired(key: string): boolean {
+    if (typeof window === 'undefined') return true
     try {
       const stored = localStorage.getItem(`cache_${key}`)
       if (!stored) return true

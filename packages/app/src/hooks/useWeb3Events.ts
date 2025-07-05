@@ -1,3 +1,5 @@
+'use client'
+
 import { useState, useEffect, useCallback } from 'react'
 import { useWatchContractEvent } from 'wagmi'
 import { EventIndexer, IndexedEvent } from '@/lib/indexing'

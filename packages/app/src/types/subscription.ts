@@ -9,7 +9,7 @@ export interface SubscriptionPlan {
     storageGB: number
     analyticsRetention: number
   }
-  stripePriceId?: string
+
 }
 
 export interface UserSubscription {
@@ -19,7 +19,7 @@ export interface UserSubscription {
   currentPeriodStart: Date
   currentPeriodEnd: Date
   cancelAtPeriodEnd: boolean
-  stripeSubscriptionId?: string
+
   createdAt: Date
   updatedAt: Date
 }

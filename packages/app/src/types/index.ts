@@ -27,6 +27,9 @@ export interface Beat {
   isNFT: boolean
   tokenId?: number
   contractAddress?: string
+  royaltyPercentage?: number
+  isActive?: boolean
+  status?: string
   createdAt: Date
   updatedAt: Date
 }

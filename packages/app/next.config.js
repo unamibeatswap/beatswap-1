@@ -8,8 +8,15 @@ const nextConfig = {
   },
   experimental: {
     workerThreads: false,
-    cpus: 1
+    cpus: 1,
+    memoryBasedWorkersCount: true,
+    optimizeCss: true,
+    optimizePackageImports: ['@heroicons/react', 'react-icons', 'wagmi', 'viem']
   },
+  serverExternalPackages: ['firebase-admin'],
+  productionBrowserSourceMaps: false,
+
+  poweredByHeader: false,
   webpack: (config, { isServer }) => {
     // Memory optimization
     config.optimization = {

@@ -15,66 +15,32 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuth()
-  const { contract } = useContract()
 
   useEffect(() => {
-    let retryCount = 0
-    const maxRetries = 3
-    
-    const fetchBeatsWithRetry = async () => {
+    const fetchBeats = async () => {
       try {
         setLoading(true)
         setError(null)
         
         if (USE_WEB3_DATA) {
-          await fetchWeb3Beats()
+          // New platform - no existing beats
+          setBeats([])
         } else {
           await fetchFirebaseBeats()
         }
-        retryCount = 0 // Reset on success
       } catch (err: any) {
-        console.error(`Error fetching beats (attempt ${retryCount + 1}):`, err)
-        
-        if (retryCount < maxRetries) {
-          retryCount++
-          const delay = Math.pow(2, retryCount) * 1000 // Exponential backoff
-          setTimeout(fetchBeatsWithRetry, delay)
-          return
-        }
-        
-        // Final failure - show error and fallback
+        console.error('Error fetching beats:', err)
         setBeats([])
-        setError(`Failed to load beats after ${maxRetries + 1} attempts. Please check your connection.`)
+        setError('Failed to load beats. Please try again.')
       } finally {
-        if (retryCount === 0 || retryCount >= maxRetries) {
-          setLoading(false)
-        }
+        setLoading(false)
       }
     }
     
-    fetchBeatsWithRetry()
-  }, [filters?.genre, filters?.producerId, contract])
+    fetchBeats()
+  }, [filters?.genre, filters?.producerId])
 
-  const fetchWeb3Beats = async () => {
-    if (!contract) {
-      // Load from local index while contract loads
-      const indexedBeats = EventIndexer.getStoredBeatIndex()
-      if (indexedBeats.length === 0) {
-        // No beats available yet - show empty state
-        setBeats([])
-        return
-      }
-      const filteredBeats = applyFilters(indexedBeats)
-      setBeats(convertToBeats(filteredBeats))
-      return
-    }
 
-    // Build fresh index from contract events
-    const contractAddress = contract.address
-    const decentralizedBeats = await EventIndexer.buildBeatIndex(contractAddress)
-    const filteredBeats = applyFilters(decentralizedBeats)
-    setBeats(convertToBeats(filteredBeats))
-  }
 
   const fetchFirebaseBeats = async () => {
     // Build query parameters
@@ -141,7 +107,7 @@ export function useBeats(filters?: { genre?: string, producerId?: string }) {
   const refreshBeats = async () => {
     try {
       if (USE_WEB3_DATA) {
-        await fetchWeb3Beats()
+        setBeats([])
       } else {
         await fetchFirebaseBeats()
       }
