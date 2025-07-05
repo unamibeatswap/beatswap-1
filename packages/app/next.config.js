@@ -8,42 +8,34 @@ const nextConfig = {
   },
   experimental: {
     workerThreads: false,
-    cpus: 1,
-    memoryBasedWorkersCount: true,
-    optimizeCss: true,
-    optimizePackageImports: ['@heroicons/react', 'react-icons', 'wagmi', 'viem']
+    cpus: 1
   },
-  serverExternalPackages: [
-    'firebase-admin',
-    '@reown/appkit',
-    'wagmi',
-    'viem',
-    '@wagmi/core',
-    '@wagmi/connectors'
-  ],
-  productionBrowserSourceMaps: false,
-
-  poweredByHeader: false,
+  serverExternalPackages: ['pino-pretty', 'lokijs', 'encoding'],
+  output: 'standalone',
   webpack: (config, { isServer }) => {
     // Memory optimization
     config.optimization = {
       ...config.optimization,
+      minimize: true,
       splitChunks: {
         chunks: 'all',
+        minSize: 20000,
+        maxSize: 244000,
         cacheGroups: {
-          default: {
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true
-          },
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
-            priority: -10,
-            chunks: 'all'
-          }
-        }
-      }
+            chunks: 'all',
+            priority: 10,
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            chunks: 'all',
+            priority: 5,
+          },
+        },
+      },
     }
     
     if (!isServer) {
@@ -55,27 +47,10 @@ const nextConfig = {
       }
     }
     
-    // Fix for Web3 libraries - exclude problematic packages from server bundle
-    if (isServer) {
-      config.externals = config.externals || []
-      config.externals.push(
-        'pino-pretty', 
-        'lokijs', 
-        'encoding',
-        '@reown/appkit',
-        'wagmi',
-        'viem',
-        '@wagmi/core',
-        '@wagmi/connectors'
-      )
-    }
-    
-    // Define globals for SSR compatibility
     config.plugins = config.plugins || []
     config.plugins.push(
       new (require('webpack')).DefinePlugin({
-        'typeof self': '"undefined"',
-        'typeof window': isServer ? '"undefined"' : '"object"',
+        'global.self': 'globalThis',
       })
     )
     

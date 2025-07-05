@@ -5,7 +5,7 @@
   "license": "MIT",
   "scripts": {
     "dev": "next dev -H 0.0.0.0",
-    "build": "next build",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=4096' next build",
     "vercel-build": "node vercel-build.js",
     "start": "next start",
     "lint": "next lint --fix",
@@ -41,6 +41,7 @@
     "wavesurfer.js": "^7.7.0"
   },
   "devDependencies": {
+    "cross-env": "^7.0.3",
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
     "@tsconfig/next": "^2.0.3",
