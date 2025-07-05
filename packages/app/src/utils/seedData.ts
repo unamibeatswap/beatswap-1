@@ -133,6 +133,10 @@ const SEED_TRANSACTIONS = [
 
 export async function seedFirestore() {
   try {
+    if (!adminDb) {
+      throw new Error('Firebase Admin not initialized')
+    }
+    
     console.log('🌱 Starting Firestore seeding...')
 
     // Seed Users

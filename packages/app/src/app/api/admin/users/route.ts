@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from 'next/server'
 import { adminAuth, adminDb } from '@/lib/firebase-admin'
 
 async function verifyAdmin(request: NextRequest) {
+  if (!adminAuth || !adminDb) {
+    throw new Error('Service unavailable')
+  }
+
   const authHeader = request.headers.get('authorization')
   if (!authHeader?.startsWith('Bearer ')) {
     throw new Error('Unauthorized')
@@ -22,6 +26,10 @@ async function verifyAdmin(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    if (!adminDb) {
+      return NextResponse.json({ users: [], total: 0 })
+    }
+
     await verifyAdmin(request)
 
     const { searchParams } = new URL(request.url)
@@ -56,15 +64,24 @@ export async function GET(request: NextRequest) {
 
   } catch (error: any) {
     console.error('Error fetching users:', error)
+    const status = error.message === 'Unauthorized' || error.message === 'Admin access required' ? 403 : 
+                  error.message === 'Service unavailable' ? 503 : 500
     return NextResponse.json(
       { error: error.message || 'Failed to fetch users' },
-      { status: error.message === 'Unauthorized' || error.message === 'Admin access required' ? 403 : 500 }
+      { status }
     )
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
+    if (!adminAuth || !adminDb) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
     await verifyAdmin(request)
 
     const userData = await request.json()

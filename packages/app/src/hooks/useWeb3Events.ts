@@ -9,14 +9,20 @@ export function useWeb3Events(contractAddress?: string) {
   const [events, setEvents] = useState<IndexedEvent[]>([])
   const [isListening, setIsListening] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
 
-  // Load stored events on mount
+  // Load stored events on mount (client-side only)
   useEffect(() => {
-    const storedEvents = EventIndexer.getStoredEvents()
-    setEvents(storedEvents)
+    setMounted(true)
+    if (typeof window !== 'undefined') {
+      const storedEvents = EventIndexer.getStoredEvents()
+      setEvents(storedEvents)
+    }
   }, [])
 
   const handleNewEvent = useCallback((eventData: any, eventType: string) => {
+    if (!mounted || typeof window === 'undefined') return
+    
     const newEvent: IndexedEvent = {
       id: `${eventType}-${eventData.transactionHash}-${Date.now()}`,
       type: eventType as any,
@@ -29,9 +35,9 @@ export function useWeb3Events(contractAddress?: string) {
 
     setEvents(prev => [newEvent, ...prev.slice(0, 99)])
     EventIndexer.storeEvents([newEvent])
-  }, [])
+  }, [mounted])
 
-  // Watch for BeatMinted events
+  // Watch for BeatMinted events (client-side only)
   useWatchContractEvent({
     address: contractAddress as `0x${string}`,
     abi: [BEAT_NFT_EVENTS.BeatMinted],
@@ -39,10 +45,10 @@ export function useWeb3Events(contractAddress?: string) {
     onLogs: (logs) => {
       logs.forEach(log => handleNewEvent(log, 'mint'))
     },
-    enabled: !!contractAddress
+    enabled: !!contractAddress && mounted
   })
 
-  // Watch for BeatPurchased events
+  // Watch for BeatPurchased events (client-side only)
   useWatchContractEvent({
     address: contractAddress as `0x${string}`,
     abi: [BEAT_NFT_EVENTS.BeatPurchased],
@@ -50,10 +56,10 @@ export function useWeb3Events(contractAddress?: string) {
     onLogs: (logs) => {
       logs.forEach(log => handleNewEvent(log, 'purchase'))
     },
-    enabled: !!contractAddress
+    enabled: !!contractAddress && mounted
   })
 
-  // Watch for Transfer events
+  // Watch for Transfer events (client-side only)
   useWatchContractEvent({
     address: contractAddress as `0x${string}`,
     abi: [BEAT_NFT_EVENTS.Transfer],
@@ -61,11 +67,11 @@ export function useWeb3Events(contractAddress?: string) {
     onLogs: (logs) => {
       logs.forEach(log => handleNewEvent(log, 'transfer'))
     },
-    enabled: !!contractAddress
+    enabled: !!contractAddress && mounted
   })
 
   const indexHistoricalEvents = async () => {
-    if (!contractAddress) return
+    if (!contractAddress || !mounted || typeof window === 'undefined') return
     
     try {
       setError(null)
@@ -87,7 +93,9 @@ export function useWeb3Events(contractAddress?: string) {
 
   const clearEvents = () => {
     setEvents([])
-    localStorage.removeItem('web3-events-index')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('web3-events-index')
+    }
   }
 
   useEffect(() => {

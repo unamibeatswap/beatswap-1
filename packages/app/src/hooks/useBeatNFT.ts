@@ -27,7 +27,7 @@ export function useBeatNFT() {
   }, [address, isConnected])
 
   const loadBalance = async () => {
-    if (!address) return
+    if (!address || typeof window === 'undefined') return
 
     try {
       setLoading(true)
@@ -79,7 +79,7 @@ export function useBeatNFT() {
   }
 
   const useCredits = async (amount: number): Promise<boolean> => {
-    if (!address || balance.hasProNFT) return true
+    if (!address || balance.hasProNFT || typeof window === 'undefined') return true
     
     if (balance.credits < amount) return false
     
@@ -120,12 +120,14 @@ export function useBeatNFT() {
       })
       
       // Update local storage for immediate UI feedback
-      const newBalance = {
-        ...balance,
-        credits: balance.credits + amount
+      if (typeof window !== 'undefined') {
+        const newBalance = {
+          ...balance,
+          credits: balance.credits + amount
+        }
+        localStorage.setItem(`beatnft_balance_${address}`, JSON.stringify(newBalance))
+        setBalance(newBalance)
       }
-      localStorage.setItem(`beatnft_balance_${address}`, JSON.stringify(newBalance))
-      setBalance(newBalance)
       return true
     } catch (error) {
       console.error('Failed to buy credits:', error)
@@ -146,12 +148,14 @@ export function useBeatNFT() {
       })
       
       // Update local storage for immediate UI feedback
-      const newBalance = {
-        ...balance,
-        hasProNFT: true
+      if (typeof window !== 'undefined') {
+        const newBalance = {
+          ...balance,
+          hasProNFT: true
+        }
+        localStorage.setItem(`beatnft_balance_${address}`, JSON.stringify(newBalance))
+        setBalance(newBalance)
       }
-      localStorage.setItem(`beatnft_balance_${address}`, JSON.stringify(newBalance))
-      setBalance(newBalance)
       return true
     } catch (error) {
       console.error('Failed to upgrade to Pro NFT:', error)

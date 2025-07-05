@@ -107,6 +107,8 @@ export class EventIndexer {
   }
 
   static storeEvents(events: IndexedEvent[]): void {
+    if (typeof window === 'undefined') return
+    
     try {
       const existing = this.getStoredEvents()
       const combined = [...events, ...existing]
@@ -121,6 +123,8 @@ export class EventIndexer {
   }
 
   static getStoredEvents(): IndexedEvent[] {
+    if (typeof window === 'undefined') return []
+    
     try {
       const stored = localStorage.getItem(this.EVENTS_KEY)
       return stored ? JSON.parse(stored) : []
@@ -165,6 +169,8 @@ export class EventIndexer {
   }
 
   static storeBeatIndex(beats: DecentralizedBeat[]): void {
+    if (typeof window === 'undefined') return
+    
     try {
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(beats))
     } catch (error) {
@@ -173,6 +179,8 @@ export class EventIndexer {
   }
 
   static getStoredBeatIndex(): DecentralizedBeat[] {
+    if (typeof window === 'undefined') return []
+    
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY)
       return stored ? JSON.parse(stored) : []

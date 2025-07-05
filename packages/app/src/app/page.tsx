@@ -16,6 +16,8 @@ export default function Home() {
   useEffect(() => {
     // Load real-time BeatNFT stats
     const loadBeatNFTStats = () => {
+      if (typeof window === 'undefined') return
+      
       try {
         const allKeys = Object.keys(localStorage).filter(key => key.startsWith('beatnft_balance_'))
         let totalIssued = 0

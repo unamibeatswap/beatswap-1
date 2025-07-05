@@ -40,6 +40,8 @@ export default function BeatNFTAdminDashboard() {
   }, [])
 
   const loadCreditStats = async () => {
+    if (typeof window === 'undefined') return
+    
     try {
       setLoading(true)
       
@@ -88,7 +90,7 @@ export default function BeatNFTAdminDashboard() {
   }
 
   const issueMarketingCredits = async () => {
-    if (!targetWallet || marketingCredits <= 0) {
+    if (!targetWallet || marketingCredits <= 0 || typeof window === 'undefined') {
       toast.error('Please enter valid wallet address and credit amount')
       return
     }

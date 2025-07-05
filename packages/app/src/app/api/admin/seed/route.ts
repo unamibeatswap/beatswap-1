@@ -4,6 +4,13 @@ import { seedFirestore } from '@/utils/seedData'
 
 export async function POST(request: NextRequest) {
   try {
+    if (!adminAuth) {
+      return NextResponse.json(
+        { error: 'Service temporarily unavailable' },
+        { status: 503 }
+      )
+    }
+
     const authHeader = request.headers.get('authorization')
     if (!authHeader?.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

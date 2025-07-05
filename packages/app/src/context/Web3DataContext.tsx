@@ -26,25 +26,6 @@ export function Web3DataProvider({ children }: { children: ReactNode }) {
   const publicClient = usePublicClient()
   const { address } = useAccount()
   
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-  
-  // Prevent execution during build or SSR
-  if (!mounted) {
-    return (
-      <Web3DataContext.Provider value={{
-        beats: [],
-        loading: false,
-        error: null,
-        refreshBeats: async () => {},
-        getBeatsByProducer: () => []
-      }}>
-        {children}
-      </Web3DataContext.Provider>
-    )
-  }
-
   const refreshBeats = async () => {
     if (!mounted || !publicClient || !CONTRACT_ADDRESS) return
     
@@ -124,19 +105,25 @@ export function Web3DataProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  useEffect(() => {
     if (mounted && publicClient && CONTRACT_ADDRESS) {
       refreshBeats()
     }
   }, [mounted, publicClient, CONTRACT_ADDRESS, address])
 
+  const contextValue = {
+    beats: mounted ? beats : [],
+    loading: mounted ? loading : false,
+    error: mounted ? error : null,
+    refreshBeats: mounted ? refreshBeats : async () => {},
+    getBeatsByProducer: mounted ? getBeatsByProducer : () => []
+  }
+
   return (
-    <Web3DataContext.Provider value={{
-      beats,
-      loading,
-      error,
-      refreshBeats,
-      getBeatsByProducer
-    }}>
+    <Web3DataContext.Provider value={contextValue}>
       {children}
     </Web3DataContext.Provider>
   )

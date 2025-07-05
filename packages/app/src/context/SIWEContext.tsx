@@ -42,10 +42,10 @@ export function SIWEProvider({ children }: { children: ReactNode }) {
       // Create SIWE message with dynamic import
       const { SiweMessage } = await import('siwe')
       const message = new SiweMessage({
-        domain: window.location.host,
+        domain: typeof window !== 'undefined' ? window.location.host : 'beatschain.app',
         address,
         statement: 'Sign in to BeatsChain',
-        uri: window.location.origin,
+        uri: typeof window !== 'undefined' ? window.location.origin : 'https://beatschain.app',
         version: '1',
         chainId,
         nonce

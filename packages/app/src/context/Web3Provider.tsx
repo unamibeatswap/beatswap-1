@@ -6,7 +6,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createAppKit } from '@reown/appkit/react'
 import { WagmiAdapter } from '@reown/appkit-adapter-wagmi'
 import { mainnet, sepolia, polygon } from '@reown/appkit/networks'
-import { Web3DataProvider } from '@/context/Web3DataContext'
+
 
 // Setup queryClient
 const queryClient = new QueryClient()
@@ -47,7 +47,7 @@ export function Web3Provider({ children, cookies }: Props) {
           metadata: {
             name: 'BeatsChain',
             description: 'Decentralized marketplace for beat creators and artists',
-            url: window.location.origin,
+            url: typeof window !== 'undefined' ? window.location.origin : 'https://beatschain.app',
             icons: ['/favicon.ico']
           },
           features: {
@@ -78,13 +78,7 @@ export function Web3Provider({ children, cookies }: Props) {
   return (
     <WagmiProvider config={wagmiAdapter.wagmiConfig}>
       <QueryClientProvider client={queryClient}>
-        {mounted ? (
-          <Web3DataProvider>
-            {children}
-          </Web3DataProvider>
-        ) : (
-          children
-        )}
+        {children}
       </QueryClientProvider>
     </WagmiProvider>
   )

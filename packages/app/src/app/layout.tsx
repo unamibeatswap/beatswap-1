@@ -1,16 +1,17 @@
 import '@/lib/polyfills'
 import type { Metadata, Viewport } from 'next'
 import { PropsWithChildren } from 'react'
-import '@/lib/polyfills'
 import { SITE_DESCRIPTION, SITE_EMOJI, SITE_INFO, SITE_NAME, SITE_URL, SOCIAL_TWITTER, SOCIAL_INSTAGRAM, SOCIAL_LINKEDIN } from '@/utils/site'
 import { Layout } from '@/components/Layout'
 import { AuthProvider } from '@/context/AuthContext'
 import { Web3Provider } from '@/context/Web3Provider'
+import { Web3DataProvider } from '@/context/Web3DataContext'
 import { SIWEProvider } from '@/context/SIWEContext'
 import { UnifiedAuthProvider } from '@/context/UnifiedAuthContext'
 import { NotificationProvider } from '@/context/Notifications'
 import { ClientOnly } from '@/components/ClientOnly'
 import CookieConsentBanner from '@/components/CookieConsentBanner'
+
 import '../assets/globals.css'
 
 export const metadata: Metadata = {
@@ -102,22 +103,50 @@ export default async function RootLayout(props: PropsWithChildren) {
           .btn-primary:hover { background-color: #1d4ed8; }
           .btn-secondary { background-color: #e5e7eb; color: #1f2937; }
           .btn-secondary:hover { background-color: #d1d5db; }
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
         `}</style>
       </head>
 
       <body>
-        <ClientOnly>
+        <ClientOnly fallback={
+          <div style={{ 
+            display: 'flex', 
+            justifyContent: 'center', 
+            alignItems: 'center', 
+            height: '100vh',
+            fontSize: '18px',
+            color: '#666'
+          }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ 
+                width: '40px', 
+                height: '40px', 
+                border: '4px solid #f3f3f3',
+                borderTop: '4px solid #2563eb',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px'
+              }}></div>
+              Loading BeatsChain...
+            </div>
+          </div>
+        }>
           <Web3Provider cookies={cookies}>
-            <AuthProvider>
-              <SIWEProvider>
-                <UnifiedAuthProvider>
-                  <NotificationProvider>
-                    <Layout>{props.children}</Layout>
-                    <CookieConsentBanner />
-                  </NotificationProvider>
-                </UnifiedAuthProvider>
-              </SIWEProvider>
-            </AuthProvider>
+            <Web3DataProvider>
+              <AuthProvider>
+                <SIWEProvider>
+                  <UnifiedAuthProvider>
+                    <NotificationProvider>
+                      <Layout>{props.children}</Layout>
+                      <CookieConsentBanner />
+                    </NotificationProvider>
+                  </UnifiedAuthProvider>
+                </SIWEProvider>
+              </AuthProvider>
+            </Web3DataProvider>
           </Web3Provider>
         </ClientOnly>
         

@@ -39,7 +39,7 @@ export default function ProducerDashboardStats() {
   }, [user, balance])
 
   const loadProducerStats = async () => {
-    if (!user?.address) return
+    if (!user?.address || typeof window === 'undefined') return
 
     try {
       setLoading(true)

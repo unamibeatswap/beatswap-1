@@ -56,19 +56,30 @@ const UnifiedAuthContext = createContext<UnifiedAuthContextType | undefined>(und
 
 export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UnifiedUser | null>(null)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
   
   const { address, isConnected } = useAccount()
-  // Safe hook calls with error handling
   const siweContext = useSIWE()
   const authContext = useAuth()
   const { profile: web3Profile, loading: profileLoading } = useWeb3Profile()
   
-  const { user: siweUser, signIn: siweSignIn, signOut: siweSignOut, isAuthenticated: siweAuth } = siweContext || {}
-  const { user: firebaseUser, userProfile: firebaseProfile } = authContext || {}
+  const { user: siweUser, signIn: siweSignIn, signOut: siweSignOut, isAuthenticated: siweAuth } = siweContext || {
+    user: null, signIn: null, signOut: null, isAuthenticated: false
+  }
+  const { user: firebaseUser, userProfile: firebaseProfile } = authContext || {
+    user: null, userProfile: null
+  }
 
   const buildUnifiedUser = useCallback(() => {
     if (typeof window === 'undefined') {
+      setUser(null)
+      setLoading(false)
+      return
+    }
+    
+    // Prevent execution if hooks failed to initialize
+    if (!address && !firebaseUser) {
+      setUser(null)
       setLoading(false)
       return
     }
@@ -151,11 +162,13 @@ export function UnifiedAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     if (typeof window === 'undefined') {
+      setUser(null)
       setLoading(false)
       return
     }
     
-    if (!profileLoading) {
+    // Safe initialization - don't wait for profileLoading if hooks failed
+    if (profileLoading === false || profileLoading === undefined) {
       buildUnifiedUser()
     }
   }, [profileLoading, address, isConnected, web3Profile, firebaseProfile, firebaseUser, buildUnifiedUser])
