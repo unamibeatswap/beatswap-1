@@ -1,9 +1,10 @@
 {
-  "buildCommand": "cd packages/app && bash ./vercel-build.sh",
+  "buildCommand": "cd packages/app && npm run build",
   "outputDirectory": "packages/app/.next",
   "installCommand": "yarn install",
   "framework": "nextjs",
   "env": {
-    "NODE_OPTIONS": "--max-old-space-size=4096"
+    "NODE_OPTIONS": "--max-old-space-size=4096",
+    "NEXT_TELEMETRY_DISABLED": "1"
   }
 }
